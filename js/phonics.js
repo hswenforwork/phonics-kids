@@ -44,13 +44,14 @@
   // ---------- Step 0：IPA 解析 ----------
   function normIPA(ipa) {
     return String(ipa || '')
-      .replace(/[\/\[\]()]/g, '').replace(/ː/g, '').replace(/ɡ/g, 'g').replace(/ɹ/g, 'r').replace(/ɾ/g, 't')
+      .replace(/[\/\[\]()]/g, '').replace(/ɡ/g, 'g').replace(/ɹ/g, 'r').replace(/ɾ/g, 't')
       .replace(/ɝ/g, 'ɜr').replace(/ɚ/g, 'ər').replace(/əʊ/g, 'oʊ').replace(/ɒ/g, 'ɑ').replace(/ɐ/g, 'ə')
       .replace(/eə/g, 'ɛr').replace(/ɪə/g, 'ɪr').replace(/ʊə/g, 'ʊr').replace(/ᵻ/g, 'ɪ')
       .replace(/̩/g, '').replace(/[ ,]/g, '').trim();
   }
 
   const NUCLEI = [
+    ['iː', 'long_e'], ['uː', 'oo_long'], ['ɑː', 'ar'], ['ɔː', 'aw'], ['ɜː', 'er'], ['ɛː', 'air'],
     ['aɪ', 'long_i'], ['aʊ', 'ow'], ['eɪ', 'long_a'], ['oʊ', 'long_o'], ['ɔɪ', 'oy'],
     ['ɑr', 'ar'], ['ɔr', 'or'], ['ɛr', 'air'], ['er', 'air'], ['ɪr', 'ear'], ['ʊr', 'or'], ['ɜr', 'er'], ['ər', 'er'],
     ['æ', 'short_a'], ['ɛ', 'short_e'], ['e', 'short_e'], ['ɪ', 'short_i'], ['i', 'long_e'], ['ɑ', 'short_o'],
@@ -83,9 +84,11 @@
       if (hit) {
         let key = hit[1];
         if (key === 'oo_long' && s[i - 1] === 'j') key = 'long_u';
-        nuclei.push({ ipa: hit[0], key, stressed: hasMarks ? pendingStress : true });
+        let len = hit[0].length;
+        if (s[i + len] === 'ː') len++; // 其他長音記號
+        nuclei.push({ ipa: s.slice(i, i + len), key, stressed: hasMarks ? pendingStress : true });
         pendingStress = false;
-        i += hit[0].length;
+        i += len;
         continue;
       }
       i++;
@@ -156,6 +159,13 @@
         out.push({ text: 'n', type: 'C', sub: 'single', start: u.start, end: u.start + 1, splitNg: true });
         out.push({ text: u.text[1], type: 'C', sub: 'single', start: u.start + 1, end: u.end, splitNg: true });
       } else out.push(u);
+    }
+    // 母音組合 + r（後面不接母音），如 air、ear、our、oor：r 跟母音一起念，算同一個母音音
+    for (let k = 0; k < out.length - 1; k++) {
+      const u = out[k], nx = out[k + 1];
+      if (u.type === 'V' && u.sub === 'team' && nx.type === 'C' && nx.text === 'r' && !isV(word[nx.end] || '') && word[nx.end] !== 'y') {
+        out.splice(k, 2, { text: u.text + 'r', type: 'V', sub: 'team_r', start: u.start, end: nx.end });
+      }
     }
     // 魔法 e：單一母音 + 一個子音單位 + 字尾 e
     const last = out[out.length - 1];
@@ -228,7 +238,7 @@
       const vs = units.filter((u) => u.type === 'V');
       if (vs.length === ip.nuclei.length) {
         vs.forEach((u, i) => {
-          if (u.sub !== 'single' || !RCOLOR.has(ip.nuclei[i].key) || !['ar', 'er', 'or'].includes(ip.nuclei[i].key)) return;
+          if (u.sub !== 'single' || !['ar', 'er', 'or'].includes(ip.nuclei[i].key) || !/r$/.test(ip.nuclei[i].ipa)) return;
           const k = units.indexOf(u), nx = units[k + 1];
           if (nx && nx.type === 'C' && nx.text === 'r') {
             units.splice(k, 2, { text: u.text + 'r', type: 'V', sub: 'bossy', start: u.start, end: nx.end });
@@ -238,7 +248,11 @@
     }
     const vUnits = units.filter((u) => u.type === 'V');
     const aligned = !!(ip && ip.nuclei.length === vUnits.length);
-    if (aligned) vUnits.forEach((u, i) => { u.ipa = ip.nuclei[i].ipa; u.key = ip.nuclei[i].key; u.stressed = ip.nuclei[i].stressed; });
+    if (aligned) vUnits.forEach((u, i) => {
+      u.ipa = ip.nuclei[i].ipa; u.key = ip.nuclei[i].key; u.stressed = ip.nuclei[i].stressed;
+      if ((u.sub === 'bossy' || u.sub === 'team_r') && u.key === 'aw') u.key = 'or';
+      if (u.sub === 'le') u.key = 'le';
+    });
     const cuts = [];
     for (let i = 0; i < vUnits.length - 1; i++) {
       const v1 = vUnits[i], v2 = vUnits[i + 1];
@@ -399,6 +413,7 @@
       return TEAM_KEY[u.text];
     }
     if (u.sub === 'bossy') return BOSSY_KEY[u.text];
+    if (u.sub === 'team_r') return { air: 'air', ear: 'ear', our: 'or', oor: 'or', oar: 'or' }[u.text] || 'er';
     if (u.sub === 'le') return 'le';
     if (u.sub === 'y') return syl.length > 1 && u.end === word.length ? 'long_e' : (syl.length === 1 && u.end === word.length ? 'long_i' : 'short_i');
     const L = { a: 'long_a', e: 'long_e', i: 'long_i', o: 'long_o', u: 'long_u' };
@@ -417,13 +432,38 @@
     if (n === 2) return 4;
     if (r.strategy === 'sight') return 3;
     const units = r.units || [];
-    if (units.some((u) => u.sub === 'bossy' || u.sub === 'team') || r.magicE) return 3;
+    if (units.some((u) => u.sub === 'bossy' || u.sub === 'team' || u.sub === 'team_r') || r.magicE) return 3;
     const consonantRun = /[^aeiouy]{2,}/.test(r.word);
     if (units.some((u) => u.sub === 'digraph' || u.sub === 'trigraph') || consonantRun) return 2;
     return 1;
   }
 
-  const api = { analyze, parseIPA, tokenize, RULES, SIGHT, LONG, SHORT };
+  // ---------- 音素框（Elkonin Boxes）：一個音一格 ----------
+  // 回傳 [{ letters, key, silent }]，不發音字母另成虛線框（silent: true）
+  function elkonin(r) {
+    const w = r.word;
+    const silentAt = new Set();
+    if (/^kn/.test(w)) silentAt.add(0);
+    if (/^wr/.test(w)) silentAt.add(0);
+    if (/mb$/.test(w)) silentAt.add(w.length - 1);
+    const boxes = [];
+    for (const u of r.units || []) {
+      if (u.type === 'S' || silentAt.has(u.start) && u.text.length === 1) {
+        boxes.push({ letters: u.text, key: 'silent', silent: true, magic: !!u.magic });
+        continue;
+      }
+      const prev = boxes[boxes.length - 1];
+      // 重複子音（bb、ll、zz…）只有一個音，放同一格
+      if (u.type === 'C' && prev && !prev.silent && prev.type === 'C' && prev.letters.slice(-1) === u.text && u.text.length === 1) {
+        prev.letters += u.text;
+        continue;
+      }
+      boxes.push({ letters: u.text, key: u.key, silent: false, type: u.type });
+    }
+    return boxes;
+  }
+
+  const api = { analyze, parseIPA, tokenize, elkonin, RULES, SIGHT, LONG, SHORT };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.PK_PHONICS = api;
 })(this);

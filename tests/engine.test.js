@@ -58,5 +58,13 @@ check(P.analyze('sight', { ipa: '/saɪt/', known }).silent.some((s) => s.letter 
 check(P.analyze('knee', { ipa: '/ni/', known }).silent.some((s) => s.letter === 'k'), 'knee 不發音 k');
 check(P.analyze('was', { known }).strategy === 'sight', 'was 一眼認讀字');
 
+// 5. 音素框：一個音一格
+const boxes = (w, ipa) => P.elkonin(P.analyze(w, { ipa, known })).map((b) => (b.silent ? `(${b.letters})` : b.letters)).join('/');
+for (const [w, ipa, exp] of [
+  ['ship', '/ʃɪp/', 'sh/i/p'], ['cake', '/keɪk/', 'c/a/k/(e)'], ['rabbit', '/ˈræb.ɪt/', 'r/a/bb/i/t'],
+  ['chair', '/tʃeə/', 'ch/air'], ['sheep', '/ʃiːp/', 'sh/ee/p'], ['knee', '/niː/', '(k)/n/ee'], ['night', '/naɪt/', 'n/igh/t'],
+  ['tiger', '/ˈtaɪ.ɡə/', 't/i/g/er'], ['turtle', '/ˈtɜː.təl/', 't/ur/t/le'],
+]) check(boxes(w, ipa) === exp, `音素框 ${w}: ${boxes(w, ipa)}，應為 ${exp}`);
+
 console.log(`\n${total - fail}/${total} 通過`);
 process.exit(fail ? 1 : 0);

@@ -1,0 +1,40 @@
+# 產生 AI 語音檔：單字庫或音素表改變時自動執行，也可以在 Actions 頁面手動按「Run workflow」
+name: 產生語音檔
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - js/data.js
+      - js/sounds.js
+      - data/custom-words.json
+      - scripts/build-audio.cjs
+
+permissions:
+  contents: write
+
+concurrency:
+  group: phonics-data
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: 產生語音檔
+        env:
+          GOOGLE_TTS_API_KEY: ${{ secrets.GOOGLE_TTS_API_KEY }}
+          TTS_VOICE: ${{ vars.TTS_VOICE }}
+        run: node scripts/build-audio.cjs
+      - name: 存檔並推送
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase --quiet || true
+          git add audio
+          if git diff --cached --quiet; then echo "沒有新的語音檔"; else git commit -m "產生 AI 語音檔" && git push; fi
