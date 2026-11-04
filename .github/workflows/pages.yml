@@ -31,6 +31,15 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: main
+          fetch-depth: 20
+      # 之前的部署若卡在「進行中」，新的部署會被拒絕；先把最近幾次卡住的部署取消
+      - name: 取消卡住的舊部署
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for sha in $(git log --format=%H -20 | tail -n +2); do
+            gh api -X POST "repos/${{ github.repository }}/pages/deployments/$sha/cancel" >/dev/null 2>&1 && echo "已取消 $sha" || true
+          done
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
