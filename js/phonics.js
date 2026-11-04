@@ -562,13 +562,8 @@
 
   // 音素轉檔名（避免特殊符號）：b → 62，eɪ → 65_26a
   const phFile = (ph) => Array.from(ph).map((c) => c.codePointAt(0).toString(16)).join('_');
-  // 產生語音用的 IPA：子音不能單獨發聲，加極短的 /ə/（b → bə，像「ㄅ」）
-  function phSay(ph) {
-    if (!ph) return '';
-    if (isIpaV(ph[0]) || /^j[uː]/.test(ph)) return ph;
-    if (/^ŋ/.test(ph) || /^(ks|ts|ɡz)$/.test(ph)) return 'ə' + ph;
-    return ph + 'ə';
-  }
+  // 產生語音用的 IPA：一律只用該音素本身，子音不加 /ə/
+  const phSay = (ph) => ph || '';
 
   const api = { analyze, parseIPA, tokenize, elkonin, ipaSegments, mapPhonemes, phFile, phSay, RULES, SIGHT, LONG, SHORT };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

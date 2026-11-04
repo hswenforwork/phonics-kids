@@ -47,9 +47,8 @@ function jobs() {
   }
   for (const [key, s] of Object.entries(SOUNDS)) {
     if (!s.ipa || key === 'silent') continue;
-    // 子音不能單獨發聲，語音服務會改念字母名稱（b 念成 bee），所以用 say 欄位（例如 /bə/）；
-    // 文字也用近似念法（buh），即使音素標記失效也不會念成字母名稱
-    out.push({ id: 'ph/' + key, ssml: ssml(s.say || s.ipa, s.tts || s.ipa), rate: 0.8 });
+    // 只用音素本身（子音不加 /ə/）
+    out.push({ id: 'ph/' + key, ssml: ssml(s.ipa, s.tts || s.ipa), rate: 0.8 });
   }
   return out;
 }
