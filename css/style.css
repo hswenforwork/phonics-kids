@@ -300,3 +300,29 @@ body[data-mode="parent"] .card { margin-top: 16px; }
 .done-big { font-size: 1.4rem; font-weight: 800; margin: 0 0 12px; }
 
 .src-badge { position: fixed; right: 10px; bottom: calc(10px + env(safe-area-inset-bottom)); z-index: 25; background: var(--paper); border: 2px solid var(--line); border-radius: 999px; padding: 4px 12px; font-size: .8rem; color: var(--muted); box-shadow: var(--shadow); }
+
+/* ---------- 魔法 e 連線、弱母音、輔音連綴 ---------- */
+.syl-row { position: relative; padding-bottom: 8px; }
+.syl-row:has(.magic-line) { padding-bottom: 44px; }
+.magic-line { position: absolute; pointer-events: none; overflow: visible; }
+.magic-line path { fill: none; stroke: var(--grape); stroke-width: 3; stroke-dasharray: 6 5; stroke-linecap: round; }
+.magic-line text { font-size: 14px; }
+.tile.magic-v { box-shadow: 0 4px 0 rgba(0, 0, 0, .12), 0 0 0 3px var(--grape-soft); }
+.tile.weak { min-width: 40px; height: 52px; font-size: 1.6rem; opacity: .6; align-self: flex-end; }
+.weak-tag { position: absolute; top: -9px; right: -6px; font-family: var(--zh); font-size: .62rem; font-weight: 700; background: var(--ink); color: #fff; border-radius: 99px; padding: 1px 5px; }
+.tile.blend { background: linear-gradient(#fff, #EAF4FF); }
+.blend-link { align-self: center; color: var(--sky); font-weight: 800; font-size: 1.3rem; margin: 0 -3px; }
+.tiles { align-items: flex-end; }
+@media (max-width: 520px) { .tile.weak { min-width: 34px; height: 44px; font-size: 1.35rem; } .blend-link { font-size: 1rem; } }
+
+/* ---------- 規則小教室、規則地圖 ---------- */
+.group-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 14px; }
+.group-chips .chip { font-family: var(--zh); font-weight: 700; }
+.rule-group { margin: 18px 0; scroll-margin-top: 80px; }
+.rule-group h2 { margin-bottom: 10px; }
+.rule-group.focus h2 { color: var(--coral); }
+.rule-cat h2 { margin-bottom: 6px; }
+.rule-item { border-top: 1px solid var(--line); padding: 10px 0; }
+.rule-item summary { cursor: pointer; font-weight: 800; font-size: 1.05rem; }
+.rule-item p { margin: 8px 0; }
+.rule-item .chips { margin: 6px 0 10px; }

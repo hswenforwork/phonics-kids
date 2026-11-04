@@ -23,7 +23,7 @@
   // ---------- 資料：內建單字庫 + 申請單加入的單字與修正 ----------
   let custom = { words: [], fixes: {} };
   try { custom = await (await fetch('data/custom-words.json', { cache: 'no-cache' })).json(); } catch (e) { /* 離線時只用內建字 */ }
-  const THEMES = window.PK_DATA.THEMES.map((t) => ({ id: t.id, zh: t.zh, emoji: t.emoji, words: t.words.map((w) => w.slice()) }));
+  const THEMES = window.PK_DATA.THEMES.map((t) => ({ id: t.id, zh: t.zh, emoji: t.emoji, groups: t.groups || null, words: t.words.map((w) => w.slice()) }));
   THEMES.push({ id: 'mine', zh: '我的單字', emoji: '🌟', words: [] });
   const LIB = new Map();
   THEMES.forEach((t) => t.words.forEach(([w, zh, emoji, ipa, syl]) => { if (!LIB.has(w)) LIB.set(w, { word: w, zh, emoji, ipa, syl, theme: t.id }); }));
@@ -138,11 +138,13 @@
   }
   function render() {
     A.stop();
+    hintEl.classList.remove('show'); hintEl.hidden = true; srcBadge.hidden = true;
     const h = location.hash || '#/';
     let m;
+    if (h === '#/p/rules') { setMode('parent'); return renderRuleMap(); }
     if ((m = h.match(/^#\/p(?:\/w\/([a-z]+))?$/))) { setMode('parent'); return renderParent(m[1]); }
     setMode('kid');
-    if ((m = h.match(/^#\/t\/([a-z]+)$/))) return renderTheme(m[1]);
+    if ((m = h.match(/^#\/t\/([a-z]+)(?:\/([a-z]+))?$/))) return renderTheme(m[1], m[2]);
     if ((m = h.match(/^#\/w\/([a-z]+)\/box\/([123])$/))) return renderBox(m[1], +m[2]);
     if ((m = h.match(/^#\/w\/([a-z]+)$/))) return renderKidWord(m[1]);
     return renderHome();
@@ -172,9 +174,10 @@
   }
 
   // ---------- 孩子模式：主題 ----------
-  function renderTheme(id) {
+  function renderTheme(id, focus) {
     const t = THEMES.find((x) => x.id === id);
     if (!t) return renderHome();
+    if (t.groups) return renderGroupedTheme(t, focus);
     const words = sortedWords(t);
     const mine = id === 'mine';
     app.innerHTML = `
@@ -198,6 +201,49 @@
         }).join('')}
       </section>`;
     app.querySelectorAll('[data-move]').forEach((b) => b.addEventListener('click', () => openMove(b.dataset.move)));
+    window.scrollTo(0, 0);
+  }
+
+  // 規則小教室：依規則分組顯示
+  function wordCardLink(w, zh, emoji) {
+    const big = (progress[w] || 0) >= 3;
+    return `<div class="word-card-wrap"><a class="word-card ${big ? 'is-done' : ''}" href="#/w/${w}">
+      ${big ? '<span class="done-badge" aria-label="拿到大星星">🌟</span>' : ''}
+      <span class="wc-emoji">${emoji}</span><span class="wc-word">${w}</span><span class="wc-zh">${esc(zh)}</span>
+      <span class="wc-stage" aria-label="音素框完成 ${progress[w] || 0} 關">${stageDots(w)}</span></a></div>`;
+  }
+  function renderGroupedTheme(t, focus) {
+    app.innerHTML = `
+      <nav class="crumbs"><a href="#/" class="back">← 主題</a><h1>${t.emoji} ${t.zh}</h1></nav>
+      <nav class="group-chips">${t.groups.map((g) => `<a class="chip" href="#/t/${t.id}/${g.id}">${g.icon} ${g.zh}</a>`).join('')}</nav>
+      ${t.groups.map((g) => {
+        const ws = t.words.filter((w) => w[5] === g.id);
+        return ws.length ? `<section class="rule-group" id="g-${g.id}"><h2>${g.icon} ${g.zh}</h2>
+          <div class="word-grid">${ws.map(([w, zh, emoji]) => wordCardLink(w, zh, emoji)).join('')}</div></section>` : '';
+      }).join('')}`;
+    const target = focus && document.getElementById('g-' + focus);
+    if (target) { target.classList.add('focus'); target.scrollIntoView({ block: 'start' }); window.scrollBy(0, -70); } else window.scrollTo(0, 0);
+  }
+
+  // ---------- 家長模式：規則地圖 ----------
+  function renderRuleMap() {
+    const { RULE_MAP } = window.PK_RULEMAP;
+    const chip = (w) => `<a class="chip" href="#/p/w/${w.replace(/[^a-z]/g, '')}">${esc(w)}</a>`;
+    app.innerHTML = `
+      <nav class="crumbs"><a href="#/p" class="back">← 家長模式</a><h1>🗺️ 自然發音規則地圖</h1></nav>
+      <p class="legend">依 rules.md 附錄 B 整理。點例字可以看完整拆解；點「帶孩子練習」會打開規則小教室對應的那一組字。</p>
+      ${RULE_MAP.map((cat) => `
+        <section class="panel rule-cat">
+          <h2>${cat.icon} ${cat.zh}</h2>
+          ${cat.items.map((it) => `
+            <details class="rule-item">
+              <summary>${esc(it.title)}</summary>
+              <p>${esc(it.desc)}</p>
+              ${it.words.length ? `<div class="chips">${it.words.map(chip).join('')}</div>` : ''}
+              ${it.more && it.more.length ? `<p class="muted small">更多例字（說明用）：${it.more.map((m) => /^[a-z]+$/.test(m) ? chip(m) : esc(m)).join(' ')}</p>` : ''}
+              ${it.group ? `<a class="btn small primary" href="#/t/rules/${it.group}">🧒 帶孩子練習</a>` : ''}
+            </details>`).join('')}
+        </section>`).join('')}`;
     window.scrollTo(0, 0);
   }
 
@@ -229,7 +275,12 @@
   }
   function wordCardHTML(e, r, opts = {}) {
     const sylHTML = r.syllables.map((s, i) => {
-      const tiles = r.units.filter((u) => u.syl === i).map((u) => `<button class="tile ${tileClass(u)}${u.magic ? ' magic' : ''}" data-unit="${r.units.indexOf(u)}" aria-label="${u.text}">${u.text}</button>`).join('');
+      const tiles = r.units.filter((u) => u.syl === i).map((u) => {
+        const idx = r.units.indexOf(u);
+        const cls = `tile ${tileClass(u)}${u.magic ? ' magic' : ''}${u.magicBy ? ' magic-v' : ''}${u.weak ? ' weak' : ''}${u.inBlend ? ' blend' : ''}`;
+        const tile = `<button class="${cls}" data-unit="${idx}" aria-label="${u.text}">${u.text}${u.weak ? '<span class="weak-tag">輕</span>' : ''}</button>`;
+        return tile + (u.blendNext ? '<span class="blend-link" aria-hidden="true">〰</span>' : '');
+      }).join('');
       const cut = r.cuts[i];
       const R = cut && P.RULES[cut.rule];
       const chip = i < r.syllables.length - 1 ? `<span class="rule-chip" title="${R ? R.zh : '依發音'}">${R ? R.icon : '👂'}<small>${R ? R.zh.replace('法則', '') : '依發音'}</small></span>` : '';
@@ -259,12 +310,21 @@
 
   // 提示只顯示音標與規則（不顯示代表字）
   function soundHint(u) {
-    if (u.type === 'S' || u.key === 'silent' || u.phSilent || u.ruleSilent) return u.magic ? '🤫 <b>e</b> 不出聲：它是魔法 e，讓前面的母音念自己的名字' : `🤫 <b>${u.text}</b> 在這裡不發音`;
+    if (u.type === 'S' || u.key === 'silent' || u.phSilent || u.ruleSilent) {
+      if (u.magic) { const v = curAnalysis.units.find((x) => x.magicBy); return `✨ <b>e</b> 是魔法 e：自己不出聲，讓 <b>${v ? v.text : '母音'}</b> 念自己的名字${v && v.ph ? ` <span class="h-ipa">/${v.ph}/</span>` : ''}`; }
+      if (u.fakeMagic) return '🎭 <b>e</b> 是假魔法 e：不出聲，前面的母音仍念短音（英文字不以 v 結尾）';
+      if (u.sub === 'ed_e') return '🤫 <b>e</b> 不出聲：-ed 接在 t、d 以外的字後面，不多一個音節';
+      return `🤫 <b>${u.text}</b> 在這裡不發音`;
+    }
     const s = SOUNDS[u.key] || {};
     const ipa = u.ph || s.ipa;
     if (!ipa) return `<b>${u.text}</b>`;
     let rule;
-    if (u.sub === 'bossy') rule = '霸道 R';
+    if (u.text === 'y') rule = P.yRole(curAnalysis, u);
+    else if (u.inBlend) { const b = (curAnalysis.blends || []).find((x) => x.includes(u.text)) || u.text; rule = `輔音連綴 ${b}：每個字母都發音，快速滑過`; }
+    else if (u.weak) rule = '弱母音：不是重音的音節，輕輕念 /ə/';
+    else if (u.wildOld) rule = '閉音節長音特例：在 -nd、-ld、-lt、-st 前念長音';
+    else if (u.sub === 'bossy') rule = '霸道 R';
     else if (u.sub === 'team' || u.sub === 'team_r') rule = '母音組合，一起念';
     else if (u.sub === 'digraph' || u.sub === 'trigraph') rule = '好朋友字母，一起念';
     else if (u.sub === 'le') rule = '字尾 le';
@@ -276,9 +336,33 @@
     else if (u.type === 'C') rule = u.dbl ? '重複字母，同一個音' : '子音';
     else rule = s.zh || '';
     const note = P.ruleNote(curAnalysis, u);
+    if (note && (u.text === 'y' || u.inBlend || u.weak)) note.why = rule; // 這三種以專屬說明為主
     return `<b>${u.text}</b> 念 <span class="h-ipa">/${ipa}/</span>　<span class="h-rule">${note ? note.why : rule}</span>`;
   }
   let curAnalysis = null;
+
+  // 魔法 e 連線：在字母卡下方畫一條彎彎的線，從 e 連到它影響的母音
+  function drawMagicLine(card, r) {
+    const row = card.querySelector('.syl-row');
+    const old = row.querySelector('.magic-line');
+    if (old) old.remove();
+    const ei = r.units.findIndex((x) => x.magic), vi = r.units.findIndex((x) => x.magicBy);
+    if (ei < 0 || vi < 0) return;
+    const et = row.querySelector(`.tile[data-unit="${ei}"]`), vt = row.querySelector(`.tile[data-unit="${vi}"]`);
+    if (!et || !vt) return;
+    const base = row.getBoundingClientRect(), a = vt.getBoundingClientRect(), b = et.getBoundingClientRect();
+    const x1 = a.left + a.width / 2 - base.left, x2 = b.left + b.width / 2 - base.left;
+    const y = Math.max(a.bottom, b.bottom) - base.top + 2, depth = 18;
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('class', 'magic-line');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.style.left = '0'; svg.style.top = '0';
+    svg.setAttribute('width', base.width); svg.setAttribute('height', y + depth + 14);
+    svg.innerHTML = `<path d="M${x1} ${y} Q ${(x1 + x2) / 2} ${y + depth * 2} ${x2} ${y}" /><text x="${(x1 + x2) / 2}" y="${y + depth + 10}" text-anchor="middle">✨</text>`;
+    row.appendChild(svg);
+  }
+  let magicResize;
+  window.addEventListener('resize', () => { clearTimeout(magicResize); magicResize = setTimeout(() => { const c = app.querySelector('.card'); if (c && curAnalysis) drawMagicLine(c, curAnalysis); }, 150); });
 
   function bindWordCard(e, r) {
     curAnalysis = r;
@@ -292,8 +376,18 @@
       const u = r.units[+b.dataset.unit];
       flash(b);
       showHint(soundHint(u));
+      if (u.magic) {
+        // 點魔法 e：前面的母音閃一下，念出長音
+        const vi = r.units.findIndex((x) => x.magicBy);
+        const vt = card.querySelector(`.tile[data-unit="${vi}"]`);
+        const line = card.querySelector('.magic-line');
+        if (line) flash(line);
+        if (vi >= 0) A.play(A.phonemeIPA(r.units[vi].ph, r.units[vi].key, { onstart: () => flash(vt) }));
+        return;
+      }
       if (!u.phSilent && !u.ruleSilent && u.type !== 'S') A.play(A.phonemeIPA(u.ph, u.key));
     }));
+    drawMagicLine(card, r);
     card.querySelector('[data-blend]').addEventListener('click', () => {
       const syls = card.querySelectorAll('.syl');
       const seq = [];
@@ -378,6 +472,7 @@
           <button class="btn primary" type="submit">拆音節</button>
         </form>
         <p class="muted small">先查內建單字庫，查不到再查線上字典（英式）；都查不到時，依拼字規則推測並標示「未經發音驗證」。</p>
+        <a class="btn small" href="#/p/rules">🗺️ 自然發音規則地圖</a>
       </section>
       <div id="result">${w ? '<p class="loading">查詢中…</p>' : browseHTML()}</div>`;
     app.querySelector('form').addEventListener('submit', (ev) => {
@@ -409,6 +504,7 @@
       <section class="panel">
         <h2>最終音節劃分</h2>
         <p class="final"><span class="ipa">${r.ipa ? esc(r.ipa) : '（無 IPA）'}</span><span class="split">${r.syllables.join(' · ')}</span></p>
+        ${r.spell ? `<p class="note">✂️ ${esc(E.spellZh(r.spell))}${r.spell.type === 'double' ? `：<b>${r.spell.base}</b>＋<b>${r.spell.letter}</b>＋<b>${r.spell.suffix}</b>` : r.spell.type === 'drop_e' ? `：<b>${r.spell.base.slice(0, -1)}</b>（去 e）＋<b>${r.spell.suffix}</b>` : r.spell.type === 'y_to_i' ? `：<b>${r.spell.base.slice(0, -1)}i</b>＋<b>${r.spell.suffix}</b>` : ''}</p>` : ''}
         ${r.adjusted ? `<p class="note">👂 規則推得 ${r.ruleSyllables.join('-')}，依實際發音調整為 ${r.syllables.join('-')}。</p>` : ''}
         ${e.defEn ? `<p class="muted small">英文解釋：${esc(e.defEn)}</p>` : ''}
         <p class="muted small">音素框：${P.elkonin(r).map((b) => (b.silent ? `(${b.letters})` : `${b.letters} /${b.ph || (SOUNDS[b.key] || {}).ipa || '?'}/`)).join(' ｜ ')}</p>

@@ -27,7 +27,7 @@
     const af = r.affix || {};
     rows.push(['Step 3 – 字首字尾', af.prefix || af.suffix
       ? `${af.prefix ? `字首 ${af.prefix}-，` : ''}${af.suffix ? `字尾 -${af.suffix}，` : ''}詞根 ${af.root}（仍掃描整個字）`
-      : (r.suffixSh || r.suffixTure ? `字尾 ${r.suffixSh ? '-tion／-sion' : '-ture'} 整體不拆分` : '沒有可拆的字首字尾')]);
+      : (r.suffixSh || r.suffixTure ? `字尾 ${r.suffixSh ? '-tion／-sion' : '-ture'} 整體不拆分` : '沒有可拆的字首字尾') + (r.spell ? `；${spellZh(r.spell)}` : '')]);
     rows.push(['Step 4 – 找母音', join(vowelUnits(r).map((u) => {
       const kind = { team: '母音組合', bossy: '霸道 R', y: 'y 當母音', le: '字尾 le', single: '單母音' }[u.sub];
       return `${u.text}（第 ${u.start + 1} 個字母，${kind}${u.key ? '，' + (snd(u.key).zh || u.key) + ' ' + ipaOf(u.key) : ''}）`;
@@ -43,7 +43,9 @@
       return `${c.v1 || ''}${c.v2 ? '…' + c.v2 : ''} ${mid} → ${name}${basis ? `（${basis}）` : ''}，切在第 ${c.pos} 個字母後`;
     }), '；') : '只有一個音節，不用切')]);
     const fx = [];
-    fx.push(`魔法 e：${r.magicE ? '有' : '沒有'}`);
+    fx.push(`魔法 e：${r.magicE ? '有' : r.fakeMagic ? '假魔法 e（母音維持短音）' : '沒有'}`);
+    if (r.wildOld) fx.push('閉音節長音特例');
+    if (r.blends && r.blends.length) fx.push(`輔音連綴：${r.blends.join('、')}`);
     fx.push(`不發音字母：${r.silent.length ? r.silent.map((s) => s.letter).join('、') : '沒有'}`);
     if (r.softC) fx.push('軟 c（念 /s/）');
     if (r.softG) fx.push('軟 g（念 /dʒ/）');
@@ -76,6 +78,13 @@
       out.push(`字尾的 e 是魔法 e，它自己不出聲，卻讓前面的 ${v ? v.text : '母音'} 念自己的名字${v ? ' ' + ipaOf(v.key) : ''}。`);
     }
     r.silent.filter((s) => s.letter !== 'e').forEach((s) => out.push(`${s.letter} 在這裡是安靜字母，不發音。`));
+    if (r.blends && r.blends.length) out.push(`${r.blends.join('、')} 是輔音連綴：每個字母都要發音，快速滑過連在一起念。`);
+    if (r.fakeMagic) { const v = (r.units || []).find((u) => u.fakeMagic && u.type === 'V'); out.push(`字尾的 e 是「假魔法 e」：英文字不以 v 結尾，所以補上 e，${v ? v.text : '母音'} 仍念短音${v && v.ph ? ' /' + v.ph + '/' : ''}。`); }
+    if (r.wildOld) { const v = (r.units || []).find((u) => u.wildOld); out.push(`${v.text} 後面雖然是子音，但在 -nd、-ld、-lt、-st 前要念長音 /${v.ph || ''}/（閉音節長音特例）。`); }
+    (r.units || []).filter((u) => u.text === 'y').forEach((u) => out.push(P.yRole(r, u) + '。'));
+    const weak = (r.units || []).filter((u) => u.weak && u.sub !== 'le' && u.sub !== 'bossy');
+    if (weak.length) out.push(`${weak.map((u) => u.text).join('、')} 在不是重音的音節，要輕輕念成 /ə/（弱母音）。`);
+    if (r.spell) out.push(spellZh(r.spell) + '。');
     if (r.suffixSh) { const u = r.units.find((x) => x.sub === 'suffix_sh'); out.push(`字尾 ${u.text}${r.word.slice(u.end)} 是一個整體，不拆開，念 /${u.text === 'si' && r.ipa.includes('ʒ') ? 'ʒ' : 'ʃ'}ən/。`); }
     if (r.suffixTure) out.push(`字尾 ture 是一個整體，念 /tʃə/。`);
     if (r.softC) out.push(`c 遇到 e、i、y 會變溫柔，念 /s/。`);
@@ -83,6 +92,13 @@
     return out;
   }
 
+  function spellZh(sp) {
+    if (sp.type === 'double') return `字尾變化：${sp.base} 是短母音加一個子音結尾，加 -${sp.suffix} 時要多寫一個 ${sp.letter}（1-1-1 雙寫規則）`;
+    if (sp.type === 'drop_e') return `字尾變化：${sp.base} 的魔法 e 遇到 -${sp.suffix} 要去掉（去 E 規則），母音仍念長音`;
+    if (sp.type === 'y_to_i') return `字尾變化：${sp.base} 的 y 遇到 -${sp.suffix} 要改成 i（變 Y 為 I）`;
+    if (sp.type === 'y_keep') return `字尾變化：${sp.base} 加 -ing 時，y 不用改成 i`;
+    return '';
+  }
   function cutSentenceZh(r, c, i) {
     const left = r.syllables[sylOf(r, c.pos)];
     const cons = (c.consonants || []).join('、');
@@ -178,7 +194,7 @@
   }
   const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
-  const api = { steps, selfCheck, scriptZh, scriptEn };
+  const api = { steps, selfCheck, scriptZh, scriptEn, spellZh };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.PK_EXPLAIN = api;
 })(this);

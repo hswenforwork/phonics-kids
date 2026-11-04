@@ -107,5 +107,32 @@ for (const w of ['cake', 'hope', 'time', 'cute', 'these']) check(P.analyze(w, { 
 check(P.analyze('paste', { ipa: '/peɪst/', known }).magicE, '魔法 e：paste（2 個子音，發音確認長音）');
 check(P.analyze('nation', { known }).units.some((u) => u.text === 'ti' && u.key === 'sh'), 'tion 的 ti 念 /ʃ/');
 
+// 8. references/rules.md（完整版）新增的規則
+const A = (w, ipa) => P.analyze(w, { ipa, known });
+for (const w of ['have', 'give', 'love', 'glove']) { const r = A(w); check(r.fakeMagic && !r.magicE, `假魔法 e：${w}`); }
+check(A('five').magicE && !A('five').fakeMagic, 'five 是真魔法 e');
+check(A('five', '/faɪv/').magicE, 'five（有 IPA）是真魔法 e');
+check(A('love').units.find((u) => u.text === 'o').key === 'short_u', 'love 的 o 念 /ʌ/');
+for (const w of ['wild', 'child', 'find', 'kind', 'cold', 'old', 'ghost', 'most']) {
+  const u = A(w).units.find((x) => x.wildOld);
+  check(u && u.key.startsWith('long_'), `閉音節長音：${w}`);
+}
+check(!A('wind').units.some((u) => u.wildOld), 'wind（風）不是閉音節長音');
+const yk = (w) => A(w).units.find((u) => u.text === 'y').key;
+check(yk('yes') === 'y' && yk('sky') === 'long_i' && yk('cry') === 'long_i' && yk('baby') === 'long_e' && yk('happy') === 'long_e' && yk('gym') === 'short_i', 'Y 變色龍四種念法');
+check(P.yRole(A('sky'), A('sky').units.find((u) => u.text === 'y')).includes('/aɪ/'), 'Y 變色龍說明');
+for (const [w, b] of [['frog', 'fr'], ['black', 'bl'], ['stop', 'st'], ['splash', 'spl'], ['street', 'str']]) check(A(w).blends.includes(b), `輔音連綴：${w} 的 ${b}`);
+check(!A('ship').blends.length && !A('chip').blends.length && !A('hand').blends.length, '二合輔音與字尾 nd 不列為連綴');
+for (const [w, ipa, v] of [['salad', '/ˈsæl.əd/', 'a'], ['lemon', '/ˈlem.ən/', 'o'], ['pencil', '/ˈpen.səl/', 'i'], ['circus', '/ˈsɜː.kəs/', 'u']]) {
+  check(A(w, ipa).units.some((u) => u.weak && u.text === v), `弱母音：${w} 的 ${v}`);
+}
+const team = (w, t, ipa) => A(w, ipa).units.find((u) => u.text === t);
+check(team('saw', 'aw', '/sɔː/').ph === 'ɔː' && team('stew', 'ew', '/stjuː/').ph === 'juː' && team('key', 'ey', '/kiː/').ph === 'iː', '母音組合 aw、ew、ey');
+for (const [w, exp, type] of [['hopping', 'hop-ping', 'double'], ['running', 'run-ning', 'double'], ['making', 'ma-king', 'drop_e'], ['hoped', 'hoped', 'drop_e'],
+  ['happiness', 'hap-pi-ness', 'y_to_i'], ['funnier', 'fun-ni-er', 'y_to_i'], ['crying', 'cry-ing', 'y_keep'], ['stopped', 'stopped', 'double']]) {
+  const r = A(w);
+  check(r.syllables.join('-') === exp && r.spell && r.spell.type === type, `字尾變化 ${w}: ${r.syllables.join('-')} ${r.spell && r.spell.type}，應為 ${exp} ${type}`);
+}
+
 console.log(`\n${total - fail}/${total} 通過`);
 process.exit(fail ? 1 : 0);

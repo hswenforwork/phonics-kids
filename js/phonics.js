@@ -8,10 +8,10 @@
   const isV = (ch) => !!ch && 'aeiou'.includes(ch);
 
   // 自行整理的常見一眼認讀字（不照規則念的高頻字）
-  const SIGHT = new Set(['the', 'a', 'was', 'said', 'have', 'come', 'some', 'what', 'where', 'there',
+  const SIGHT = new Set(['the', 'a', 'was', 'said', 'come', 'some', 'what', 'where', 'there',
     'they', 'you', 'your', 'are', 'were', 'one', 'two', 'who', 'do', 'to', 'of', 'from', 'into',
     'been', 'any', 'many', 'could', 'would', 'should', 'does', 'goes', 'says', 'put', 'pull', 'full',
-    'push', 'both', 'talk', 'walk', 'eye', 'eight', 'four', 'love', 'give', 'live', 'friend', 'once',
+    'push', 'both', 'eye', 'eight', 'four', 'friend', 'once',
     'only', 'other', 'mother', 'water', 'people', 'again', 'buy', 'done', 'gone', 'move', 'whose',
     'want', 'very', 'our', 'hour', 'here', 'please']);
 
@@ -33,6 +33,13 @@
   const OO_SHORT = new Set(['book', 'look', 'cook', 'good', 'foot', 'wood', 'hook', 'took', 'stood', 'wool', 'shook', 'brook', 'hood', 'football', 'cookie']);
   const OW_COW = new Set(['cow', 'now', 'how', 'wow', 'brown', 'down', 'town', 'clown', 'gown', 'crown', 'owl', 'towel', 'flower',
     'shower', 'power', 'tower', 'howl', 'frown', 'drown', 'growl', 'powder', 'crowd', 'allow', 'vowel']);
+  // 假魔法 E（rules.md 4.1）：英文字不以 v 結尾，所以補上 e，母音仍念短音
+  const FAKE_MAGIC = new Set(['have', 'give', 'live', 'love', 'glove', 'above', 'shove', 'dove', 'olive', 'native', 'active']);
+  // 閉音節長音（rules.md 4.2）：i、o 在 -nd、-ld、-lt、-st 前常念長音（wild、child、find、cold、old、ghost）
+  const WILD_OLD = /^(.*?)(i(nd|ld)|o(ld|lt|st))(s|er|est|ly)?$/;
+  const WILD_OLD_NOT = new Set(['wind', 'cost', 'lost', 'frost', 'cost', 'gild']);
+  // 輔音連綴（rules.md 1.2）：每個字母都要發音，快速滑過
+  const BLENDS3 = new Set(['spl', 'spr', 'str', 'scr', 'squ', 'thr', 'shr']);
   // g 遇到 e、i、y 但仍念硬音 /ɡ/ 的常見字
   const HARD_G = new Set(['get', 'give', 'girl', 'gift', 'tiger', 'finger', 'begin', 'together', 'forget', 'giggle', 'gear', 'geese',
     'target', 'gig', 'girls', 'gecko', 'goggles', 'buggy', 'foggy', 'giddy', 'gills', 'tangy', 'hungry', 'anger', 'linger', 'eager']);
@@ -48,7 +55,8 @@
   const BLENDS = new Set(['bl', 'br', 'cl', 'cr', 'dr', 'fl', 'fr', 'gl', 'gr', 'pl', 'pr', 'sc', 'sk',
     'sl', 'sm', 'sn', 'sp', 'st', 'sw', 'tr', 'tw']);
   const PREFIXES = ['un', 're', 'pre', 'dis', 'mis', 'non', 'sub', 'over'];
-  const SUFFIXES = ['ing', 'ness', 'less', 'ment', 'ful', 'est', 'er', 'ly'];
+  const SUFFIXES = ['ing', 'ness', 'less', 'ment', 'ful', 'est', 'er', 'ly', 'ed', 'y'];
+  const VOWEL_SUFFIX = new Set(['ing', 'est', 'er', 'ed', 'y']);
   const LONG = new Set(['long_a', 'long_e', 'long_i', 'long_o', 'long_u', 'oo_long']);
   const SHORT = new Set(['short_a', 'short_e', 'short_i', 'short_o', 'short_u', 'oo_short']);
   const RCOLOR = new Set(['ar', 'er', 'or', 'air', 'ear']);
@@ -157,7 +165,8 @@
         u = { text: w.slice(i, i + 2), type: 'V', sub: 'bossy' };
       }
       // 字尾不發音 e
-      if (!u && w[i] === 'e' && i === n - 1 && n > 2 && units.some((x) => x.type === 'V') && !isV(w[i - 1]) && w[i - 1] !== 'l') {
+      // （字尾 le 前面是子音時屬於烏龜法則；前面是母音時，如 whale、smile，e 是不發音的魔法 e）
+      if (!u && w[i] === 'e' && i === n - 1 && n > 2 && units.some((x) => x.type === 'V') && !isV(w[i - 1]) && (w[i - 1] !== 'l' || isV(w[i - 2]))) {
         u = { text: 'e', type: 'S', sub: 'final_e' };
       }
       // 單一母音
@@ -166,7 +175,7 @@
         u = { text: w[i], type: 'V', sub: 'single' };
       }
       // y 當母音（不在字首、後面不是母音）
-      if (!u && w[i] === 'y' && i > 0 && !isV(w[i + 1] || '')) u = { text: 'y', type: 'V', sub: 'y' };
+      if (!u && w[i] === 'y' && i > 0 && (!isV(w[i + 1] || '') || rest === 'ying')) u = { text: 'y', type: 'V', sub: 'y' };
       // 二合字母（子音）
       if (!u) {
         for (const d in DIGRAPH2) {
@@ -203,7 +212,9 @@
       while (k >= 0 && out[k].type === 'C') { k--; nc++; }
       const v = out[k];
       if (nc >= 1 && v && v.type === 'V' && v.sub === 'single') {
-        if (nc === 1) { last.magic = true; v.magicBy = true; } else { last.magicMaybe = true; v.magicMaybe = true; }
+        const beforeE = out[out.length - 2];
+        if (nc === 1 && beforeE.text === 'v') { last.fakeMaybe = true; v.fakeMaybe = true; } // ve 結尾：可能是假魔法 E（have）或真魔法 E（five）
+        else if (nc === 1) { last.magic = true; v.magicBy = true; } else { last.magicMaybe = true; v.magicMaybe = true; }
       }
     }
     return out;
@@ -219,11 +230,26 @@
     return best;
   }
   function findAffix(word, known) {
-    const res = { prefix: null, suffix: null, root: word };
-    for (const s of SUFFIXES) {
-      if (word.endsWith(s) && word.length > s.length + 2) {
-        const r = word.slice(0, -s.length);
-        if (known.has(r)) { res.suffix = s; res.root = r; break; }
+    const res = { prefix: null, suffix: null, root: word, spell: null };
+    for (const sfx of SUFFIXES) {
+      if (!word.endsWith(sfx) || word.length <= sfx.length + 2) continue;
+      const stem = word.slice(0, -sfx.length);
+      if (sfx === 'y' && !/[^aeiou]y$/.test(word)) continue;
+      if (VOWEL_SUFFIX.has(sfx) && known.has(stem + 'e') && /[^aeiou][aeiou][^aeiouwxy]$/.test(stem)) {
+        res.suffix = sfx; res.root = stem; res.spell = { type: 'drop_e', base: stem + 'e', suffix: sfx, noCut: true }; break;
+      }
+      if (known.has(stem)) { res.suffix = sfx; res.root = stem; if (sfx === 'ing' && /[^aeiou]y$/.test(stem)) res.spell = { type: 'y_keep', base: stem, suffix: sfx }; break; }
+      // 1-1-1 雙寫規則：hop → hopping（短母音＋一個子音結尾，加母音開頭的字尾要雙寫）
+      if (VOWEL_SUFFIX.has(sfx) && stem.length >= 3 && stem[stem.length - 1] === stem[stem.length - 2] && !isV(stem[stem.length - 1]) && known.has(stem.slice(0, -1))) {
+        res.suffix = sfx; res.root = stem.slice(0, -1); res.spell = { type: 'double', base: stem.slice(0, -1), letter: stem.slice(-1), suffix: sfx }; break;
+      }
+      // 去 E 規則：make → making
+      if (VOWEL_SUFFIX.has(sfx) && known.has(stem + 'e')) {
+        res.suffix = sfx; res.root = stem; res.spell = { type: 'drop_e', base: stem + 'e', suffix: sfx, noCut: true }; break;
+      }
+      // 變 Y 為 I：happy → happiness（加 -ing 時不變）
+      if (sfx !== 'ing' && stem.endsWith('i') && known.has(stem.slice(0, -1) + 'y')) {
+        res.suffix = sfx; res.root = stem; res.spell = { type: 'y_to_i', base: stem.slice(0, -1) + 'y', suffix: sfx }; break;
       }
     }
     for (const p of PREFIXES) {
@@ -260,8 +286,13 @@
     }
   }
 
-  function syllabifyPart(word, ip, forcedCuts) {
-    let units = tokenize(word, ip);
+  function syllabifyPart(word, ip, forcedCuts, popts = {}) {
+    let units = tokenize(word, ip, { noTeam: popts.noTeam });
+    // -ed 接在 t、d 以外的字後面不自成音節（stopped、hoped），e 不發音
+    if (popts.edSilent) {
+      const k = units.findIndex((x) => x.start === word.length - 2 && x.text === 'e');
+      if (k >= 0) units[k] = Object.assign({}, units[k], { type: 'S', sub: 'ed_e' });
+    }
     // 獅子法則常見字（diet、cruel、create…）：沒有發音資料時也把母音組合拆開
     if (!ip && LION_WORDS.has(word)) {
       const noTeam = new Set(units.filter((x) => x.sub === 'team').map((x) => x.start));
@@ -377,7 +408,10 @@
 
     const forced = [];
     if (compound) forced.push({ pos: compound[0].length, rule: 'compound' });
-    if (affix.suffix) forced.push({ pos: word.length - affix.suffix.length, rule: 'affix', which: 'suffix' });
+    if (affix.suffix && !(affix.spell && affix.spell.noCut) && !(affix.suffix === 'ed' && !/[td]$/.test(affix.root)) && affix.suffix !== 'y') {
+      const pos = affix.spell && affix.spell.type === 'double' ? affix.root.length : word.length - affix.suffix.length;
+      forced.push({ pos, rule: 'affix', which: 'suffix' });
+    }
     if (affix.prefix) forced.push({ pos: affix.prefix.length, rule: 'affix', which: 'prefix' });
 
     let part;
@@ -396,7 +430,11 @@
       };
       res.strategy = 'compound';
     } else {
-      part = syllabifyPart(word, ip, forced);
+      const popts = {};
+      if (affix.suffix === 'ed' && !/[td]$/.test(affix.spell && affix.spell.type === 'drop_e' ? affix.spell.base.slice(0, -1) : affix.root)) popts.edSilent = true;
+      // 變 Y 為 I 後接母音字尾（funnier、happiest）：i 和後面的 e 分開念，不是母音組合 ie
+      if (affix.spell && affix.spell.type === 'y_to_i' && /^[aeiou]/.test(affix.suffix)) popts.noTeam = new Set([word.length - affix.suffix.length - 1]);
+      part = syllabifyPart(word, ip, forced, popts);
     }
     if (sight) { res.strategy = 'sight'; part.cuts = []; }
 
@@ -422,6 +460,26 @@
     res.cuts = res.cutPositions.map((pos) => part.cuts.find((c) => c.pos === pos) || { pos, rule: 'ipa', consonants: [] });
     if (res.adjusted) res.cuts.forEach((c) => { if (c.rule === 'ipa') c.note = '依實際發音調整'; });
 
+    const LK = { a: 'long_a', e: 'long_e', i: 'long_i', o: 'long_o', u: 'long_u' };
+    const SK = { a: 'short_a', e: 'short_e', i: 'short_i', o: 'short_o', u: 'short_u' };
+    // 假魔法 E：ve 結尾時，發音是短音（或在假魔法 E 詞表）才算假魔法；five、drive 是真魔法 E
+    part.units.forEach((u) => {
+      if (!u.fakeMaybe || u.type !== 'V') return;
+      const e = part.units.find((x) => x.fakeMaybe && x.type === 'S');
+      const fake = u.key ? !LONG.has(u.key) : FAKE_MAGIC.has(word);
+      if (fake) { u.fakeMagic = true; if (e) e.fakeMagic = true; if (!u.key) u.key = word === 'love' || word === 'glove' || word === 'dove' || word === 'shove' || word === 'above' ? 'short_u' : SK[u.text]; }
+      else { u.magicBy = true; if (e) e.magic = true; }
+    });
+    // 閉音節長音特例（wild、old）
+    part.units.forEach((u) => {
+      if (u.type !== 'V' || u.sub !== 'single' || !'io'.includes(u.text) || WILD_OLD_NOT.has(word)) return;
+      if (/^(i(nd|ld)|o(ld|lt|st))(s|er|est|ly|y)?$/.test(word.slice(u.start))) { u.wildOld = true; if (!u.key) u.key = LK[u.text]; }
+    });
+    // 去 E 規則（making、hoped）：原本的魔法 e 去掉了，母音仍念長音
+    if (affix.spell && affix.spell.type === 'drop_e') {
+      const v = part.units.filter((u) => u.type === 'V' && u.end <= affix.spell.base.length - 1).pop();
+      if (v && v.sub === 'single') { v.dropE = true; if (!v.key) v.key = LK[v.text]; }
+    }
     // 未對齊時，用音節開閉推測母音音
     const sylOf = (pos) => { let acc = 0; for (let i = 0; i < finalSyl.length; i++) { acc += finalSyl[i].length; if (pos < acc) return i; } return finalSyl.length - 1; };
     for (const u of part.units) {
@@ -445,6 +503,7 @@
       if (u.text === 'igh' || u.text === 'eigh') silent.push({ letter: 'gh', at: u.end - 2 });
       if (u.sub === 'final_e') silent.push({ letter: 'e', at: u.start, magic: !!u.magic });
       if (u.sub === 'silent_u') silent.push({ letter: 'u', at: u.start });
+      if (u.sub === 'ed_e') silent.push({ letter: 'e', at: u.start });
     });
     res.silent = silent;
     // 字尾 e 前有 2 個以上子音（paste）：發音確認是長音才算魔法 e
@@ -464,6 +523,22 @@
     if (ip && !sight && ip.nuclei.length && ip.nuclei.length !== finalSyl.length) res.warnings.push(`IPA 有 ${ip.nuclei.length} 個母音音，但切成 ${finalSyl.length} 個音節`);
     res.phMapped = opts.ipa ? mapPhonemes(part.units, opts.ipa) : false;
     if (res.phMapped) part.units.forEach((u) => { if (u.ph && !u.phSilent) u.ruleSilent = false; });
+    // 輔音連綴：同一個音節裡相鄰的子音（bl、fr、st、spl…），每個字母都發音
+    const us = part.units;
+    for (let k = 0; k < us.length - 1; k++) {
+      const a = us[k], b = us[k + 1], c = us[k + 2];
+      if (a.type !== 'C' || b.type !== 'C' || a.sub !== 'single' || b.sub !== 'single' || a.syl !== b.syl || a.ruleSilent || b.ruleSilent) continue;
+      if (c && c.type === 'C' && c.sub === 'single' && c.syl === a.syl && BLENDS3.has(a.text + b.text + c.text)) { a.blendNext = b.blendNext = true; a.inBlend = b.inBlend = c.inBlend = true; k++; continue; }
+      // 依 rules.md 1.2：L、R、S 連綴（bl、fr、st…）；字尾的 nd、mp 這類不列入
+      if (BLENDS.has(a.text + b.text)) { a.blendNext = true; a.inBlend = b.inBlend = true; }
+    }
+    res.blends = us.filter((u) => u.blendNext).map((u) => { const i = us.indexOf(u); let t = u.text, j = i + 1; while (us[j] && us[j].inBlend) { t += us[j].text; if (!us[j].blendNext) break; j++; } return t; })
+      .filter((t, i, arr) => !arr.some((x, j) => j !== i && x.length > t.length && x.includes(t)));
+    // 弱母音：非重音節念得很輕的 /ə/
+    us.forEach((u) => { if (u.type === 'V' && (u.ph === 'ə' || u.ph === 'əl' || (!u.ph && u.key === 'schwa') || (u.ph === 'i' && u.stressed === false && u.sub === 'single'))) u.weak = true; });
+    res.fakeMagic = us.some((u) => u.fakeMagic && u.type === 'V');
+    res.wildOld = us.some((u) => u.wildOld);
+    res.spell = affix.spell || null;
     res.suffixSh = part.units.some((u) => u.sub === 'suffix_sh');
     res.suffixTure = part.units.some((u) => u.sub === 'ure');
     res.stars = computeStars(res);
@@ -617,7 +692,7 @@
   const R_LONG = { a: ['eɪ'], e: ['iː', 'i'], i: ['aɪ'], o: ['oʊ'], u: ['juː', 'uː'] };
   const R_DIGRAPH = { sh: ['ʃ'], ch: ['tʃ'], th: ['θ', 'ð'], wh: ['w'], ph: ['f'], ck: ['k'], ng: ['ŋ'], nk: ['ŋk'], tch: ['tʃ'], dge: ['dʒ'] };
   const R_TEAM = { ai: ['eɪ'], ay: ['eɪ'], ee: ['iː'], ea: ['iː', 'e'], oa: ['oʊ'], ow: ['oʊ', 'aʊ'], oo: ['uː', 'ʊ'], ou: ['aʊ'],
-    oi: ['ɔɪ'], oy: ['ɔɪ'], ue: ['juː', 'uː'], ui: ['uː'], igh: ['aɪ'] };
+    oi: ['ɔɪ'], oy: ['ɔɪ'], ue: ['juː', 'uː'], ui: ['uː'], igh: ['aɪ'], au: ['ɔː'], aw: ['ɔː'], ew: ['uː', 'juː'], ey: ['iː', 'i', 'eɪ'] };
   const R_BOSSY = { ar: ['ɑː', 'ɑr'], er: ['ɜː', 'ɜr', 'ər'], ir: ['ɜː', 'ɜr'], or: ['ɔː', 'ɔr'], ur: ['ɜː', 'ɜr'] };
   const R_C = { b: 'b', d: 'd', f: 'f', h: 'h', j: 'dʒ', k: 'k', l: 'l', m: 'm', n: 'n', p: 'p', r: 'r', t: 't', v: 'v', w: 'w', z: 'z' };
   // 已知的外來語（照原文念）
@@ -637,7 +712,11 @@
     }
     if (u.type === 'V') {
       if (u.sub === 'single') {
-        if (ph === 'ə' || (ph === 'ɪ' && u.stressed === false)) return null; // 非重音節輕讀
+        if (ph === 'ə' || ((ph === 'ɪ' || ph === 'i') && u.stressed === false)) return null; // 非重音節輕讀（弱母音）
+        if (u.fakeMagic) return { exp: R_SHORT[u.text], why: '假魔法 e：英文字不以 v 結尾，所以補上 e，母音仍念短音' + (ph === 'ʌ' && u.text === 'o' ? '（這裡的 o 念 /ʌ/）' : '') };
+        if (u.wildOld) return R_LONG[u.text].includes(ph) ? { exp: R_SHORT[u.text], why: '閉音節長音特例：i、o 在 -nd、-ld、-lt、-st 前念長音' } : null;
+        if (u.dropE && R_LONG[u.text].includes(ph)) return { exp: R_SHORT[u.text], why: '去 E 規則：加字尾時去掉魔法 e，母音仍念長音' };
+        if (u.text === 'a' && ph === 'ɒ' && /[wq]u?$/.test(w.slice(0, u.start))) return { exp: 'æ', why: 'a 在 w 後面常念 /ɒ/（watch、want、wash）' };
         const { open, multi } = sylInfo(r, u);
         if (u.magicBy) return R_LONG[u.text].includes(ph) ? null : { exp: R_LONG[u.text][0], why: '例外：魔法 e 通常讓母音念長音' };
         if (u.text === 'o' && ph === 'ʌ') return { exp: 'ɒ', why: '例外：o 在 mother、brother、monkey、money 這類字念 /ʌ/' };
@@ -706,7 +785,16 @@
   // 母音：單獨念常念不準，改念「h＋母音」，產生後再把 h 剪掉
   const phSay = (ph) => (isConsonantPh(ph) ? ph + 'ə' : ph ? 'h' + ph : '');
 
-  const api = { analyze, parseIPA, tokenize, elkonin, ipaSegments, mapPhonemes, phFile, phSay, isConsonantPh, ruleNote, RULES, SIGHT, LONG, SHORT };
+  // Y 變色龍（rules.md 1.6）：依位置說明 y 的念法
+  function yRole(r, u) {
+    if (!u || u.text !== 'y') return '';
+    if (u.type === 'C') return 'Y 變色龍：在字首當子音，念 /j/';
+    const n = (r.syllables || []).length;
+    if (u.end === r.word.length) return n > 1 ? 'Y 變色龍：多音節字的字尾，念 /i/' : 'Y 變色龍：單音節字的字尾，念 /aɪ/';
+    return 'Y 變色龍：在字中間（閉音節），念短音 /ɪ/';
+  }
+
+  const api = { analyze, yRole, parseIPA, tokenize, elkonin, ipaSegments, mapPhonemes, phFile, phSay, isConsonantPh, ruleNote, RULES, SIGHT, LONG, SHORT };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.PK_PHONICS = api;
 })(this);
