@@ -275,10 +275,13 @@
     else if (u.key === 'schwa') rule = '輕聲，輕輕念';
     else if (u.type === 'C') rule = u.dbl ? '重複字母，同一個音' : '子音';
     else rule = s.zh || '';
-    return `<b>${u.text}</b> 念 <span class="h-ipa">/${ipa}/</span>　<span class="h-rule">${rule}</span>`;
+    const note = P.ruleNote(curAnalysis, u);
+    return `<b>${u.text}</b> 念 <span class="h-ipa">/${ipa}/</span>　<span class="h-rule">${note ? note.why : rule}</span>`;
   }
+  let curAnalysis = null;
 
   function bindWordCard(e, r) {
+    curAnalysis = r;
     const card = app.querySelector('.card');
     card.querySelector('[data-say-word]').addEventListener('click', () => A.play(A.word(e)));
     card.querySelectorAll('.syl-say').forEach((b) => b.addEventListener('click', () => {

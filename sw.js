@@ -1,5 +1,5 @@
 // 離線快取：內建單字庫在沒有網路時也能使用；線上字典與翻譯一律走網路
-const CACHE = 'pk-v6';
+const CACHE = 'pk-v7';
 const FILES = ['./', 'index.html', 'css/style.css', 'js/data.js', 'js/sounds.js', 'js/phonics.js', 'js/explain.js',
   'js/audio.js', 'js/elkonin.js', 'js/app.js', 'data/custom-words.json', 'audio/index.json', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/apple-touch-icon.png'];
 

@@ -69,7 +69,7 @@ for (const [w, ipa, exp] of [
 // 6. 依 IPA 音素表對應字母
 const phs = (w, ipa) => { const r = P.analyze(w, { ipa, known }); return r.units.filter((u) => u.type !== 'S').map((u) => `${u.text}=${u.phSilent ? '∅' : u.ph}`).join(' '); };
 for (const [w, ipa, exp] of [
-  ['cake', '/keɪk/', 'c=k a=eɪ k=k'], ['nose', '/nəʊz/', 'n=n o=əʊ s=z'], ['biscuit', '/ˈbɪs.kɪt/', 'b=b i=ɪ s=s c=k ui=ɪ t=t'],
+  ['cake', '/keɪk/', 'c=k a=eɪ k=k'], ['nose', '/nəʊz/', 'n=n o=əʊ s=z'], ['biscuit', '/ˈbɪs.kɪt/', 'b=b i=ɪ s=s c=k i=ɪ t=t'],
   ['computer', '/kəm.ˈpjuː.tə/', 'c=k o=ə m=m p=p u=juː t=t er=ə'], ['turtle', '/ˈtɜː.təl/', 't=t ur=ɜː t=t le=əl'],
   ['fox', '/fɒks/', 'f=f o=ɒ x=ks'], ['knee', '/niː/', 'k=∅ n=n ee=iː'], ['lion', '/ˈlaɪ.ən/', 'l=l i=aɪ o=ə n=n'],
 ]) check(phs(w, ipa) === exp, `音素對應 ${w}: ${phs(w, ipa)}，應為 ${exp}`);

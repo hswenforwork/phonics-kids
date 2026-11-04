@@ -28,4 +28,6 @@ Step 0 查發音 → 1 一眼認讀字 → 2 複合字 → 3 字首字尾 → 4 
 - 闖關進度只存在各自的裝置
 
 ## 開發
-純靜態網頁，無需建置。規則引擎測試：`node tests/engine.test.js`
+純靜態網頁，無需建置。
+- 規則引擎測試：`node tests/engine.test.js`
+- 對照 rules.md 檢查每張字母卡的發音：`node tests/audit-rules.cjs`

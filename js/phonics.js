@@ -141,6 +141,8 @@
       if (!u) for (const d in DIGRAPH3) if (rest.startsWith(d)) { u = { text: d, type: 'C', sub: 'trigraph' }; break; }
       // 字尾 子音+le
       if (!u && i === n - 2 && rest === 'le' && i > 0 && !isV(w[i - 1])) u = { text: 'le', type: 'V', sub: 'le' };
+      // c／g 後面的 u 接 i（biscuit、guitar、guide）：u 不發音，只是讓 c／g 保持硬音
+      if (!u && rest.startsWith('ui') && (w[i - 1] === 'c' || w[i - 1] === 'g') && i + 2 < n) u = { text: 'u', type: 'S', sub: 'silent_u' };
       // 母音組合
       if (!u) {
         for (const t of VOWEL_TEAMS) {
@@ -442,6 +444,7 @@
     part.units.forEach((u) => {
       if (u.text === 'igh' || u.text === 'eigh') silent.push({ letter: 'gh', at: u.end - 2 });
       if (u.sub === 'final_e') silent.push({ letter: 'e', at: u.start, magic: !!u.magic });
+      if (u.sub === 'silent_u') silent.push({ letter: 'u', at: u.start });
     });
     res.silent = silent;
     // 字尾 e 前有 2 個以上子音（paste）：發音確認是長音才算魔法 e
@@ -609,6 +612,66 @@
     return true;
   }
 
+  // ---------- 對照 references/rules.md：每張字母卡的念法是否符合規則表，例外要說明原因 ----------
+  const R_SHORT = { a: 'æ', e: 'e', i: 'ɪ', o: 'ɒ', u: 'ʌ' };
+  const R_LONG = { a: ['eɪ'], e: ['iː', 'i'], i: ['aɪ'], o: ['oʊ'], u: ['juː', 'uː'] };
+  const R_DIGRAPH = { sh: ['ʃ'], ch: ['tʃ'], th: ['θ', 'ð'], wh: ['w'], ph: ['f'], ck: ['k'], ng: ['ŋ'], nk: ['ŋk'], tch: ['tʃ'], dge: ['dʒ'] };
+  const R_TEAM = { ai: ['eɪ'], ay: ['eɪ'], ee: ['iː'], ea: ['iː', 'e'], oa: ['oʊ'], ow: ['oʊ', 'aʊ'], oo: ['uː', 'ʊ'], ou: ['aʊ'],
+    oi: ['ɔɪ'], oy: ['ɔɪ'], ue: ['juː', 'uː'], ui: ['uː'], igh: ['aɪ'] };
+  const R_BOSSY = { ar: ['ɑː', 'ɑr'], er: ['ɜː', 'ɜr', 'ər'], ir: ['ɜː', 'ɜr'], or: ['ɔː', 'ɔr'], ur: ['ɜː', 'ɜr'] };
+  const R_C = { b: 'b', d: 'd', f: 'f', h: 'h', j: 'dʒ', k: 'k', l: 'l', m: 'm', n: 'n', p: 'p', r: 'r', t: 't', v: 'v', w: 'w', z: 'z' };
+  // 已知的外來語（照原文念）
+  const LOANWORDS = { pizza: '義大利文' };
+  function sylInfo(r, u) {
+    const start = r.syllables.slice(0, u.syl).join('').length;
+    return { open: start + (r.syllables[u.syl] || '').length === u.end, multi: r.syllables.length > 1 };
+  }
+  /** 回傳 null（符合規則）或 { exp, why }（例外，why 是給家長和孩子看的說明） */
+  function ruleNote(r, u) {
+    if (!u || !r.phMapped || u.type === 'S' || r.strategy === 'sight') return null;
+    const ph = u.phSilent ? '' : (u.ph || '');
+    const w = r.word, nx = w[u.end] || '';
+    if (LOANWORDS[w]) {
+      const exp = u.type === 'V' && u.sub === 'single' ? null : (u.text === 'z' ? 'z' : null);
+      if ((u.text === 'z' && ph !== 'z') || (u.text === 'i' && ph === 'iː')) return { exp: exp || R_SHORT[u.text], why: `外來語（${LOANWORDS[w]}），照原文念 /${ph}/` };
+    }
+    if (u.type === 'V') {
+      if (u.sub === 'single') {
+        if (ph === 'ə' || (ph === 'ɪ' && u.stressed === false)) return null; // 非重音節輕讀
+        const { open, multi } = sylInfo(r, u);
+        if (u.magicBy) return R_LONG[u.text].includes(ph) ? null : { exp: R_LONG[u.text][0], why: '例外：魔法 e 通常讓母音念長音' };
+        if (u.text === 'o' && ph === 'ʌ') return { exp: 'ɒ', why: '例外：o 在 mother、brother、monkey、money 這類字念 /ʌ/' };
+        if (u.text === 'a' && ph === 'ɔː' && nx === 'l') return { exp: 'æ', why: 'a 遇到後面的 l（all、ball、talk）念 /ɔː/' };
+        if (u.text === 'a' && ph === 'ɑː') return { exp: 'æ', why: '英式念法：這個 a 念 /ɑː/' };
+        if (u.text === 'u' && ph === 'uː') return null; // 長音 u 在 r、l、j 後念 /uː/（ruler、blue）
+        if (open && multi && ph === R_SHORT[u.text]) return { exp: R_LONG[u.text][0], why: '例外：開音節通常念長音，這個字念短音' };
+        if (!open && R_LONG[u.text].includes(ph) && !u.magicMaybe) return { exp: R_SHORT[u.text], why: '例外：閉音節通常念短音，這個字念長音' };
+        if (ph !== R_SHORT[u.text] && !R_LONG[u.text].includes(ph)) return { exp: R_SHORT[u.text], why: `例外念法：這裡念 /${ph}/` };
+        return null;
+      }
+      if (u.sub === 'team') {
+        if (!R_TEAM[u.text]) return null;
+        return R_TEAM[u.text].includes(ph) ? null : { exp: R_TEAM[u.text][0], why: `例外：${u.text} 一般念 /${R_TEAM[u.text][0]}/，這個字念 /${ph}/` };
+      }
+      if (u.sub === 'bossy') return R_BOSSY[u.text].includes(ph) || (ph === 'ə' && u.stressed === false) ? null : { exp: R_BOSSY[u.text][0], why: `例外：${u.text} 這裡念 /${ph}/` };
+      if (u.sub === 'le') return ph === 'əl' ? null : { exp: 'əl', why: '例外念法' };
+      return null;
+    }
+    if (R_DIGRAPH[u.text]) return R_DIGRAPH[u.text].includes(ph) ? null : { exp: R_DIGRAPH[u.text][0], why: `例外：${u.text} 這裡念 /${ph}/` };
+    if (u.text === 'n' && ph === 'ŋ') return { exp: 'n', why: 'n 在 k、g 前面念 /ŋ/（像 nk、ng 裡的 n）' };
+    if (u.text === 'c') { const exp = nx && 'eiy'.includes(nx) ? 's' : 'k'; return ph === exp ? null : { exp, why: `例外：這個 c 念 /${ph}/` }; }
+    if (u.text === 'g') {
+      const soft = nx && 'eiy'.includes(nx);
+      if (soft && ph === 'ɡ') return { exp: 'dʒ', why: `例外：g 遇到 ${nx} 通常念 /dʒ/，這個字念硬音 /ɡ/` };
+      return !soft && ph !== 'ɡ' ? { exp: 'ɡ', why: `例外：這個 g 念 /${ph}/` } : null;
+    }
+    if (u.text === 'y') return ph === 'j' ? null : { exp: 'j', why: '例外念法' };
+    if (u.text === 's') return ph === 's' || ph === 'z' ? null : { exp: 's', why: `例外：這個 s 念 /${ph}/` };
+    if (u.text === 'x') return ph === 'ks' ? null : { exp: 'ks', why: `例外：這個 x 念 /${ph}/` };
+    if (R_C[u.text] && ph !== R_C[u.text] && !u.dbl && !(u.text === 'r' && !ph)) return { exp: R_C[u.text], why: ph ? `例外：這裡念 /${ph}/` : '這裡不發音' };
+    return null;
+  }
+
   // ---------- 音素框（Elkonin Boxes）：一個音一格 ----------
   // 回傳 [{ letters, key, silent }]，不發音字母另成虛線框（silent: true）
   function elkonin(r) {
@@ -642,7 +705,7 @@
   // 產生語音用的 IPA：語音合成無法單獨念子音，先念「子音＋ə」，產生後由 scripts/trim_consonants.py 把 ə 剪掉
   const phSay = (ph) => (isConsonantPh(ph) ? ph + 'ə' : ph || '');
 
-  const api = { analyze, parseIPA, tokenize, elkonin, ipaSegments, mapPhonemes, phFile, phSay, isConsonantPh, RULES, SIGHT, LONG, SHORT };
+  const api = { analyze, parseIPA, tokenize, elkonin, ipaSegments, mapPhonemes, phFile, phSay, isConsonantPh, ruleNote, RULES, SIGHT, LONG, SHORT };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.PK_PHONICS = api;
 })(this);
