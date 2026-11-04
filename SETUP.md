@@ -2,9 +2,9 @@
 
 ## 1. 開啟 GitHub Pages（網站網址）
 1. 打開 repo 的 **Settings → Pages**
-2. **Source** 選「Deploy from a branch」
-3. Branch 選 **main**、資料夾選 **/ (root)**，按 **Save**
-4. 約 1～2 分鐘後，網址是 **https://hswenforwork.github.io/phonics-kids/**
+2. **Source** 選「**GitHub Actions**」（不要選 Deploy from a branch，否則短時間內多次更新會出現「in progress deployment」部署失敗）
+3. 到 **Actions** 分頁，左邊選「部署網站」，按 **Run workflow** 部署一次
+4. 約 1～2 分鐘後，網址是 **https://hswenforwork.github.io/phonics-kids/**；之後每次更新都會自動部署
 
 ## 2. 申請 Google 語音金鑰（產生英式 AI 語音）
 1. 到 <https://console.cloud.google.com/> 用 Google 帳號登入，建立一個專案（名稱例如 phonics-kids）

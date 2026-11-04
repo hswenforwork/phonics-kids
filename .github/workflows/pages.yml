@@ -1,0 +1,39 @@
+# 部署網站到 GitHub Pages
+# 同一時間只跑一個部署；短時間內有多次更新時，舊的部署會被取消，只部署最新版，避免「in progress deployment」錯誤。
+# 使用前請到 Settings → Pages，把 Source 改成「GitHub Actions」。
+name: 部署網站
+
+on:
+  push:
+    branches: [main]
+  # 自動流程推送的語音檔不會觸發 push，所以在它們完成後也部署一次
+  workflow_run:
+    workflows: [產生語音檔, 單字申請單]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - id: deployment
+        uses: actions/deploy-pages@v4
