@@ -4,6 +4,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { spawnSync } = require('child_process');
 const { ROOT, SOUNDS, P, allEntries, known } = require('./common.cjs');
 
 const KEY = process.env.GOOGLE_TTS_API_KEY;
@@ -43,12 +44,12 @@ function jobs() {
     P.elkonin(r).forEach((b) => { if (b.ph && !phs.has(b.ph)) phs.set(b.ph, b.key); });
   }
   for (const [ph, key] of phs) {
-    out.push({ id: 'p/' + P.phFile(ph), ssml: ssml(P.phSay(ph), (SOUNDS[key] || {}).tts || 'uh'), rate: 0.8 });
+    out.push({ id: 'p/' + P.phFile(ph), ssml: ssml(P.phSay(ph), (SOUNDS[key] || {}).tts || 'uh'), rate: 0.8, trim: P.isConsonantPh(ph) ? ph : '' });
   }
   for (const [key, s] of Object.entries(SOUNDS)) {
     if (!s.ipa || key === 'silent') continue;
-    // 只用音素本身（子音不加 /ə/）
-    out.push({ id: 'ph/' + key, ssml: ssml(s.ipa, s.tts || s.ipa), rate: 0.8 });
+    // 子音先念「子音＋ə」再剪掉 ə，只留子音本身
+    out.push({ id: 'ph/' + key, ssml: ssml(P.phSay(s.ipa), s.tts || s.ipa), rate: 0.8, trim: P.isConsonantPh(s.ipa) ? s.ipa : '' });
   }
   return out;
 }
@@ -74,13 +75,18 @@ async function synth(job) {
   const list = jobs();
   let made = 0, failed = 0;
   for (const job of list) {
-    const hash = crypto.createHash('sha1').update(VOICE + '|' + job.rate + '|' + job.ssml).digest('hex').slice(0, 12);
+    const hash = crypto.createHash('sha1').update(VOICE + '|' + job.rate + '|' + job.ssml + (job.trim ? '|trim-v1' : '')).digest('hex').slice(0, 12);
     const file = path.join(ROOT, 'audio', job.id + '.mp3');
     if (index.items[job.id] === hash && fs.existsSync(file)) continue;
     try {
       const buf = await synth(job);
       fs.mkdirSync(path.dirname(file), { recursive: true });
       fs.writeFileSync(file, buf);
+      if (job.trim) {
+        const t = spawnSync('python3', [path.join(__dirname, 'trim_consonants.py'), job.trim, file, file], { encoding: 'utf8' });
+        if (t.status !== 0) throw new Error(`${job.id}：剪掉 ə 失敗 ${t.stderr || ''}`);
+        console.log('  ✂', t.stdout.trim());
+      }
       index.items[job.id] = hash;
       made++;
       await new Promise((r) => setTimeout(r, 80));

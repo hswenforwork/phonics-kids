@@ -637,10 +637,12 @@
 
   // 音素轉檔名（避免特殊符號）：b → 62，eɪ → 65_26a
   const phFile = (ph) => Array.from(ph).map((c) => c.codePointAt(0).toString(16)).join('_');
-  // 產生語音用的 IPA：一律只用該音素本身，子音不加 /ə/
-  const phSay = (ph) => ph || '';
+  // 是否為子音（不含母音）的音素
+  const isConsonantPh = (ph) => !!ph && !isIpaV(ph[0]) && !/^j[uː]/.test(ph);
+  // 產生語音用的 IPA：語音合成無法單獨念子音，先念「子音＋ə」，產生後由 scripts/trim_consonants.py 把 ə 剪掉
+  const phSay = (ph) => (isConsonantPh(ph) ? ph + 'ə' : ph || '');
 
-  const api = { analyze, parseIPA, tokenize, elkonin, ipaSegments, mapPhonemes, phFile, phSay, RULES, SIGHT, LONG, SHORT };
+  const api = { analyze, parseIPA, tokenize, elkonin, ipaSegments, mapPhonemes, phFile, phSay, isConsonantPh, RULES, SIGHT, LONG, SHORT };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.PK_PHONICS = api;
 })(this);

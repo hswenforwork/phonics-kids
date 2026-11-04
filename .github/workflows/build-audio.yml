@@ -11,6 +11,7 @@ on:
       - js/phonics.js
       - data/custom-words.json
       - scripts/build-audio.cjs
+      - scripts/trim_consonants.py
 
 permissions:
   contents: write
@@ -27,6 +28,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: 準備剪音工具
+        run: |
+          which ffmpeg || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
+          python3 -c "import numpy" 2>/dev/null || pip install -q numpy
       - name: 產生語音檔
         env:
           GOOGLE_TTS_API_KEY: ${{ secrets.GOOGLE_TTS_API_KEY }}
