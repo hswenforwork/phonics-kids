@@ -59,6 +59,7 @@
     if (it.onstart) it.onstart();
     await ready;
     if (it.path && has(it.path)) { if (await playUrl('audio/' + it.path + '.mp3', myToken)) return; }
+    if (it.path2 && has(it.path2)) { if (await playUrl('audio/' + it.path2 + '.mp3', myToken)) return; }
     if (it.url) { if (await playUrl(it.url, myToken)) return; }
     if (it.text) await tts(it.text, it.rate, myToken);
   }
@@ -78,7 +79,13 @@
     if (!s || key === 'silent') return { pause: 10 };
     return Object.assign({ path: 'ph/' + key, text: s.tts || '', rate: 0.6 }, extra);
   };
+  // 依這個字實際的 IPA 音素播放；沒有對應音檔時退回同類音（ph/key），再退回瀏覽器語音
+  const phonemeIPA = (ph, key, extra) => {
+    if (!ph) return phoneme(key, extra);
+    const s = SOUNDS[key] || {};
+    return Object.assign({ path: 'p/' + root.PK_PHONICS.phFile(ph), path2: 'ph/' + key, text: s.tts || '', rate: 0.6 }, extra);
+  };
   const isAI = (e) => has('w/' + e.word);
 
-  root.PK_AUDIO = { play, stop, word, syllable, phoneme, isAI, ready: () => ready, has };
+  root.PK_AUDIO = { play, stop, word, syllable, phoneme, phonemeIPA, isAI, ready: () => ready, has };
 })(this);

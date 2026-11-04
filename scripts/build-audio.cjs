@@ -4,7 +4,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const { ROOT, SOUNDS, allEntries } = require('./common.cjs');
+const { ROOT, SOUNDS, P, allEntries, known } = require('./common.cjs');
 
 const KEY = process.env.GOOGLE_TTS_API_KEY;
 const VOICE = process.env.TTS_VOICE || 'en-GB-Neural2-C';
@@ -32,6 +32,18 @@ function jobs() {
     } else if (syl.length === 1) {
       out.push({ id: `s/${e.word}-0`, ssml: ssml(ipa.replace(/[.ˈˌ]/g, ''), e.word), rate: 0.75 });
     }
+  }
+  // 每個字實際出現的音素（依 IPA 音素表對應到字母），重複的只產生一次
+  const kn = known();
+  const phs = new Map();
+  for (const e of allEntries()) {
+    if (!e.ipa) continue;
+    const r = P.analyze(e.word, { ipa: e.ipa, known: kn, libSyllables: e.syl || undefined });
+    (r.units || []).forEach((u) => { if (u.ph && !phs.has(u.ph)) phs.set(u.ph, u.key); });
+    P.elkonin(r).forEach((b) => { if (b.ph && !phs.has(b.ph)) phs.set(b.ph, b.key); });
+  }
+  for (const [ph, key] of phs) {
+    out.push({ id: 'p/' + P.phFile(ph), ssml: ssml(P.phSay(ph), (SOUNDS[key] || {}).tts || 'uh'), rate: 0.8 });
   }
   for (const [key, s] of Object.entries(SOUNDS)) {
     if (!s.ipa || key === 'silent') continue;

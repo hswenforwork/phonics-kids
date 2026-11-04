@@ -8,6 +8,7 @@ on:
     paths:
       - js/data.js
       - js/sounds.js
+      - js/phonics.js
       - data/custom-words.json
       - scripts/build-audio.cjs
 

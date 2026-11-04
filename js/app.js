@@ -214,7 +214,7 @@
   // ---------- 字卡（兩種模式共用） ----------
   const SYL_COLORS = ['c1', 'c2', 'c3', 'c4', 'c5'];
   function tileClass(u) {
-    if (u.type === 'S') return 'silent';
+    if (u.type === 'S' || u.phSilent) return 'silent';
     if (u.type === 'V') return { team: 'team', team_r: 'team', bossy: 'bossy', le: 'team' }[u.sub] || 'vowel';
     return u.sub === 'digraph' || u.sub === 'trigraph' ? 'digraph' : 'cons';
   }
@@ -250,9 +250,10 @@
 
   // 提示只顯示音標與規則（不顯示代表字）
   function soundHint(u) {
-    if (u.type === 'S' || u.key === 'silent') return u.magic ? '🤫 <b>e</b> 不出聲：它是魔法 e，讓前面的母音念自己的名字' : `🤫 <b>${u.text}</b> 在這裡不發音`;
-    const s = SOUNDS[u.key];
-    if (!s) return `<b>${u.text}</b>`;
+    if (u.type === 'S' || u.key === 'silent' || u.phSilent) return u.magic ? '🤫 <b>e</b> 不出聲：它是魔法 e，讓前面的母音念自己的名字' : `🤫 <b>${u.text}</b> 在這裡不發音`;
+    const s = SOUNDS[u.key] || {};
+    const ipa = u.ph || s.ipa;
+    if (!ipa) return `<b>${u.text}</b>`;
     let rule;
     if (u.sub === 'bossy') rule = '霸道 R';
     else if (u.sub === 'team' || u.sub === 'team_r') rule = '母音組合，一起念';
@@ -261,9 +262,9 @@
     else if (u.key.startsWith('long_')) rule = '長音，念自己的名字';
     else if (u.key.startsWith('short_')) rule = '短音';
     else if (u.key === 'schwa') rule = '輕聲，輕輕念';
-    else if (u.type === 'C') rule = '子音';
+    else if (u.type === 'C') rule = u.dbl ? '重複字母，同一個音' : '子音';
     else rule = s.zh || '';
-    return `<b>${u.text}</b> 念 <span class="h-ipa">/${s.ipa}/</span>　<span class="h-rule">${rule}</span>`;
+    return `<b>${u.text}</b> 念 <span class="h-ipa">/${ipa}/</span>　<span class="h-rule">${rule}</span>`;
   }
 
   function bindWordCard(e, r) {
@@ -277,7 +278,7 @@
       const u = r.units[+b.dataset.unit];
       flash(b);
       showHint(soundHint(u));
-      A.play(A.phoneme(u.key));
+      if (!u.phSilent && u.type !== 'S') A.play(A.phonemeIPA(u.ph, u.key));
     }));
     card.querySelector('[data-blend]').addEventListener('click', () => {
       const syls = card.querySelectorAll('.syl');
@@ -396,7 +397,8 @@
         <p class="final"><span class="ipa">${r.ipa ? esc(r.ipa) : '（無 IPA）'}</span><span class="split">${r.syllables.join(' · ')}</span></p>
         ${r.adjusted ? `<p class="note">👂 規則推得 ${r.ruleSyllables.join('-')}，依實際發音調整為 ${r.syllables.join('-')}。</p>` : ''}
         ${e.defEn ? `<p class="muted small">英文解釋：${esc(e.defEn)}</p>` : ''}
-        <p class="muted small">音素框：${P.elkonin(r).map((b) => (b.silent ? `(${b.letters})` : b.letters)).join(' ｜ ')}</p>
+        <p class="muted small">音素框：${P.elkonin(r).map((b) => (b.silent ? `(${b.letters})` : `${b.letters} /${b.ph || (SOUNDS[b.key] || {}).ipa || '?'}/`)).join(' ｜ ')}</p>
+        ${r.phMapped ? '' : '<p class="note">⚠️ 這個字的音標無法逐一對應到字母，字母卡的音依拼字規則推測。</p>'}
         <div class="gh-actions">
           ${inLib ? `<a class="btn small" href="${fixURL}" target="_blank" rel="noopener">🛠 回報錯誤</a>
                      ${LIB.get(r.word).custom ? `<button class="btn small" data-move="${r.word}">🗂 換主題</button>` : ''}`

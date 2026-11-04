@@ -66,5 +66,16 @@ for (const [w, ipa, exp] of [
   ['tiger', '/ˈtaɪ.ɡə/', 't/i/g/er'], ['turtle', '/ˈtɜː.təl/', 't/ur/t/le'],
 ]) check(boxes(w, ipa) === exp, `音素框 ${w}: ${boxes(w, ipa)}，應為 ${exp}`);
 
+// 6. 依 IPA 音素表對應字母
+const phs = (w, ipa) => { const r = P.analyze(w, { ipa, known }); return r.units.filter((u) => u.type !== 'S').map((u) => `${u.text}=${u.phSilent ? '∅' : u.ph}`).join(' '); };
+for (const [w, ipa, exp] of [
+  ['cake', '/keɪk/', 'c=k a=eɪ k=k'], ['nose', '/nəʊz/', 'n=n o=əʊ s=z'], ['biscuit', '/ˈbɪs.kɪt/', 'b=b i=ɪ s=s c=k ui=ɪ t=t'],
+  ['computer', '/kəm.ˈpjuː.tə/', 'c=k o=ə m=m p=p u=juː t=t er=ə'], ['turtle', '/ˈtɜː.təl/', 't=t ur=ɜː t=t le=əl'],
+  ['fox', '/fɒks/', 'f=f o=ɒ x=ks'], ['knee', '/niː/', 'k=∅ n=n ee=iː'], ['lion', '/ˈlaɪ.ən/', 'l=l i=aɪ o=ə n=n'],
+]) check(phs(w, ipa) === exp, `音素對應 ${w}: ${phs(w, ipa)}，應為 ${exp}`);
+let unmapped = [];
+THEMES.forEach((t) => t.words.forEach(([w, , , ipa, syl]) => { if (!P.analyze(w, { ipa, known, libSyllables: syl }).phMapped) unmapped.push(w); }));
+check(unmapped.length === 0, `單字庫都要能對應音素：${unmapped.join(', ')}`);
+
 console.log(`\n${total - fail}/${total} 通過`);
 process.exit(fail ? 1 : 0);

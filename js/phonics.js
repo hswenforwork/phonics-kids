@@ -393,6 +393,7 @@
     // 自檢
     if (finalSyl.join('') !== word) res.warnings.push('音節拼回去不等於原單字');
     if (ip && !sight && ip.nuclei.length && ip.nuclei.length !== finalSyl.length) res.warnings.push(`IPA 有 ${ip.nuclei.length} 個母音音，但切成 ${finalSyl.length} 個音節`);
+    res.phMapped = opts.ipa ? mapPhonemes(part.units, opts.ipa) : false;
     res.stars = computeStars(res);
     return res;
   }
@@ -438,6 +439,101 @@
     return 1;
   }
 
+
+  // ---------- 依 IPA 音素表，把每個字母單位對應到這個字實際的音素 ----------
+  const IPA_V = ['aɪə', 'aʊə', 'eɪ', 'aɪ', 'ɔɪ', 'aʊ', 'əʊ', 'oʊ', 'ɪə', 'eə', 'ʊə', 'iː', 'uː', 'ɑː', 'ɔː', 'ɜː', 'ɛː',
+    'ɑr', 'ɔr', 'ɛr', 'ɪr', 'ʊr', 'ɜr', 'ər', 'ɝ', 'ɚ', 'æ', 'e', 'ɛ', 'ɪ', 'i', 'ɒ', 'ɑ', 'ʌ', 'ɔ', 'ʊ', 'u', 'ə', 'ɐ', 'o', 'a', 'ɜ', 'ᵻ'];
+  const IPA_C2 = ['tʃ', 'dʒ'];
+  const isIpaV = (ch) => !!ch && IPA_V.some((v) => v[0] === ch);
+  function ipaSegments(ipa) {
+    // 音節點是界線：母音組合不會跨過音節（lion 的 aɪ.ə 不會被當成一個三合母音）
+    const pieces = String(ipa || '').replace(/[\/\[\]()ˈˌ\s]/g, '').replace(/ɹ/g, 'r').replace(/g/g, 'ɡ').replace(/̩/g, '').split('.');
+    const out = [];
+    for (const s of pieces) {
+      let i = 0;
+      while (i < s.length) {
+        const v = IPA_V.find((p) => s.startsWith(p, i) && !(p.length > 1 && p.endsWith('r') && isIpaV(s[i + p.length])));
+        if (v) {
+          let len = v.length;
+          if (s[i + len] === 'ː' && !v.endsWith('ː')) len++;
+          const seg = s.slice(i, i + len);
+          const prev = out[out.length - 1];
+          // /juː/（computer 的 u）：j 跟母音一起算
+          if (prev && prev.t === 'C' && prev.ipa === 'j' && /^u/.test(seg)) { prev.t = 'V'; prev.ipa = 'j' + seg; }
+          else out.push({ t: 'V', ipa: seg });
+          i += len; continue;
+        }
+        const c2 = IPA_C2.find((p) => s.startsWith(p, i));
+        if (c2) { out.push({ t: 'C', ipa: c2 }); i += 2; continue; }
+        if (s[i] === 'ː') { i++; continue; }
+        out.push({ t: 'C', ipa: s[i] }); i++;
+      }
+    }
+    return out;
+  }
+  const COMPAT = {
+    b: ['b'], c: ['k', 's'], ch: ['tʃ', 'k', 'ʃ'], ck: ['k'], d: ['d'], dge: ['dʒ'], f: ['f'], g: ['ɡ', 'dʒ'], h: ['h'], j: ['dʒ'],
+    k: ['k'], l: ['l'], m: ['m'], n: ['n', 'ŋ'], ng: ['ŋ', 'ŋɡ'], nk: ['ŋk'], p: ['p'], ph: ['f'], qu: ['kw', 'k'], r: ['r'],
+    s: ['s', 'z', 'ʃ', 'ʒ'], sh: ['ʃ'], t: ['t', 'tʃ'], tch: ['tʃ'], th: ['θ', 'ð'], v: ['v'], w: ['w'], wh: ['w', 'h'],
+    x: ['ks', 'ɡz'], y: ['j'], z: ['z', 's', 't', 'ts'],
+  };
+  function alignGap(units, phs) {
+    const m = units.length, n = phs.length, INF = 1e9;
+    const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(INF));
+    const back = Array.from({ length: m + 1 }, () => Array(n + 1).fill(null));
+    dp[0][0] = 0;
+    for (let i = 0; i <= m; i++) for (let j = 0; j <= n; j++) {
+      const c = dp[i][j]; if (c >= INF) continue;
+      if (j < n && c + 4 < dp[i][j + 1]) { dp[i][j + 1] = c + 4; back[i][j + 1] = [i, j, -1]; } // 多出來的音素
+      if (i === m) continue;
+      const u = units[i];
+      for (let L = 0; L <= 2 && j + L <= n; L++) {
+        const seq = phs.slice(j, j + L).join('');
+        let cost;
+        if (L === 0) cost = (i > 0 && units[i - 1].text === u.text) || u.text === 'r' || u.text === 'h' ? 0.3 : 2;
+        else cost = (COMPAT[u.text] || [u.text]).includes(seq) ? 0 : (L === 1 ? 3 : 5);
+        if (c + cost < dp[i + 1][j + L]) { dp[i + 1][j + L] = c + cost; back[i + 1][j + L] = [i, j, L]; }
+      }
+    }
+    const res = Array(m).fill('');
+    let i = m, j = n;
+    while (i > 0 || j > 0) {
+      const b = back[i][j]; if (!b) break;
+      if (b[2] >= 0) res[b[0]] = phs.slice(b[1], b[1] + b[2]).join('');
+      i = b[0]; j = b[1];
+    }
+    return res;
+  }
+  function mapPhonemes(units, ipa) {
+    const segs = ipaSegments(ipa);
+    const vs = units.filter((u) => u.type === 'V');
+    const nuc = segs.filter((x) => x.t === 'V');
+    if (!segs.length || nuc.length !== vs.length) return false;
+    // 字尾 le：/əl/ 的 l 跟著 le 一起（turtle 的 le = /əl/）
+    vs.forEach((u, k) => {
+      if (u.sub !== 'le') return;
+      const at = segs.indexOf(nuc[k]);
+      if (segs[at + 1] && segs[at + 1].t === 'C' && segs[at + 1].ipa === 'l') { nuc[k].ipa += 'l'; segs.splice(at + 1, 1); }
+    });
+    // 依母音把字母與音素切成一段一段（母音前、母音之間、母音後），每段內的子音用最小代價對齊
+    const gapsU = [[]], gapsP = [[]];
+    units.forEach((u) => { if (u.type === 'V') { gapsU.push([]); } else if (u.type === 'C') gapsU[gapsU.length - 1].push(u); });
+    segs.forEach((x) => { if (x.t === 'V') gapsP.push([]); else gapsP[gapsP.length - 1].push(x.ipa); });
+    vs.forEach((u, k) => { u.ph = nuc[k].ipa; });
+    gapsU.forEach((gu, k) => {
+      const res = alignGap(gu, gapsP[k] || []);
+      gu.forEach((u, idx) => {
+        u.ph = res[idx];
+        if (!u.ph) {
+          const prev = gu[idx - 1];
+          if (prev && prev.text === u.text) { u.ph = prev.ph; u.dbl = true; } // 重複字母同一個音
+          else u.phSilent = true;
+        }
+      });
+    });
+    return true;
+  }
+
   // ---------- 音素框（Elkonin Boxes）：一個音一格 ----------
   // 回傳 [{ letters, key, silent }]，不發音字母另成虛線框（silent: true）
   function elkonin(r) {
@@ -448,7 +544,7 @@
     if (/mb$/.test(w)) silentAt.add(w.length - 1);
     const boxes = [];
     for (const u of r.units || []) {
-      if (u.type === 'S' || silentAt.has(u.start) && u.text.length === 1) {
+      if (u.type === 'S' || u.phSilent || silentAt.has(u.start) && u.text.length === 1) {
         boxes.push({ letters: u.text, key: 'silent', silent: true, magic: !!u.magic });
         continue;
       }
@@ -456,14 +552,25 @@
       // 重複子音（bb、ll、zz…）只有一個音，放同一格
       if (u.type === 'C' && prev && !prev.silent && prev.type === 'C' && prev.letters.slice(-1) === u.text && u.text.length === 1) {
         prev.letters += u.text;
+        if (u.ph && !u.dbl) prev.ph += u.ph; // pizza 的 zz = /ts/
         continue;
       }
-      boxes.push({ letters: u.text, key: u.key, silent: false, type: u.type });
+      boxes.push({ letters: u.text, key: u.key, ph: u.ph || '', silent: false, type: u.type });
     }
     return boxes;
   }
 
-  const api = { analyze, parseIPA, tokenize, elkonin, RULES, SIGHT, LONG, SHORT };
+  // 音素轉檔名（避免特殊符號）：b → 62，eɪ → 65_26a
+  const phFile = (ph) => Array.from(ph).map((c) => c.codePointAt(0).toString(16)).join('_');
+  // 產生語音用的 IPA：子音不能單獨發聲，加極短的 /ə/（b → bə，像「ㄅ」）
+  function phSay(ph) {
+    if (!ph) return '';
+    if (isIpaV(ph[0]) || /^j[uː]/.test(ph)) return ph;
+    if (/^ŋ/.test(ph) || /^(ks|ts|ɡz)$/.test(ph)) return 'ə' + ph;
+    return ph + 'ə';
+  }
+
+  const api = { analyze, parseIPA, tokenize, elkonin, ipaSegments, mapPhonemes, phFile, phSay, RULES, SIGHT, LONG, SHORT };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.PK_PHONICS = api;
 })(this);

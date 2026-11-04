@@ -60,7 +60,7 @@
     const trayEl = el.querySelector('.tray');
     const startBtn = el.querySelector('[data-start]');
 
-    const sayBox = (b) => (b.silent ? { pause: 300 } : A.phoneme(b.key));
+    const sayBox = (b) => (b.silent ? { pause: 300 } : A.phonemeIPA(b.ph, b.key));
     function highlightNext() {
       boxEls.forEach((x) => x.classList.remove('next'));
       if (stage === 1) { const k = slots.findIndex((b) => !b.filled); if (k >= 0) boxEls[k].classList.add('next'); }
