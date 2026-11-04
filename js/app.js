@@ -53,7 +53,7 @@
     const anyText = ph.find((p) => p.text) || { text: data[0] && data[0].phonetic || '' };
     const def = (((data[0] || {}).meanings || [])[0] || {}).definitions;
     return {
-      ipa: (uk && uk.text) || anyText.text || '',
+      ipa: ((uk && uk.text) || anyText.text || '').replace(/əʊ/g, 'oʊ'), // 長音 o 統一標成 /oʊ/
       audioUrl: (uk && uk.audio) || (ph.find((p) => p.audio) || {}).audio || '',
       defEn: def && def[0] ? def[0].definition : '',
     };
@@ -92,6 +92,15 @@
     clearTimeout(hintTimer); hintTimer = setTimeout(() => { hintEl.classList.remove('show'); setTimeout(() => (hintEl.hidden = true), 250); }, ms);
   }
   window.PK_SHOWHINT = showHint;
+  // 家長模式：顯示剛剛播放的聲音來源，方便確認是不是 AI 語音檔
+  const srcBadge = document.createElement('div');
+  srcBadge.className = 'src-badge'; srcBadge.hidden = true;
+  document.body.appendChild(srcBadge);
+  A.setOnSource((src) => {
+    if (mode !== 'parent') { srcBadge.hidden = true; return; }
+    srcBadge.textContent = '🔈 剛剛的聲音來源：' + src;
+    srcBadge.hidden = false;
+  });
   const libStars = {};
   LIB.forEach((e, w) => { libStars[w] = analyzeEntry(Object.assign({ source: 'lib' }, e)).stars; });
   const sortedWords = (t) => t.words.slice().sort((a, b) => libStars[a[0]] - libStars[b[0]]);

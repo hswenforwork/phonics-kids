@@ -47,7 +47,7 @@ async function zh(w) {
 
   if (action === 'add') {
     if (existing) done(true, `ℹ️ **${word}** 已經在單字庫裡了，不用再加。`);
-    let ipa = await dict(word);
+    let ipa = (await dict(word)).replace(/əʊ/g, 'oʊ'); // 長音 o 統一標成 /oʊ/
     if (ipa && !IPA_OK.test(ipa)) ipa = '';
     const r = P.analyze(word, { ipa, known: known() });
     const syl = r.syllables.join('-');

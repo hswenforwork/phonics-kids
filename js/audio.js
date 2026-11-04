@@ -7,12 +7,31 @@
 (function (root) {
   const { SOUNDS } = root.PK_SOUNDS;
   let manifest = { items: {} };
-  let ready = fetch('audio/index.json', { cache: 'no-cache' }).then((r) => r.json()).then((m) => { manifest = m || { items: {} }; }).catch(() => {});
+  let loaded = false;
+  let ready = fetch('audio/index.json', { cache: 'no-cache' }).then((r) => r.json()).then((m) => { manifest = m || { items: {} }; }).catch(() => {}).then(() => { loaded = true; });
 
   // iOS 需要在手勢中「解鎖」音訊，所以重複使用同一個 Audio 元素
   const el = new Audio();
   el.preload = 'auto';
   let token = 0;
+  let lastSource = '';
+  let onSource = null;
+  const report = (src) => { lastSource = src; if (onSource) onSource(src); };
+
+  // iOS Safari：第一次觸碰畫面時，在手勢當下播放一段極短的靜音，之後 AI 語音檔才能正常播放
+  const SILENT = 'data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjYwLjE2LjEwMAAAAAAAAAAAAAAA//OEwAAAAAAAAAAAAEluZm8AAAAPAAAABQAAAqAAbW1tbW1tbW1tbW1tbW1tbW1tbZKSkpKSkpKSkpKSkpKSkpKSkpKStra2tra2tra2tra2tra2tra2trbb29vb29vb29vb29vb29vb29vb2///////////////////////////AAAAAExhdmM2MC4zMQAAAAAAAAAAAAAAACQEUAAAAAAAAAKgvT9A1gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//NExAAAAANIAAAAAExBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMu//NExFMAAANIAAAAADEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMu//NExKYAAANIAAAAADEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NExKwAAANIAAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NExKwAAANIAAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV';
+  let unlocked = false;
+  function unlock() {
+    if (unlocked) return;
+    unlocked = true;
+    try {
+      el.src = SILENT;
+      const p = el.play();
+      if (p && p.catch) p.catch(() => { unlocked = false; });
+    } catch (e) { unlocked = false; }
+    if (root.speechSynthesis) { try { speechSynthesis.speak(new SpeechSynthesisUtterance('')); } catch (e) { /* 忽略 */ } }
+  }
+  ['touchend', 'pointerdown', 'click', 'keydown'].forEach((ev) => root.addEventListener(ev, unlock, { capture: true, passive: true }));
 
   function has(path) { return !!(manifest.items && manifest.items[path]); }
 
@@ -57,11 +76,11 @@
     if (myToken !== token) return;
     if (it.pause) { await new Promise((r) => setTimeout(r, it.pause)); return; }
     if (it.onstart) it.onstart();
-    await ready;
-    if (it.path && has(it.path)) { if (await playUrl('audio/' + it.path + '.mp3', myToken)) return; }
-    if (it.path2 && has(it.path2)) { if (await playUrl('audio/' + it.path2 + '.mp3', myToken)) return; }
-    if (it.url) { if (await playUrl(it.url, myToken)) return; }
-    if (it.text) await tts(it.text, it.rate, myToken);
+    if (!loaded) await ready; // 已載入時不等待，讓播放留在觸碰的當下（iOS 才允許）
+    if (it.path && has(it.path)) { if (await playUrl('audio/' + it.path + '.mp3', myToken)) return report('AI 語音檔'); }
+    if (it.path2 && has(it.path2)) { if (await playUrl('audio/' + it.path2 + '.mp3', myToken)) return report('AI 語音檔（同類音）'); }
+    if (it.url) { if (await playUrl(it.url, myToken)) return report('字典真人錄音'); }
+    if (it.text) { await tts(it.text, it.rate, myToken); report('瀏覽器語音（較不精準）'); }
   }
   async function play(items) {
     const myToken = ++token;
@@ -87,5 +106,5 @@
   };
   const isAI = (e) => has('w/' + e.word);
 
-  root.PK_AUDIO = { play, stop, word, syllable, phoneme, phonemeIPA, isAI, ready: () => ready, has };
+  root.PK_AUDIO = { play, stop, word, syllable, phoneme, phonemeIPA, isAI, ready: () => ready, has, setOnSource: (f) => { onSource = f; }, last: () => lastSource };
 })(this);
