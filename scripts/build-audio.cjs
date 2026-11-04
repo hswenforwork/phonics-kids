@@ -44,12 +44,12 @@ function jobs() {
     P.elkonin(r).forEach((b) => { if (b.ph && !phs.has(b.ph)) phs.set(b.ph, b.key); });
   }
   for (const [ph, key] of phs) {
-    out.push({ id: 'p/' + P.phFile(ph), ssml: ssml(P.phSay(ph), (SOUNDS[key] || {}).tts || 'uh'), rate: 0.8, trim: P.isConsonantPh(ph) ? ph : '' });
+    out.push({ id: 'p/' + P.phFile(ph), ssml: ssml(P.phSay(ph), (SOUNDS[key] || {}).tts || 'uh'), rate: 0.8, trim: ph, vowel: !P.isConsonantPh(ph) });
   }
   for (const [key, s] of Object.entries(SOUNDS)) {
     if (!s.ipa || key === 'silent') continue;
     // 子音先念「子音＋ə」再剪掉 ə，只留子音本身
-    out.push({ id: 'ph/' + key, ssml: ssml(P.phSay(s.ipa), s.tts || s.ipa), rate: 0.8, trim: P.isConsonantPh(s.ipa) ? s.ipa : '' });
+    out.push({ id: 'ph/' + key, ssml: ssml(P.phSay(s.ipa), s.tts || s.ipa), rate: 0.8, trim: s.ipa, vowel: !P.isConsonantPh(s.ipa) });
   }
   return out;
 }
@@ -75,7 +75,7 @@ async function synth(job) {
   const list = jobs();
   let made = 0, failed = 0;
   for (const job of list) {
-    const hash = crypto.createHash('sha1').update(VOICE + '|' + job.rate + '|' + job.ssml + (job.trim ? '|trim-v1' : '')).digest('hex').slice(0, 12);
+    const hash = crypto.createHash('sha1').update(VOICE + '|' + job.rate + '|' + job.ssml + (job.trim ? (job.vowel ? '|trim-vowel-v1' : '|trim-v1') : '')).digest('hex').slice(0, 12);
     const file = path.join(ROOT, 'audio', job.id + '.mp3');
     if (index.items[job.id] === hash && fs.existsSync(file)) continue;
     try {
@@ -83,7 +83,8 @@ async function synth(job) {
       fs.mkdirSync(path.dirname(file), { recursive: true });
       fs.writeFileSync(file, buf);
       if (job.trim) {
-        const t = spawnSync('python3', [path.join(__dirname, 'trim_consonants.py'), job.trim, file, file], { encoding: 'utf8' });
+        const args = job.vowel ? ['--vowel', job.trim, file, file] : [job.trim, file, file];
+        const t = spawnSync('python3', [path.join(__dirname, 'trim_consonants.py'), ...args], { encoding: 'utf8' });
         if (t.status !== 0) throw new Error(`${job.id}：剪掉 ə 失敗 ${t.stderr || ''}`);
         console.log('  ✂', t.stdout.trim());
       }

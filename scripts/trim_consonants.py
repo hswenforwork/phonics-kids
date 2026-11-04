@@ -8,7 +8,11 @@
   - 其他濁子音（m n ŋ l r w j v z ð ʒ）：剪在音量明顯變大（母音進來）的地方
 可以拉長的音（s f ʃ θ m n l v z…）會放慢一點，讓孩子聽得清楚。
 
+母音也用同樣的方法：單獨念一個母音時，語音合成常念不準（/ɒ/ 會念得像「ㄚ」），
+所以先念「h＋母音」（像 hot 的開頭），再把前面的 h 剪掉，只留下母音。
+
 用法：python3 scripts/trim_consonants.py IPA 輸入.mp3 輸出.mp3
+      python3 scripts/trim_consonants.py --vowel IPA 輸入.mp3 輸出.mp3
 """
 import subprocess
 import sys
@@ -79,6 +83,30 @@ def find_cut(x, ipa):
     return on, min(on + 14, len(fr))
 
 
+def trim_vowel(src, dst):
+    """剪掉前面的 h：從聲帶開始振動的地方開始保留，到聲音結束"""
+    x = decode(src)
+    fr = frames(x)
+    rms = np.sqrt((fr ** 2).mean(axis=1) + 1e-12)
+    peak = rms.max()
+    per = np.array([periodicity(np.concatenate([fr[i], fr[i + 1]])) if i + 1 < len(fr) else 0 for i in range(len(fr))])
+    on = 0
+    for i in range(len(fr) - 3):
+        if all(per[i + k] > 0.6 and rms[i + k] > peak * 0.25 for k in range(3)):
+            on = i
+            break
+    end = len(fr) - 1
+    while end > on and rms[end] < peak * 0.03:
+        end -= 1
+    seg = x[on * FRAME: (end + 1) * FRAME].copy()
+    fi, fo = int(SR * 0.012), int(SR * 0.03)
+    if len(seg) > fi + fo:
+        seg[:fi] *= np.linspace(0, 1, fi)
+        seg[-fo:] *= np.linspace(1, 0, fo)
+    encode(seg, dst, False)
+    return (end + 1 - on) * 10
+
+
 def trim(ipa, src, dst):
     x = decode(src)
     on, cut = find_cut(x, ipa)
@@ -92,6 +120,9 @@ def trim(ipa, src, dst):
 
 
 if __name__ == '__main__':
-    ipa, src, dst = sys.argv[1], sys.argv[2], sys.argv[3]
-    ms = trim(ipa, src, dst)
-    print(f'{ipa}: 保留 {ms} 毫秒')
+    if sys.argv[1] == '--vowel':
+        ipa, src, dst = sys.argv[2], sys.argv[3], sys.argv[4]
+        print(f'{ipa}（母音）: 保留 {trim_vowel(src, dst)} 毫秒')
+    else:
+        ipa, src, dst = sys.argv[1], sys.argv[2], sys.argv[3]
+        print(f'{ipa}: 保留 {trim(ipa, src, dst)} 毫秒')

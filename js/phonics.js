@@ -703,7 +703,8 @@
   // 是否為子音（不含母音）的音素
   const isConsonantPh = (ph) => !!ph && !isIpaV(ph[0]) && !/^j[uː]/.test(ph);
   // 產生語音用的 IPA：語音合成無法單獨念子音，先念「子音＋ə」，產生後由 scripts/trim_consonants.py 把 ə 剪掉
-  const phSay = (ph) => (isConsonantPh(ph) ? ph + 'ə' : ph || '');
+  // 母音：單獨念常念不準，改念「h＋母音」，產生後再把 h 剪掉
+  const phSay = (ph) => (isConsonantPh(ph) ? ph + 'ə' : ph ? 'h' + ph : '');
 
   const api = { analyze, parseIPA, tokenize, elkonin, ipaSegments, mapPhonemes, phFile, phSay, isConsonantPh, ruleNote, RULES, SIGHT, LONG, SHORT };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
