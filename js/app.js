@@ -214,9 +214,9 @@
   // ---------- 字卡（兩種模式共用） ----------
   const SYL_COLORS = ['c1', 'c2', 'c3', 'c4', 'c5'];
   function tileClass(u) {
-    if (u.type === 'S' || u.phSilent) return 'silent';
+    if (u.type === 'S' || u.phSilent || u.ruleSilent) return 'silent';
     if (u.type === 'V') return { team: 'team', team_r: 'team', bossy: 'bossy', le: 'team' }[u.sub] || 'vowel';
-    return u.sub === 'digraph' || u.sub === 'trigraph' ? 'digraph' : 'cons';
+    return u.sub === 'digraph' || u.sub === 'trigraph' || u.sub === 'suffix_sh' ? 'digraph' : 'cons';
   }
   function wordCardHTML(e, r, opts = {}) {
     const sylHTML = r.syllables.map((s, i) => {
@@ -250,7 +250,7 @@
 
   // 提示只顯示音標與規則（不顯示代表字）
   function soundHint(u) {
-    if (u.type === 'S' || u.key === 'silent' || u.phSilent) return u.magic ? '🤫 <b>e</b> 不出聲：它是魔法 e，讓前面的母音念自己的名字' : `🤫 <b>${u.text}</b> 在這裡不發音`;
+    if (u.type === 'S' || u.key === 'silent' || u.phSilent || u.ruleSilent) return u.magic ? '🤫 <b>e</b> 不出聲：它是魔法 e，讓前面的母音念自己的名字' : `🤫 <b>${u.text}</b> 在這裡不發音`;
     const s = SOUNDS[u.key] || {};
     const ipa = u.ph || s.ipa;
     if (!ipa) return `<b>${u.text}</b>`;
@@ -259,6 +259,8 @@
     else if (u.sub === 'team' || u.sub === 'team_r') rule = '母音組合，一起念';
     else if (u.sub === 'digraph' || u.sub === 'trigraph') rule = '好朋友字母，一起念';
     else if (u.sub === 'le') rule = '字尾 le';
+    else if (u.sub === 'suffix_sh') rule = `字尾 ${u.text}on 的一部分，整體不拆`;
+    else if (u.sub === 'ture_t' || u.sub === 'ure') rule = '字尾 ture 的一部分，整體念 /tʃə/';
     else if (u.key.startsWith('long_')) rule = '長音，念自己的名字';
     else if (u.key.startsWith('short_')) rule = '短音';
     else if (u.key === 'schwa') rule = '輕聲，輕輕念';
@@ -278,7 +280,7 @@
       const u = r.units[+b.dataset.unit];
       flash(b);
       showHint(soundHint(u));
-      if (!u.phSilent && u.type !== 'S') A.play(A.phonemeIPA(u.ph, u.key));
+      if (!u.phSilent && !u.ruleSilent && u.type !== 'S') A.play(A.phonemeIPA(u.ph, u.key));
     }));
     card.querySelector('[data-blend]').addEventListener('click', () => {
       const syls = card.querySelectorAll('.syl');

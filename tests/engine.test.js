@@ -77,5 +77,35 @@ let unmapped = [];
 THEMES.forEach((t) => t.words.forEach(([w, , , ipa, syl]) => { if (!P.analyze(w, { ipa, known, libSyllables: syl }).phMapped) unmapped.push(w); }));
 check(unmapped.length === 0, `單字庫都要能對應音素：${unmapped.join(', ')}`);
 
+// 7. references/rules.md 的範例（不給 IPA，測試決策指南與例外處理）
+const RULES_MD = {
+  rabbit: 'rab-bit', napkin: 'nap-kin', pepper: 'pep-per', kitten: 'kit-ten', picnic: 'pic-nic', public: 'pub-lic',
+  chicken: 'chick-en', pitcher: 'pitch-er',
+  tiger: 'ti-ger', baby: 'ba-by', music: 'mu-sic', open: 'o-pen', robot: 'ro-bot', paper: 'pa-per',
+  camel: 'cam-el', city: 'cit-y', robin: 'rob-in', model: 'mod-el', seven: 'sev-en', melon: 'mel-on',
+  lion: 'li-on', poem: 'po-em', diet: 'di-et', cruel: 'cru-el', create: 'cre-ate',
+  turtle: 'tur-tle', table: 'ta-ble', puzzle: 'puz-zle', simple: 'sim-ple', apple: 'ap-ple', circle: 'cir-cle', gentle: 'gen-tle',
+  action: 'ac-tion', nation: 'na-tion', picture: 'pic-ture', nature: 'na-ture',
+  finish: 'fin-ish', rapid: 'rap-id', solid: 'sol-id', magic: 'mag-ic', body: 'bod-y', money: 'mon-ey', lemon: 'lem-on', river: 'riv-er',
+};
+for (const [w, exp] of Object.entries(RULES_MD)) {
+  const r = P.analyze(w, { known });
+  check(r.syllables.join('-') === exp, `rules.md ${w}: ${r.syllables.join('-')}，應為 ${exp}`);
+}
+const unitKey = (w, text) => (P.analyze(w, { known }).units.find((u) => u.text === text) || {}).key;
+check(unitKey('city', 'c') === 's' && unitKey('pencil', 'c') === 's', '軟 c');
+check(unitKey('gym', 'g') === 'j' && unitKey('giant', 'g') === 'j' && unitKey('gentle', 'g') === 'j', '軟 g');
+check(unitKey('girl', 'g') === 'g' && unitKey('tiger', 'g') === 'g', '例外的硬 g');
+check(unitKey('bread', 'ea') === 'short_e' && unitKey('head', 'ea') === 'short_e' && unitKey('eat', 'ea') === 'long_e', 'ea 長短音');
+check(unitKey('cow', 'ow') === 'ow' && unitKey('snow', 'ow') === 'long_o', 'ow 兩種念法');
+check(unitKey('book', 'oo') === 'oo_short' && unitKey('moon', 'oo') === 'oo_long', 'oo 長短音');
+check(unitKey('yellow', 'y') === 'y', '字首 y 是子音');
+for (const [w, letter] of [['knife', 'k'], ['write', 'w'], ['lamb', 'b'], ['talk', 'l'], ['night', 'gh'], ['gnome', 'g'], ['psalm', 'p'], ['listen', 't'], ['castle', 't']]) {
+  check(P.analyze(w, { known }).silent.some((s) => s.letter === letter), `不發音字母 ${w} 的 ${letter}`);
+}
+for (const w of ['cake', 'hope', 'time', 'cute', 'these']) check(P.analyze(w, { known }).magicE, `魔法 e：${w}`);
+check(P.analyze('paste', { ipa: '/peɪst/', known }).magicE, '魔法 e：paste（2 個子音，發音確認長音）');
+check(P.analyze('nation', { known }).units.some((u) => u.text === 'ti' && u.key === 'sh'), 'tion 的 ti 念 /ʃ/');
+
 console.log(`\n${total - fail}/${total} 通過`);
 process.exit(fail ? 1 : 0);

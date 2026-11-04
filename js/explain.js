@@ -27,7 +27,7 @@
     const af = r.affix || {};
     rows.push(['Step 3 – 字首字尾', af.prefix || af.suffix
       ? `${af.prefix ? `字首 ${af.prefix}-，` : ''}${af.suffix ? `字尾 -${af.suffix}，` : ''}詞根 ${af.root}（仍掃描整個字）`
-      : '沒有可拆的字首字尾']);
+      : (r.suffixSh || r.suffixTure ? `字尾 ${r.suffixSh ? '-tion／-sion' : '-ture'} 整體不拆分` : '沒有可拆的字首字尾')]);
     rows.push(['Step 4 – 找母音', join(vowelUnits(r).map((u) => {
       const kind = { team: '母音組合', bossy: '霸道 R', y: 'y 當母音', le: '字尾 le', single: '單母音' }[u.sub];
       return `${u.text}（第 ${u.start + 1} 個字母，${kind}${u.key ? '，' + (snd(u.key).zh || u.key) + ' ' + ipaOf(u.key) : ''}）`;
@@ -39,7 +39,8 @@
       const R = RULES[c.rule];
       const name = R ? `${R.icon} ${R.zh}` : '依實際發音';
       const mid = c.consonants && c.consonants.length ? `中間子音 ${c.consonants.join('+')}（${c.consonants.length} 個單位）` : '中間沒有子音';
-      return `${c.v1 || ''}${c.v2 ? '…' + c.v2 : ''} ${mid} → ${name}，切在第 ${c.pos} 個字母後`;
+      const basis = { ipa: '依發音', list: '依常見詞表', magic: '依魔法 e', ending: '依字尾 -it/-in/-ot/-en/-on/-el/-il', default: '預設老虎法則，需驗證', spelling: 'ck／tch／dge／x 不放音節開頭', suffix: '-tion／-sion／-ture 自成音節' }[c.how];
+      return `${c.v1 || ''}${c.v2 ? '…' + c.v2 : ''} ${mid} → ${name}${basis ? `（${basis}）` : ''}，切在第 ${c.pos} 個字母後`;
     }), '；') : '只有一個音節，不用切')]);
     const fx = [];
     fx.push(`魔法 e：${r.magicE ? '有' : '沒有'}`);
@@ -75,6 +76,8 @@
       out.push(`字尾的 e 是魔法 e，它自己不出聲，卻讓前面的 ${v ? v.text : '母音'} 念自己的名字${v ? ' ' + ipaOf(v.key) : ''}。`);
     }
     r.silent.filter((s) => s.letter !== 'e').forEach((s) => out.push(`${s.letter} 在這裡是安靜字母，不發音。`));
+    if (r.suffixSh) { const u = r.units.find((x) => x.sub === 'suffix_sh'); out.push(`字尾 ${u.text}${r.word.slice(u.end)} 是一個整體，不拆開，念 /${u.text === 'si' && r.ipa.includes('ʒ') ? 'ʒ' : 'ʃ'}ən/。`); }
+    if (r.suffixTure) out.push(`字尾 ture 是一個整體，念 /tʃə/。`);
     if (r.softC) out.push(`c 遇到 e、i、y 會變溫柔，念 /s/。`);
     if (r.softG) out.push(`g 遇到 e、i、y 常常變溫柔，念 /dʒ/。`);
     return out;
@@ -92,8 +95,11 @@
         if (c.blend) return `${c.v1} 和 ${c.v2} 中間的 ${c.blend} 是子音組合要黏在一起，前面的 ${c.v1} 念長音 ${vIpa}，所以在 ${c.blend} 前面切開（老虎法則 🐯），得到 ${left}。`;
         if (c.vowelSound === 'schwa') return `${c.v1} 和 ${c.v2} 中間只有 1 個子音 ${cons}，前面的 ${c.v1} 輕輕念 /ə/，在 ${cons} 前面切開（老虎法則 🐯），得到 ${left}。`;
         if (/^(ar|er|ir|or|ur)$/.test(c.v1)) return `${c.v1} 是霸道 R，後面只有 1 個子音 ${cons}，在 ${cons} 前面切開，得到 ${left}。`;
-        return `${c.v1} 和 ${c.v2} 中間只有 1 個子音 ${cons}，前面的 ${c.v1} ${c.guess ? '可能' : ''}念長音${vIpa ? ' ' + vIpa : ''}（念自己的名字），用老虎法則 🐯 在 ${cons} 前面切開，得到 ${left}。`;
-      case 'camel': return `${c.v1} 和 ${c.v2} 中間只有 1 個子音 ${cons}，前面的 ${c.v1} 念短音 ${vIpa}，用駱駝法則 🐫 在 ${cons} 後面切開，讓 ${cons} 留在前面，得到 ${left}。`;
+        if (c.how === 'suffix') return `字尾 ${r.word.slice(c.pos)} 要整個留在一起，所以在 ${cons} 前面切開，得到 ${left}。`;
+        return `${c.v1} 和 ${c.v2} 中間只有 1 個子音 ${cons}，前面的 ${c.v1} ${c.guess ? '可能' : ''}念長音${vIpa ? ' ' + vIpa : ''}（念自己的名字），用老虎法則 🐯 在 ${cons} 前面切開，得到 ${left}${c.guess ? '（需驗證）' : ''}。`;
+      case 'camel':
+        if (c.how === 'spelling') return `${c.v1} 和 ${c.v2} 中間是 ${cons}，${cons} 不會出現在音節開頭，所以用駱駝法則 🐫 在 ${cons} 後面切開，得到 ${left}。`;
+        return `${c.v1} 和 ${c.v2} 中間只有 1 個子音 ${cons}，前面的 ${c.v1} 念短音${vIpa ? ' ' + vIpa : ''}，用駱駝法則 🐫 在 ${cons} 後面切開，讓 ${cons} 留在前面，得到 ${left}。`;
       case 'lion': return `${c.v1} 和 ${c.v2} 緊緊靠在一起，但各念各的音，用獅子法則 🦁 在中間切開，得到 ${left}。`;
       case 'turtle': return `字尾是子音 ${cons.split('、').pop()} + le，用烏龜法則 🐢 在 ${cons.split('、').pop()} 前面切開，得到 ${r.syllables[sylOf(r, c.pos) + 1]}。`;
       default: return `依照實際發音，在第 ${c.pos} 個字母後面切開，得到 ${left}。`;

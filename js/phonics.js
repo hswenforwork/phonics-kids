@@ -15,6 +15,28 @@
     'only', 'other', 'mother', 'water', 'people', 'again', 'buy', 'done', 'gone', 'move', 'whose',
     'want', 'very', 'our', 'hour', 'here', 'please']);
 
+  // ---------- 依 references/rules.md 的決策指南與例外詞表 ----------
+  // 老虎／駱駝常見詞：沒有發音資料時先查這兩張表
+  const TIGER_WORDS = new Set(['tiger', 'baby', 'music', 'open', 'robot', 'paper', 'basic', 'bonus', 'labor', 'pilot', 'vital',
+    'major', 'female', 'moment', 'lady', 'tulip', 'student', 'silent', 'over', 'even', 'hotel', 'spider', 'zero', 'table', 'tiny']);
+  const CAMEL_WORDS = new Set(['camel', 'city', 'robin', 'model', 'seven', 'melon', 'lemon', 'river', 'finish', 'rapid', 'solid',
+    'magic', 'promise', 'body', 'money', 'never', 'clever', 'second', 'panic', 'visit', 'cabin', 'planet', 'travel', 'limit', 'habit',
+    'wagon', 'dragon', 'shadow', 'very', 'sorry', 'lily', 'family', 'animal', 'present', 'liver', 'comic', 'tonic', 'denim', 'seven']);
+  // 啟發式：以 -it -in -ot -en -on -el -il 結尾 → 傾向駱駝法則
+  const CAMEL_ENDINGS = /(it|in|ot|en|on|el|il)$/;
+  // 兩個母音相鄰但分開念（獅子法則），即使看起來像母音組合
+  const LION_WORDS = new Set(['lion', 'poem', 'diet', 'cruel', 'create', 'quiet', 'fuel', 'duet', 'giant', 'video', 'radio', 'idea',
+    'poet', 'violin', 'piano', 'science', 'triangle', 'area', 'react', 'neon', 'riot', 'fluid', 'dial', 'trial', 'oasis', 'iowa']);
+  // ea 念短音 /e/、oo 念短音 /ʊ/、ow 念 /aʊ/ 的常見字（沒有發音資料時使用）
+  const EA_SHORT = new Set(['bread', 'head', 'dead', 'breakfast', 'weather', 'feather', 'heavy', 'ready', 'sweater', 'thread',
+    'spread', 'instead', 'health', 'breath', 'deaf', 'meant', 'heaven', 'leather', 'pleasant', 'meadow']);
+  const OO_SHORT = new Set(['book', 'look', 'cook', 'good', 'foot', 'wood', 'hook', 'took', 'stood', 'wool', 'shook', 'brook', 'hood', 'football', 'cookie']);
+  const OW_COW = new Set(['cow', 'now', 'how', 'wow', 'brown', 'down', 'town', 'clown', 'gown', 'crown', 'owl', 'towel', 'flower',
+    'shower', 'power', 'tower', 'howl', 'frown', 'drown', 'growl', 'powder', 'crowd', 'allow', 'vowel']);
+  // g 遇到 e、i、y 但仍念硬音 /ɡ/ 的常見字
+  const HARD_G = new Set(['get', 'give', 'girl', 'gift', 'tiger', 'finger', 'begin', 'together', 'forget', 'giggle', 'gear', 'geese',
+    'target', 'gig', 'girls', 'gecko', 'goggles', 'buggy', 'foggy', 'giddy', 'gills', 'tangy', 'hungry', 'anger', 'linger', 'eager']);
+
   const VOWEL_TEAMS = ['eigh', 'igh', 'ai', 'ay', 'ee', 'ea', 'oa', 'oe', 'ow', 'oo', 'ou', 'oi', 'oy',
     'ue', 'ui', 'ie', 'ey', 'ew', 'aw', 'au'];
   const TEAM_KEY = { eigh: 'long_a', igh: 'long_i', ai: 'long_a', ay: 'long_a', ee: 'long_e', ea: 'long_e',
@@ -110,8 +132,13 @@
       const rest = w.slice(i);
       const prevIsV = units.length && units[units.length - 1].type === 'V';
       let u = null;
+      // 字尾 -tion／-sion 整體不拆：ti／si 念 /ʃ/（或 /ʒ/），後面的 o 輕讀
+      if (/^[ts]ions?$/.test(rest) && i > 0) u = { text: rest.slice(0, 2), type: 'C', sub: 'suffix_sh' };
+      // 字尾 -ture 整體處理：t 念 /tʃ/，ure 輕讀 /tʃə/
+      if (!u && /^tures?$/.test(rest) && i > 0) u = { text: 't', type: 'C', sub: 'ture_t' };
+      if (!u && /^ures?$/.test(rest) && units.length && units[units.length - 1].sub === 'ture_t') u = { text: rest.startsWith('ures') ? 'ure' : rest, type: 'V', sub: 'ure' };
       // 三合字母（子音）
-      for (const d in DIGRAPH3) if (rest.startsWith(d)) { u = { text: d, type: 'C', sub: 'trigraph' }; break; }
+      if (!u) for (const d in DIGRAPH3) if (rest.startsWith(d)) { u = { text: d, type: 'C', sub: 'trigraph' }; break; }
       // 字尾 子音+le
       if (!u && i === n - 2 && rest === 'le' && i > 0 && !isV(w[i - 1])) u = { text: 'le', type: 'V', sub: 'le' };
       // 母音組合
@@ -167,11 +194,15 @@
         out.splice(k, 2, { text: u.text + 'r', type: 'V', sub: 'team_r', start: u.start, end: nx.end });
       }
     }
-    // 魔法 e：單一母音 + 一個子音單位 + 字尾 e
+    // 魔法 e：單一母音 + 1 個以上子音 + 字尾 e（1 個子音直接成立；2 個以上要等發音確認是長音）
     const last = out[out.length - 1];
     if (last && last.sub === 'final_e') {
-      const c = out[out.length - 2], v = out[out.length - 3];
-      if (c && v && c.type === 'C' && v.type === 'V' && v.sub === 'single') { last.magic = true; v.magicBy = true; }
+      let k = out.length - 2, nc = 0;
+      while (k >= 0 && out[k].type === 'C') { k--; nc++; }
+      const v = out[k];
+      if (nc >= 1 && v && v.type === 'V' && v.sub === 'single') {
+        if (nc === 1) { last.magic = true; v.magicBy = true; } else { last.magicMaybe = true; v.magicMaybe = true; }
+      }
     }
     return out;
   }
@@ -205,6 +236,8 @@
   // ---------- 子音發音 ----------
   function consonantKey(u, word, ip) {
     if (u.sub === 'trigraph') return DIGRAPH3[u.text];
+    if (u.sub === 'suffix_sh') return 'sh';
+    if (u.sub === 'ture_t') return 'ch';
     if (u.sub === 'digraph') {
       if (u.text === 'th') return ip && ip.has('ð') && !ip.has('θ') ? 'th_v' : 'th';
       return DIGRAPH2[u.text];
@@ -213,7 +246,10 @@
     if (u.splitNg && c === 'n' && ip && ip.has('ŋ')) return 'ng';
     switch (c) {
       case 'c': return 'eiy'.includes(nx) && nx ? 's' : 'k';
-      case 'g': return 'eiy'.includes(nx) && nx && ip && ip.has('dʒ') ? 'j' : 'g';
+      case 'g':
+        if (!nx || !'eiy'.includes(nx)) return 'g';
+        if (ip) return ip.has('dʒ') ? 'j' : 'g';
+        return HARD_G.has(word) ? 'g' : 'j'; // 軟 g：g 遇到 e、i、y 念 /dʒ/
       case 's': return ip && ip.has('z') && !word.includes('z') && !word.includes('x') && u.start > 0 ? 'z' : 's';
       case 'x': return 'ks';
       case 'q': return 'k';
@@ -224,6 +260,11 @@
 
   function syllabifyPart(word, ip, forcedCuts) {
     let units = tokenize(word, ip);
+    // 獅子法則常見字（diet、cruel、create…）：沒有發音資料時也把母音組合拆開
+    if (!ip && LION_WORDS.has(word)) {
+      const noTeam = new Set(units.filter((x) => x.sub === 'team').map((x) => x.start));
+      if (noTeam.size) units = tokenize(word, ip, { noTeam });
+    }
     // IPA 母音音比拼字母音單位多 → 有母音組合其實是兩個音（如 poem），逐一拆開試
     if (ip && ip.nuclei.length > units.filter((u) => u.type === 'V').length) {
       const noTeam = new Set();
@@ -268,13 +309,24 @@
       } else if (k === 1) {
         const c = between[0];
         let isCamel;
-        if (v1.sub === 'bossy') isCamel = false;
+        let how = 'ipa';
+        // ck、tch、dge、x 不會出現在音節開頭，一定留在前面（chick-en、pitch-er）
+        if (['ck', 'tch', 'dge', 'x'].includes(c.text)) { isCamel = true; how = 'spelling'; }
+        // -tion／-sion／-ture 整體自成一個音節，在它前面切（na-tion、na-ture）
+        else if (c.sub === 'suffix_sh' || c.sub === 'ture_t') { isCamel = false; how = 'suffix'; }
+        else if (v1.sub === 'bossy') isCamel = false;
         else if (aligned) isCamel = SHORT.has(v1.key) && v1.stressed !== false;
-        else isCamel = v1.sub === 'single' ? false : false; // 無發音資料時先試老虎法則
+        // 沒有發音資料時，依決策指南：1 常見詞表 → 2 魔法 e → 3 字尾啟發式 → 4 預設老虎法則（需驗證）
+        else if (CAMEL_WORDS.has(word)) { isCamel = true; how = 'list'; }
+        else if (TIGER_WORDS.has(word)) { isCamel = false; how = 'list'; }
+        else if (v1.magicBy) { isCamel = false; how = 'magic'; }
+        else if (i === vUnits.length - 2 && v1.sub === 'single' && CAMEL_ENDINGS.test(word)) { isCamel = true; how = 'ending'; }
+        else { isCamel = false; how = 'default'; }
         cut.vowelSound = v1.key;
         cut.vowelIpa = v1.ipa;
+        cut.how = how;
         Object.assign(cut, isCamel ? { pos: c.end, rule: 'camel' } : { pos: c.start, rule: 'tiger' });
-        if (!aligned) cut.guess = true;
+        if (!aligned && how !== 'spelling' && how !== 'suffix') cut.guess = how === 'default';
       } else {
         const pair = between.slice(-2).map((c) => c.text).join('');
         const longV1 = aligned && (LONG.has(v1.key));
@@ -380,12 +432,26 @@
     const silent = [];
     if (/^kn/.test(word)) silent.push({ letter: 'k', at: 0 });
     if (/^wr/.test(word)) silent.push({ letter: 'w', at: 0 });
+    if (/^gn/.test(word)) silent.push({ letter: 'g', at: 0 });
+    if (/^ps/.test(word)) silent.push({ letter: 'p', at: 0 });
     if (/mb$/.test(word)) silent.push({ letter: 'b', at: word.length - 1 });
+    if (/[ao]lks?$/.test(word)) silent.push({ letter: 'l', at: word.search(/lks?$/) });
+    if (/st(le|en)s?$/.test(word)) silent.push({ letter: 't', at: word.search(/t(le|en)s?$/) });
+    // 不發音字母的單位（沒有發音資料時用來把字母卡和音素框變灰）
+    silent.forEach((x) => { const u = part.units.find((y) => y.start === x.at && y.text.length === 1 && y.type === 'C'); if (u) u.ruleSilent = true; });
     part.units.forEach((u) => {
       if (u.text === 'igh' || u.text === 'eigh') silent.push({ letter: 'gh', at: u.end - 2 });
       if (u.sub === 'final_e') silent.push({ letter: 'e', at: u.start, magic: !!u.magic });
     });
     res.silent = silent;
+    // 字尾 e 前有 2 個以上子音（paste）：發音確認是長音才算魔法 e
+    part.units.forEach((u) => {
+      if (u.magicMaybe && u.type === 'V' && LONG.has(u.key)) {
+        u.magicBy = true;
+        const e = part.units[part.units.length - 1]; e.magic = true;
+        const sx = silent.find((x) => x.letter === 'e' && x.at === e.start); if (sx) sx.magic = true;
+      }
+    });
     res.magicE = part.units.some((u) => u.magic);
     res.softC = part.units.filter((u) => u.text === 'c' && u.key === 's').length > 0;
     res.softG = part.units.filter((u) => u.text === 'g' && u.key === 'j').length > 0;
@@ -394,6 +460,9 @@
     if (finalSyl.join('') !== word) res.warnings.push('音節拼回去不等於原單字');
     if (ip && !sight && ip.nuclei.length && ip.nuclei.length !== finalSyl.length) res.warnings.push(`IPA 有 ${ip.nuclei.length} 個母音音，但切成 ${finalSyl.length} 個音節`);
     res.phMapped = opts.ipa ? mapPhonemes(part.units, opts.ipa) : false;
+    if (res.phMapped) part.units.forEach((u) => { if (u.ph && !u.phSilent) u.ruleSilent = false; });
+    res.suffixSh = part.units.some((u) => u.sub === 'suffix_sh');
+    res.suffixTure = part.units.some((u) => u.sub === 'ure');
     res.stars = computeStars(res);
     return res;
   }
@@ -411,8 +480,13 @@
   function guessVowelKey(u, word, syl, units) {
     if (u.sub === 'team') {
       if (u.text === 'ie' && word.length <= 4) return 'long_i';
+      if (u.text === 'ea' && EA_SHORT.has(word)) return 'short_e';
+      if (u.text === 'oo' && OO_SHORT.has(word)) return 'oo_short';
+      if (u.text === 'ow') return word[u.end] === 'l' && !OW_COW.has(word) ? 'long_o' : (OW_COW.has(word) ? 'ow' : 'long_o');
       return TEAM_KEY[u.text];
     }
+    if (u.sub === 'ure') return 'schwa';
+    if (u.sub === 'single' && u.text === 'o' && units.some((x) => x.sub === 'suffix_sh' && x.end === u.start)) return 'schwa';
     if (u.sub === 'bossy') return BOSSY_KEY[u.text];
     if (u.sub === 'team_r') return { air: 'air', ear: 'ear', our: 'or', oor: 'or', oar: 'or' }[u.text] || 'er';
     if (u.sub === 'le') return 'le';
@@ -473,6 +547,7 @@
   }
   const COMPAT = {
     b: ['b'], c: ['k', 's'], ch: ['tʃ', 'k', 'ʃ'], ck: ['k'], d: ['d'], dge: ['dʒ'], f: ['f'], g: ['ɡ', 'dʒ'], h: ['h'], j: ['dʒ'],
+    ti: ['ʃ'], si: ['ʃ', 'ʒ'],
     k: ['k'], l: ['l'], m: ['m'], n: ['n', 'ŋ'], ng: ['ŋ', 'ŋɡ'], nk: ['ŋk'], p: ['p'], ph: ['f'], qu: ['kw', 'k'], r: ['r'],
     s: ['s', 'z', 'ʃ', 'ʒ'], sh: ['ʃ'], t: ['t', 'tʃ'], tch: ['tʃ'], th: ['θ', 'ð'], v: ['v'], w: ['w'], wh: ['w', 'h'],
     x: ['ks', 'ɡz'], y: ['j'], z: ['z', 's', 't', 'ts'],
@@ -544,7 +619,7 @@
     if (/mb$/.test(w)) silentAt.add(w.length - 1);
     const boxes = [];
     for (const u of r.units || []) {
-      if (u.type === 'S' || u.phSilent || silentAt.has(u.start) && u.text.length === 1) {
+      if (u.type === 'S' || u.phSilent || u.ruleSilent || silentAt.has(u.start) && u.text.length === 1) {
         boxes.push({ letters: u.text, key: 'silent', silent: true, magic: !!u.magic });
         continue;
       }
