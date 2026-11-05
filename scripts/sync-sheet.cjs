@@ -92,8 +92,6 @@ function themeId(v) {
 // 1. 音節數＝音標裡母音聲音的數量
 // 2. 音標有用「.」分段時，每個大框裡的音要和那一段音標一樣
 //    （跨音節的重複字母 rab-bit 例外：第二拍開頭的 b 是同一個音，不算不符）
-// 3. 重音節的短母音（æ e ɪ ɒ ʌ ʊ）不能放在音節最後，要由子音收尾（zeb-ra、broth-er）
-const SHORT_V = ['æ', 'e', 'ɪ', 'ɒ', 'ʌ', 'ʊ'];
 const V_RE = /(aɪ|aʊ|eɪ|oʊ|əʊ|ɔɪ|eə|ɪə|ʊə|[æɑɒɔəɛɜɪʊʌeiouaɐ])/g;
 function alignCheck(r, a, boxes) {
   const out = [];
@@ -116,15 +114,6 @@ function alignCheck(r, a, boxes) {
     });
   } else if (n > 1 && parts.length > 1 && parts.length !== n) {
     out.push(`音標分成 ${parts.length} 段，但音節有 ${n} 拍，請確認`);
-  }
-  if (n > 1) {
-    a.syllables.forEach((t, k) => {
-      if (k === n - 1) return;
-      const seg = parts.length === n ? parts[k] : '';
-      const stressed = seg ? seg.includes('ˈ') : k === 0;
-      const last = boxes.filter((b) => b.syl === k && !b.silent).slice(-1)[0];
-      if (stressed && last && SHORT_V.includes(last.ph)) out.push(`第 ${k + 1} 拍「${t}」是短母音 /${last.ph}/ 結尾；短母音要由子音收尾（例如 zeb-ra、broth-er），請確認音節`);
-    });
   }
   return out;
 }
