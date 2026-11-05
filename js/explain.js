@@ -15,6 +15,7 @@
     if (b.sub === 'le') return 'le';
     if (DIGRAPH.includes(b.letters)) return 'digraph';
     if (b.dbl) return 'double';
+    if (b.dblSplit) return 'splitdbl';
     if (b.type === 'V') return b.magicBy ? 'long' : b.weak ? 'weak' : 'short';
     if (b.inBlend) return 'blend';
     return 'cons';
@@ -31,6 +32,7 @@
       case 'le': return `<b>le</b> 放同一格，輕輕念`;
       case 'digraph': return `👯 <b>${b.letters}</b> 是好朋友字母：住同一格，只念一個音`;
       case 'double': return `<b>${b.letters}</b> 兩個一樣的字母住同一格，只念一個音`;
+      case 'splitdbl': return `<b>${b.letters}</b> 兩個一樣的字母分在兩拍，每拍各一格，念同一個音`;
       case 'long': return `<b>${b.letters}</b> 念自己的名字（長音）`;
       case 'weak': return `<b>${b.letters}</b> 輕輕念`;
       case 'short': return `<b>${b.letters}</b> 短短的母音`;
@@ -52,6 +54,7 @@
         le: '字尾 le 同一格，輕讀',
         digraph: '好朋友字母：兩個字母同一格',
         double: '重複字母：同一格，只發一個音',
+        splitdbl: '跨音節的重複字母：兩拍各一格，念同一個音',
         long: '長音（念字母的名字）',
         weak: '弱母音：不是重音，輕輕念',
         short: '短母音',

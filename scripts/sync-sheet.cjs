@@ -167,7 +167,9 @@ function emojiOf(w) {
     // 音素音檔欄：每一格目前用的檔名；改成 custom/ 檔名就是例外
     const defaults = boxes.map((b) => (b.silent ? NONE : shareName(b.ph)));
     const cell = (r['音素音檔'] || '').trim();
-    const segs = cell ? cell.split(/[｜|]/).map((s) => s.trim()) : [];
+    let segs = cell ? cell.split(/[｜|]/).map((s) => s.trim()) : [];
+    // 格數變了（例如規則調整），但原本每一格都是預設值：直接重新產生，不用提醒
+    if (segs.length && segs.length !== boxes.length && segs.every((x) => !x || x === NONE || (/\.mp3$/i.test(x) && !findCustom(x, audioFiles)))) segs = [];
     const boxAudio = {};
     if (segs.length && segs.length !== boxes.length) {
       r._warn.push(`音素音檔有 ${segs.length} 格，但這個字有 ${boxes.length} 格（${boxes.map((b) => b.letters).join(SEP)}），這一欄先不套用，請修正`);
@@ -193,7 +195,8 @@ function emojiOf(w) {
     {
       const n = a.syllables.length;
       const cellS = (r['音節音檔'] || '').trim();
-      const segS = cellS ? cellS.split(/[｜|]/).map((x) => x.trim()) : [];
+      let segS = cellS ? cellS.split(/[｜|]/).map((x) => x.trim()) : [];
+      if (segS.length !== n && segS.every((x) => !x || /^ai$/i.test(x))) segS = [];
       if (segS.length && segS.length !== n) {
         r._warn.push(`音節音檔有 ${segS.length} 段，但這個字有 ${n} 個音節（${a.syllables.join('-')}），這一欄先不套用，請修正`);
       } else {
@@ -209,10 +212,12 @@ function emojiOf(w) {
 
     // 整字音檔、圖示
     let wordAudio = '';
-    if (r['整字音檔']) { const c = customAudio(r['整字音檔']); if (c) wordAudio = c.ref; else r._warn.push(`整字音檔「${r['整字音檔']}」在 custom/ 資料夾找不到`); }
+    if (!r['整字音檔']) r['整字音檔'] = 'AI';
+    if (r['整字音檔'] && !/^ai$/i.test(r['整字音檔'])) { const c = customAudio(r['整字音檔']); if (c) wordAudio = c.ref; else r._warn.push(`整字音檔「${r['整字音檔']}」在 custom/ 資料夾找不到`); }
     let emoji = r['圖示'], img = '';
     if (IMG_EXT.test(emoji)) { const f = findCustom(emoji, imageFiles); if (f) { img = 'custom/' + f; emoji = ''; } else { r._warn.push(`圖示「${emoji}」在 custom/ 資料夾找不到`); emoji = '🌟'; } }
 
+    if (!syl) r['音節'] = a.syllables.join('-'); // 空白時填上依規則拆好的音節，之後可以直接改
     r['自動_等級'] = level == null ? '我的單字（只聽與認字）' : `${level} ${P.LEVELS[level].zh}`;
     r['自動_音節'] = a.syllables.join('-');
     r['自動_音節數'] = String(a.syllables.length);

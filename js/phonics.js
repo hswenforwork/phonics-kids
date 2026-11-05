@@ -766,8 +766,14 @@
         continue;
       }
       const prev = boxes[boxes.length - 1];
-      // 重複子音（bb、ll、zz…）只有一個音，放同一格
-      if (u.type === 'C' && prev && !prev.silent && prev.type === 'C' && prev.letters.slice(-1) === u.text && u.text.length === 1) {
+      // 重複子音（bb、ll、zz…）只有一個音，放同一格；剛好跨在兩個音節中間（rab-bit）時拆開，每個音節各一格
+      const sameLetter = u.type === 'C' && prev && !prev.silent && prev.type === 'C' && prev.letters.slice(-1) === u.text && u.text.length === 1;
+      if (sameLetter && prev.syl !== u.syl) {
+        prev.dblSplit = true;
+        boxes.push({ letters: u.text, key: u.key || prev.key, ph: u.ph || prev.ph, silent: false, type: u.type, sub: u.sub, syl: u.syl, unit: u, dblSplit: true, inBlend: !!u.inBlend });
+        continue;
+      }
+      if (sameLetter) {
         prev.letters += u.text;
         prev.dbl = true;
         if (u.ph && !u.dbl) prev.ph += u.ph; // pizza 的 zz = /ts/

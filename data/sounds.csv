@@ -1,12 +1,12 @@
 ﻿聲音,說明,音檔,自動_共用檔名,自動_例字,自動_使用字數,自動_目前來源,自動_檢查
 k,字母 c、k 的聲音,oxford_k.mp3,k.mp3,cat、duck、chick、crab,47,自訂：oxford_k.mp3,✓
 n,字母 n 的聲音,oxford_n.mp3,n.mp3,hen、snake、snail、lion,47,自訂：oxford_n.mp3,✓
-t,字母 t 的聲音,oxford_t.mp3,t.mp3,cat、rat、bat、tiger,45,自訂：oxford_t.mp3,✓
-p,字母 p 的聲音,oxford_p.mp3,p.mp3,pig、sheep、hippo、spider,40,自訂：oxford_p.mp3,✓
-b,字母 b 的聲音,oxford_b.mp3,b.mp3,bat、bug、crab、bee,35,自訂：oxford_b.mp3,✓
-l,字母 l 的聲音,oxford_l.mp3,l.mp3,whale、seal、snail、owl,34,自訂：oxford_l.mp3,✓
+t,字母 t 的聲音,oxford_t.mp3,t.mp3,cat、rat、bat、tiger,46,自訂：oxford_t.mp3,✓
+p,字母 p 的聲音,oxford_p.mp3,p.mp3,pig、sheep、hippo、hippo,43,自訂：oxford_p.mp3,✓
+b,字母 b 的聲音,oxford_b.mp3,b.mp3,bat、bug、crab、bee,36,自訂：oxford_b.mp3,✓
+l,字母 l 的聲音,oxford_l.mp3,l.mp3,whale、seal、snail、owl,35,自訂：oxford_l.mp3,✓
 ɪ,短母音 i,oxford_ɪ.mp3,ɪ.mp3,pig、fish、chick、hippo,33,自訂：oxford_ɪ.mp3,✓
-s,字母 s 的聲音,oxford_s.mp3,s.mp3,snake、seal、snail、horse,28,自訂：oxford_s.mp3,✓
+s,字母 s 的聲音,oxford_s.mp3,s.mp3,snake、seal、snail、horse,29,自訂：oxford_s.mp3,✓
 æ,短母音 a,oxford_æ.mp3,æ.mp3,cat、rat、bat、crab,27,自訂：oxford_æ.mp3,✓
 r,字母 r 的聲音,oxford_r.mp3,r.mp3,rat、frog、crab、zebra,27,自訂：oxford_r.mp3,✓
 e,短母音 e,oxford_e.mp3,e.mp3,hen、zebra、elephant、red,25,自訂：oxford_e.mp3,✓
@@ -30,7 +30,7 @@ tʃ,/tʃ/,oxford_tʃ.mp3,tʃ.mp3,chick、teacher、chair、chip,5,自訂：oxfor
 w,字母 w 的聲音,oxford_w.mp3,w.mp3,whale、white、window、web,5,自訂：oxford_w.mp3,✓
 aʊ,ow 音（像被捏到喊「喔」）,oxford_aʊ.mp3,aʊ.mp3,cow、owl、brown、mouth,5,自訂：oxford_aʊ.mp3,✓
 əl,字尾 le（輕輕的「歐」）（ə+l 合成）,oxford_əl.mp3,əl.mp3,turtle、purple、puzzle、apple,5,自訂：oxford_əl.mp3,✓
-z,字母 z 的聲音,oxford_z.mp3,z.mp3,zebra、puzzle、nose、zip,4,自訂：oxford_z.mp3,✓
+z,字母 z 的聲音,oxford_z.mp3,z.mp3,zebra、puzzle、puzzle、nose,5,自訂：oxford_z.mp3,✓
 i,/i/,oxford_i.mp3,i.mp3,monkey、puppy、baby、family,4,自訂：oxford_i.mp3,✓
 uː,長 oo 音,oxford_uː.mp3,uː.mp3,blue、ruler、bedroom、moon,4,自訂：oxford_uː.mp3,✓
 dʒ,字母 j 的聲音,oxford_dʒ.mp3,dʒ.mp3,jam、jacket、jet、jump,4,自訂：oxford_dʒ.mp3,✓
@@ -46,5 +46,5 @@ juː,長母音 u（念自己的名字）（j+uː 合成）,oxford_juː.mp3,juː.
 j,字母 y 的聲音,oxford_j.mp3,j.mp3,yellow,1,自訂：oxford_j.mp3,✓
 ð,/ð/,oxford_ð.mp3,ð.mp3,brother,1,自訂：oxford_ð.mp3,✓
 ɪə,ear 音,oxford_ɪə.mp3,ɪə.mp3,ear,1,自訂：oxford_ɪə.mp3,✓
-ts,/ts/（t+s 合成）,oxford_ts.mp3,ts.mp3,pizza,1,自訂：oxford_ts.mp3,✓
+ts,/ts/（t+s 合成）,oxford_ts.mp3,ts.mp3,,0,自訂：oxford_ts.mp3,✓
 kw,字母 q 的聲音（k+w 合成）,oxford_kw.mp3,kw.mp3,（字母 q）,0,自訂：oxford_kw.mp3,✓
