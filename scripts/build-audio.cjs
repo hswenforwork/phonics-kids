@@ -22,15 +22,22 @@ const ssml = (ipa, text) => `<speak><phoneme alphabet="ipa" ph="${escAttr(ipa)}"
 
 function jobs() {
   const out = [];
+  const kn0 = known();
   for (const e of allEntries()) {
     if (!e.ipa) continue;
     const ipa = cleanIPA(e.ipa);
     out.push({ id: 'w/' + e.word, ssml: ssml(ipa.replace(/\./g, ''), e.word), rate: 0.85 });
-    const syl = (e.syl || e.word).split('-');
+    const r = P.analyze(e.word, { ipa: e.ipa, known: kn0, libSyllables: e.syl || undefined });
+    const syl = r.syllables;
     const parts = ipa.split('.');
-    if (parts.length === syl.length && syl.length > 1) {
-      syl.forEach((s, i) => out.push({ id: `s/${e.word}-${i}`, ssml: ssml(parts[i].replace(/[ˈˌ]/g, ''), s), rate: 0.75 }));
-    } else if (syl.length === 1) {
+    if (syl.length > 1) {
+      // 音節的念法依格子：大框裡有哪些音就念哪些音（hip-po 的 po 念 /poʊ/、teach-er 的 teach 念 /tiːtʃ/）
+      const boxes = P.applyOverrides(P.elkonin(r), e);
+      syl.forEach((s, i) => {
+        const ph = boxes.filter((b) => b.syl === i && !b.silent).map((b) => b.ph).join('') || (parts.length === syl.length ? parts[i].replace(/[ˈˌ]/g, '') : '');
+        if (ph) out.push({ id: `s/${e.word}-${i}`, ssml: ssml(ph, s), rate: 0.75 });
+      });
+    } else {
       out.push({ id: `s/${e.word}-0`, ssml: ssml(ipa.replace(/[.ˈˌ]/g, ''), e.word), rate: 0.75 });
     }
   }
