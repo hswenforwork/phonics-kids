@@ -8,7 +8,7 @@ on:
     branches: [main]
   # 自動流程推送的語音檔不會觸發 push，所以在它們完成後也部署一次
   workflow_run:
-    workflows: [產生語音檔, 單字申請單]
+    workflows: [產生語音檔, 單字申請單, 同步單字表單]
     types: [completed]
   workflow_dispatch:
 

@@ -41,11 +41,11 @@ function jobs() {
     if (!e.ipa) continue;
     const r = P.analyze(e.word, { ipa: e.ipa, known: kn, libSyllables: e.syl || undefined });
     (r.units || []).forEach((u) => { if (u.ph && !phs.has(u.ph)) phs.set(u.ph, u.key); });
-    P.elkonin(r).forEach((b) => { if (b.ph && !phs.has(b.ph)) phs.set(b.ph, b.key); });
+    P.applyOverrides(P.elkonin(r), e).forEach((b) => { if (b.ph && !phs.has(b.ph)) phs.set(b.ph, b.key); });
   }
   // 第 1 級字母區的聲音（例如 q 念 /kw/）
   const keyOf = (ph) => (Object.entries(SOUNDS).find(([, s]) => s.ipa === ph) || [''])[0];
-  require('../js/data.js').LETTERS.forEach(([, ph]) => { if (!phs.has(ph)) phs.set(ph, keyOf(ph)); });
+  require('./common.cjs').LETTERS.forEach(([, ph]) => { if (!phs.has(ph)) phs.set(ph, keyOf(ph)); });
   for (const [ph, key] of phs) {
     out.push({ id: 'p/' + P.phFile(ph), ssml: ssml(P.phSay(ph), (SOUNDS[key] || {}).tts || 'uh'), rate: 0.8, trim: ph, vowel: !P.isConsonantPh(ph) });
   }

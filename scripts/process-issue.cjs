@@ -1,97 +1,68 @@
-// 處理 GitHub 申請單：add（加入單字）、move（換主題）、fix（回報錯誤）
+// 處理家長模式表單頁送出的 GitHub 申請單，把內容寫進表單（data/*.csv）
+//   pk-action: edit（新增或修改一個字）、sound（修改聲音表的音檔）
+// 寫完後由流程接著執行 sync-sheet.cjs（補齊欄位、檢查、產生網站資料）
 // 申請單內容從環境變數 ISSUE_BODY 讀取（不會被當成指令執行）
-// 結果寫到 RESULT_FILE，供流程回覆在申請單上
 const fs = require('fs');
-const { P, readCustom, writeCustom, allEntries, known, THEME_IDS } = require('./common.cjs');
+const S = require('./sheet.cjs');
 
 const body = process.env.ISSUE_BODY || '';
 const resultFile = process.env.RESULT_FILE || 'result.md';
 const fields = {};
 body.split(/\r?\n/).forEach((line) => {
-  const m = line.match(/^\s*([a-z-]+)\s*:\s*(.*?)\s*$/i);
-  if (m && !(m[1].toLowerCase() in fields)) fields[m[1].toLowerCase()] = m[2];
+  const m = line.match(/^\s*([^:：\s][^:：]{0,30}?)\s*[:：]\s?(.*?)\s*$/);
+  if (m && !(m[1] in fields)) fields[m[1]] = m[2];
 });
 const done = (ok, msg) => { fs.writeFileSync(resultFile, msg + '\n'); console.log(msg); process.exit(ok ? 0 : 1); };
+const clean = (s, n = 80) => String(s || '').replace(/[\r\n]/g, ' ').replace(/[<>`$\\]/g, '').trim().slice(0, n);
 
 const action = (fields['pk-action'] || '').toLowerCase();
-const word = (fields.word || '').toLowerCase();
-if (!/^[a-z]{1,24}$/.test(word)) done(false, '❌ 單字格式不正確（只能是 1～24 個英文字母）。');
+let tables;
+try { tables = { words: S.readTable('words'), sounds: S.readTable('sounds'), exceptions: S.readTable('exceptions') }; } catch (e) { done(false, '❌ ' + e.message); }
 
-const IPA_OK = /^[\/a-zA-Zæɑɒɔəɛɜɪʊʌθðʃʒŋɡːˈˌ.ɐɚɝɹɾʔɫʤʧ̩ ]{1,48}$/;
-const cleanZh = (s) => String(s || '').replace(/[<>&"`$\\]/g, '').trim().slice(0, 20);
-
-const withTimeout = (p, ms) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))]);
-async function dict(w) {
-  try {
-    const r = await withTimeout(fetch('https://api.dictionaryapi.dev/api/v2/entries/en/' + w), 10000);
-    if (!r.ok) return '';
-    const data = await r.json();
-    const ph = data.flatMap((d) => d.phonetics || []);
-    const uk = ph.find((p) => /-uk\.mp3/.test(p.audio || '') && p.text);
-    return ((uk || ph.find((p) => p.text) || {}).text || data[0].phonetic || '').trim();
-  } catch (e) { return ''; }
+if (action === 'edit' || action === 'add') {
+  const word = S.wordKey(fields.word);
+  if (!word || word.length > 24) done(false, '❌ 單字格式不正確（只能是 1～24 個英文字母）。');
+  let row = tables.words.find((r) => S.wordKey(r['英文單字']) === word);
+  const isNew = !row;
+  if (isNew) { row = { '英文單字': word }; tables.words.push(row); }
+  const changes = [];
+  for (const col of ['中文', '主題', '圖示', '音標', '音節', '整字音檔', '音素音檔', '啟用']) {
+    if (!(col in fields)) continue;
+    const v = clean(fields[col], col === '音素音檔' ? 400 : 80);
+    if ((row[col] || '') !== v) { changes.push(`${col}：${row[col] || '（空白）'} → ${v || '（空白）'}`); row[col] = v; }
+  }
+  // 例外：「2=ʌ、4=s」整串取代這個字原本的例外
+  if ('例外' in fields) {
+    const before = tables.exceptions.filter((x) => S.wordKey(x['單字']) === word).map((x) => `${x['第幾格']}=${x['改念音素']}`).join('、');
+    const list = clean(fields['例外'], 200).split(/[,，、;；\s]+/).filter(Boolean).map((p) => p.split('=')).filter((p) => p.length === 2 && /^\d+$/.test(p[0].trim()) && p[1].trim());
+    const keep = tables.exceptions.filter((x) => S.wordKey(x['單字']) !== word);
+    const old = tables.exceptions.filter((x) => S.wordKey(x['單字']) === word);
+    tables.exceptions = keep.concat(list.map(([i, ph]) => {
+      const prev = old.find((x) => x['第幾格'] === i.trim());
+      return { '單字': word, '第幾格': i.trim(), '字母': '', '改念音素': ph.trim().replace(/[\/\s]/g, ''), '備註': prev ? prev['備註'] : '' };
+    }));
+    const after = list.map(([i, ph]) => `${i.trim()}=${ph.trim()}`).join('、');
+    if (before !== after) changes.push(`例外音素：${before || '（無）'} → ${after || '（無）'}`);
+  }
+  S.writeTable('words', tables.words);
+  S.writeTable('exceptions', tables.exceptions);
+  done(true, `✅ ${isNew ? '已新增' : '已更新'} **${word}**\n${changes.map((c) => '- ' + c).join('\n') || '- 沒有變更'}\n`);
 }
-async function zh(w) {
-  try {
-    const r = await withTimeout(fetch('https://api.mymemory.translated.net/get?langpair=en|zh-TW&q=' + w), 10000);
-    const t = (((await r.json()).responseData || {}).translatedText || '').trim();
-    return !t || t.toLowerCase() === w || /MYMEMORY|INVALID/i.test(t) ? '' : cleanZh(t.replace(/[。.]$/, ''));
-  } catch (e) { return ''; }
+
+if (action === 'sound') {
+  // 一行一個：「音檔 k: my-k.mp3」，值空白代表改回 AI
+  const changes = [];
+  for (const [k, v] of Object.entries(fields)) {
+    const m = k.match(/^音檔\s+(\S+)$/);
+    if (!m) continue;
+    const ph = m[1].replace(/[\/\[\]]/g, '');
+    let row = tables.sounds.find((x) => x['聲音'] === ph);
+    if (!row) { row = { '聲音': ph }; tables.sounds.push(row); }
+    const val = clean(v);
+    if ((row['音檔'] || '') !== val) { changes.push(`/${ph}/：${row['音檔'] || 'AI'} → ${val || 'AI'}`); row['音檔'] = val; }
+  }
+  S.writeTable('sounds', tables.sounds);
+  done(true, `✅ 已更新聲音表\n${changes.map((c) => '- ' + c).join('\n') || '- 沒有變更'}\n`);
 }
 
-(async () => {
-  const custom = readCustom();
-  custom.words = custom.words || []; custom.fixes = custom.fixes || {};
-  const entries = allEntries();
-  const existing = entries.find((e) => e.word === word);
-
-  if (action === 'add') {
-    if (existing) done(true, `ℹ️ **${word}** 已經在單字庫裡了，不用再加。`);
-    let ipa = (await dict(word)).replace(/əʊ/g, 'oʊ'); // 長音 o 統一標成 /oʊ/
-    if (ipa && !IPA_OK.test(ipa)) ipa = '';
-    const r = P.analyze(word, { ipa, known: known() });
-    const syl = r.syllables.join('-');
-    const meaning = await zh(word);
-    custom.words.push({ word, zh: meaning, emoji: '🌟', ipa, syl, theme: 'mine' });
-    writeCustom(custom);
-    const lv = ipa ? P.levelOf(r) : null;
-    const where = lv == null ? '「我的單字」（不符合格子規則的等級，只開放聽和認字）' : `第 ${lv} 級「${P.LEVELS[lv].zh}」`;
-    done(true, `✅ 已加入 **${word}**，放在${where}\n- 音標：${ipa || '（查不到，依拼字規則推測）'}\n- 音節：${syl}\n- 中文：${meaning || '（查不到，可用「回報錯誤」補上）'}\n\n內容有錯的話，在網站家長模式按「🛠 回報錯誤」修正。`);
-  }
-
-  if (!existing) done(false, `❌ 單字庫裡找不到 **${word}**，請先用「加入單字庫」。`);
-
-  if (action === 'move') {
-    const theme = (fields.theme || '').toLowerCase();
-    if (!THEME_IDS.includes(theme)) done(false, `❌ 主題 ${theme} 不存在。`);
-    const c = custom.words.find((x) => x.word === word);
-    if (!c) done(false, '❌ 只有「我的單字」裡加入的字可以換主題。');
-    c.theme = theme;
-    writeCustom(custom);
-    done(true, `✅ 已把 **${word}** 移到主題「${theme}」。`);
-  }
-
-  if (action === 'fix') {
-    const fix = {};
-    const changes = [];
-    const ipa = fields.ipa || '';
-    if (ipa && ipa !== existing.ipa) {
-      if (!IPA_OK.test(ipa)) done(false, '❌ 音標裡有無法辨識的符號。');
-      fix.ipa = ipa; changes.push(`音標 → ${ipa}`);
-    }
-    const syl = (fields.syllables || '').toLowerCase().replace(/\s/g, '');
-    if (syl && syl !== existing.syl && syl !== (existing.syl || word)) {
-      if (!/^[a-z-]+$/.test(syl) || syl.replace(/-/g, '') !== word) done(false, '❌ 音節拼起來要等於原單字，例如 ba-na-na。');
-      fix.syl = syl; changes.push(`音節 → ${syl}`);
-    }
-    const z = cleanZh(fields.zh);
-    if (z && z !== existing.zh) { fix.zh = z; changes.push(`中文 → ${z}`); }
-    if (!changes.length) done(true, 'ℹ️ 沒有偵測到修改，單字庫維持原樣。');
-    const c = custom.words.find((x) => x.word === word);
-    if (c) Object.assign(c, fix); else custom.fixes[word] = Object.assign(custom.fixes[word] || {}, fix);
-    writeCustom(custom);
-    done(true, `✅ 已修正 **${word}**：\n- ${changes.join('\n- ')}`);
-  }
-
-  done(false, '❌ 看不懂這張申請單（pk-action 要是 add、move 或 fix）。');
-})();
+done(false, '❌ 看不懂這張申請單（缺少 pk-action）。');

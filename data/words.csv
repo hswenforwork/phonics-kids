@@ -1,0 +1,196 @@
+﻿英文單字,中文,主題,圖示,音標,音節,整字音檔,音素音檔,啟用,自動_等級,自動_音節,自動_音節數,自動_格子,自動_音素,自動_檢查
+cat,貓,動物,🐱,/kæt/,,,k.mp3｜æ.mp3｜t.mp3,是,2 短母音小字,cat,1,c｜a｜t,k｜æ｜t,✓
+rat,老鼠,動物,🐀,/ræt/,,,r.mp3｜æ.mp3｜t.mp3,是,2 短母音小字,rat,1,r｜a｜t,r｜æ｜t,✓
+bat,蝙蝠,動物,🦇,/bæt/,,,b.mp3｜æ.mp3｜t.mp3,是,2 短母音小字,bat,1,b｜a｜t,b｜æ｜t,✓
+bug,小蟲,動物,🐛,/bʌɡ/,,,b.mp3｜ʌ.mp3｜ɡ.mp3,是,2 短母音小字,bug,1,b｜u｜g,b｜ʌ｜ɡ,✓
+hen,母雞,動物,🐔,/hen/,,,h.mp3｜e.mp3｜n.mp3,是,2 短母音小字,hen,1,h｜e｜n,h｜e｜n,✓
+dog,狗,動物,🐶,/dɒɡ/,,,d.mp3｜ɒ.mp3｜ɡ.mp3,是,2 短母音小字,dog,1,d｜o｜g,d｜ɒ｜ɡ,✓
+pig,豬,動物,🐷,/pɪɡ/,,,p.mp3｜ɪ.mp3｜ɡ.mp3,是,2 短母音小字,pig,1,p｜i｜g,p｜ɪ｜ɡ,✓
+fox,狐狸,動物,🦊,/fɒks/,,,f.mp3｜ɒ.mp3｜ks.mp3,是,2 短母音小字,fox,1,f｜o｜x,f｜ɒ｜ks,✓
+duck,鴨子,動物,🦆,/dʌk/,,,d.mp3｜ʌ.mp3｜k.mp3,是,3 好朋友字母,duck,1,d｜u｜ck,d｜ʌ｜k,✓
+fish,魚,動物,🐟,/fɪʃ/,,,f.mp3｜ɪ.mp3｜ʃ.mp3,是,3 好朋友字母,fish,1,f｜i｜sh,f｜ɪ｜ʃ,✓
+chick,小雞,動物,🐤,/tʃɪk/,,,tʃ.mp3｜ɪ.mp3｜k.mp3,是,3 好朋友字母,chick,1,ch｜i｜ck,tʃ｜ɪ｜k,✓
+frog,青蛙,動物,🐸,/frɒɡ/,,,f.mp3｜r.mp3｜ɒ.mp3｜ɡ.mp3,是,4 連在一起念,frog,1,f｜r｜o｜g,f｜r｜ɒ｜ɡ,✓
+crab,螃蟹,動物,🦀,/kræb/,,,k.mp3｜r.mp3｜æ.mp3｜b.mp3,是,4 連在一起念,crab,1,c｜r｜a｜b,k｜r｜æ｜b,✓
+snake,蛇,動物,🐍,/sneɪk/,,,s.mp3｜n.mp3｜eɪ.mp3｜k.mp3｜—,是,5 魔法 e,snake,1,s｜n｜a｜k｜(e),s｜n｜eɪ｜k｜—,✓
+whale,鯨魚,動物,🐳,/weɪl/,,,w.mp3｜eɪ.mp3｜l.mp3｜—,是,5 魔法 e,whale,1,wh｜a｜l｜(e),w｜eɪ｜l｜—,✓
+sheep,綿羊,動物,🐑,/ʃiːp/,,,ʃ.mp3｜iː.mp3｜p.mp3,是,6 母音好朋友,sheep,1,sh｜ee｜p,ʃ｜iː｜p,✓
+bee,蜜蜂,動物,🐝,/biː/,,,b.mp3｜iː.mp3,是,6 母音好朋友,bee,1,b｜ee,b｜iː,✓
+seal,海豹,動物,🦭,/siːl/,,,s.mp3｜iː.mp3｜l.mp3,是,6 母音好朋友,seal,1,s｜ea｜l,s｜iː｜l,✓
+snail,蝸牛,動物,🐌,/sneɪl/,,,s.mp3｜n.mp3｜eɪ.mp3｜l.mp3,是,6 母音好朋友,snail,1,s｜n｜ai｜l,s｜n｜eɪ｜l,✓
+cow,牛,動物,🐮,/kaʊ/,,,k.mp3｜aʊ.mp3,是,6 母音好朋友,cow,1,c｜ow,k｜aʊ,✓
+owl,貓頭鷹,動物,🦉,/aʊl/,,,aʊ.mp3｜l.mp3,是,6 母音好朋友,owl,1,ow｜l,aʊ｜l,✓
+bird,鳥,動物,🐦,/bɜːd/,,,b.mp3｜ɜː.mp3｜d.mp3,是,7 霸道 R,bird,1,b｜ir｜d,b｜ɜː｜d,✓
+horse,馬,動物,🐴,/hɔːs/,,,h.mp3｜ɔː.mp3｜s.mp3｜—,是,7 霸道 R,horse,1,h｜or｜s｜(e),h｜ɔː｜s｜—,✓
+shark,鯊魚,動物,🦈,/ʃɑːk/,,,ʃ.mp3｜ɑː.mp3｜k.mp3,是,7 霸道 R,shark,1,sh｜ar｜k,ʃ｜ɑː｜k,✓
+tiger,老虎,動物,🐯,/ˈtaɪ.ɡə/,ti-ger,,t.mp3｜aɪ.mp3｜ɡ.mp3｜ə.mp3,是,8 長長的字,ti-ger,2,t｜i｜g｜er,t｜aɪ｜ɡ｜ə,✓
+lion,獅子,動物,🦁,/ˈlaɪ.ən/,li-on,,l.mp3｜aɪ.mp3｜ə.mp3｜n.mp3,是,8 長長的字,li-on,2,l｜i｜o｜n,l｜aɪ｜ə｜n,✓
+zebra,斑馬,動物,🦓,/ˈzeb.rə/,zeb-ra,,z.mp3｜e.mp3｜b.mp3｜r.mp3｜ə.mp3,是,8 長長的字,zeb-ra,2,z｜e｜b｜r｜a,z｜e｜b｜r｜ə,✓
+hippo,河馬,動物,🦛,/ˈhɪp.oʊ/,hip-po,,h.mp3｜ɪ.mp3｜p.mp3｜oʊ.mp3,是,8 長長的字,hip-po,2,h｜i｜pp｜o,h｜ɪ｜p｜oʊ,✓
+rabbit,兔子,動物,🐰,/ˈræb.ɪt/,rab-bit,,r.mp3｜æ.mp3｜b.mp3｜ɪ.mp3｜t.mp3,是,8 長長的字,rab-bit,2,r｜a｜bb｜i｜t,r｜æ｜b｜ɪ｜t,✓
+monkey,猴子,動物,🐵,/ˈmʌŋ.ki/,mon-key,,m.mp3｜ʌ.mp3｜ŋ.mp3｜k.mp3｜i.mp3,是,8 長長的字,mon-key,2,m｜o｜n｜k｜ey,m｜ʌ｜ŋ｜k｜i,✓
+spider,蜘蛛,動物,🕷️,/ˈspaɪ.də/,spi-der,,s.mp3｜p.mp3｜aɪ.mp3｜d.mp3｜ə.mp3,是,8 長長的字,spi-der,2,s｜p｜i｜d｜er,s｜p｜aɪ｜d｜ə,✓
+turtle,烏龜,動物,🐢,/ˈtɜː.təl/,tur-tle,,t.mp3｜ɜː.mp3｜t.mp3｜əl.mp3,是,8 長長的字,tur-tle,2,t｜ur｜t｜le,t｜ɜː｜t｜əl,✓
+elephant,大象,動物,🐘,/ˈel.ɪ.fənt/,el-e-phant,,e.mp3｜l.mp3｜ɪ.mp3｜f.mp3｜ə.mp3｜n.mp3｜t.mp3,是,8 長長的字,el-e-phant,3,e｜l｜e｜ph｜a｜n｜t,e｜l｜ɪ｜f｜ə｜n｜t,✓
+camel,駱駝,動物,🐫,/ˈkæm.əl/,cam-el,,k.mp3｜æ.mp3｜m.mp3｜ə.mp3｜l.mp3,是,8 長長的字,cam-el,2,c｜a｜m｜e｜l,k｜æ｜m｜ə｜l,✓
+panda,熊貓,動物,🐼,/ˈpæn.də/,pan-da,,p.mp3｜æ.mp3｜n.mp3｜d.mp3｜ə.mp3,是,8 長長的字,pan-da,2,p｜a｜n｜d｜a,p｜æ｜n｜d｜ə,✓
+puppy,小狗,動物,🐶,/ˈpʌp.i/,pup-py,,p.mp3｜ʌ.mp3｜p.mp3｜i.mp3,是,8 長長的字,pup-py,2,p｜u｜pp｜y,p｜ʌ｜p｜i,✓
+robin,知更鳥,動物,🐦,/ˈrɒb.ɪn/,rob-in,,r.mp3｜ɒ.mp3｜b.mp3｜ɪ.mp3｜n.mp3,是,8 長長的字,rob-in,2,r｜o｜b｜i｜n,r｜ɒ｜b｜ɪ｜n,✓
+red,紅色,顏色,🟥,/red/,,,r.mp3｜e.mp3｜d.mp3,是,2 短母音小字,red,1,r｜e｜d,r｜e｜d,✓
+pink,粉紅色,顏色,🌸,/pɪŋk/,,,p.mp3｜ɪ.mp3｜ŋk.mp3,是,3 好朋友字母,pink,1,p｜i｜nk,p｜ɪ｜ŋk,✓
+black,黑色,顏色,⬛,/blæk/,,,b.mp3｜l.mp3｜æ.mp3｜k.mp3,是,4 連在一起念,black,1,b｜l｜a｜ck,b｜l｜æ｜k,✓
+white,白色,顏色,⬜,/waɪt/,,,w.mp3｜aɪ.mp3｜t.mp3｜—,是,5 魔法 e,white,1,wh｜i｜t｜(e),w｜aɪ｜t｜—,✓
+green,綠色,顏色,🟩,/ɡriːn/,,,ɡ.mp3｜r.mp3｜iː.mp3｜n.mp3,是,6 母音好朋友,green,1,g｜r｜ee｜n,ɡ｜r｜iː｜n,✓
+blue,藍色,顏色,🟦,/bluː/,,,b.mp3｜l.mp3｜uː.mp3,是,6 母音好朋友,blue,1,b｜l｜ue,b｜l｜uː,✓
+brown,咖啡色,顏色,🟫,/braʊn/,,,b.mp3｜r.mp3｜aʊ.mp3｜n.mp3,是,6 母音好朋友,brown,1,b｜r｜ow｜n,b｜r｜aʊ｜n,✓
+grey,灰色,顏色,🩶,/ɡreɪ/,,,ɡ.mp3｜r.mp3｜eɪ.mp3,是,6 母音好朋友,grey,1,g｜r｜ey,ɡ｜r｜eɪ,✓
+yellow,黃色,顏色,🟨,/ˈjel.oʊ/,yel-low,,j.mp3｜e.mp3｜l.mp3｜oʊ.mp3,是,8 長長的字,yel-low,2,y｜e｜ll｜ow,j｜e｜l｜oʊ,✓
+purple,紫色,顏色,🟪,/ˈpɜː.pəl/,pur-ple,,p.mp3｜ɜː.mp3｜p.mp3｜əl.mp3,是,8 長長的字,pur-ple,2,p｜ur｜p｜le,p｜ɜː｜p｜əl,✓
+six,六,數字,6️⃣,/sɪks/,,,s.mp3｜ɪ.mp3｜ks.mp3,是,2 短母音小字,six,1,s｜i｜x,s｜ɪ｜ks,✓
+ten,十,數字,🔟,/ten/,,,t.mp3｜e.mp3｜n.mp3,是,2 短母音小字,ten,1,t｜e｜n,t｜e｜n,✓
+five,五,數字,5️⃣,/faɪv/,,,f.mp3｜aɪ.mp3｜v.mp3｜—,是,5 魔法 e,five,1,f｜i｜v｜(e),f｜aɪ｜v｜—,✓
+nine,九,數字,9️⃣,/naɪn/,,,n.mp3｜aɪ.mp3｜n.mp3｜—,是,5 魔法 e,nine,1,n｜i｜n｜(e),n｜aɪ｜n｜—,✓
+three,三,數字,3️⃣,/θriː/,,,θ.mp3｜r.mp3｜iː.mp3,是,6 母音好朋友,three,1,th｜r｜ee,θ｜r｜iː,✓
+seven,七,數字,7️⃣,/ˈsev.ən/,sev-en,,s.mp3｜e.mp3｜v.mp3｜ə.mp3｜n.mp3,是,8 長長的字,sev-en,2,s｜e｜v｜e｜n,s｜e｜v｜ə｜n,✓
+mum,媽媽,人物,👩,/mʌm/,,,m.mp3｜ʌ.mp3｜m.mp3,是,2 短母音小字,mum,1,m｜u｜m,m｜ʌ｜m,✓
+dad,爸爸,人物,👨,/dæd/,,,d.mp3｜æ.mp3｜d.mp3,是,2 短母音小字,dad,1,d｜a｜d,d｜æ｜d,✓
+kid,小孩,人物,🧒,/kɪd/,,,k.mp3｜ɪ.mp3｜d.mp3,是,2 短母音小字,kid,1,k｜i｜d,k｜ɪ｜d,✓
+king,國王,人物,🤴,/kɪŋ/,,,k.mp3｜ɪ.mp3｜ŋ.mp3,是,3 好朋友字母,king,1,k｜i｜ng,k｜ɪ｜ŋ,✓
+boy,男孩,人物,👦,/bɔɪ/,,,b.mp3｜ɔɪ.mp3,是,6 母音好朋友,boy,1,b｜oy,b｜ɔɪ,✓
+girl,女孩,人物,👧,/ɡɜːl/,,,ɡ.mp3｜ɜː.mp3｜l.mp3,是,7 霸道 R,girl,1,g｜ir｜l,ɡ｜ɜː｜l,✓
+nurse,護理師,人物,🧑‍⚕️,/nɜːs/,,,n.mp3｜ɜː.mp3｜s.mp3｜—,是,7 霸道 R,nurse,1,n｜ur｜s｜(e),n｜ɜː｜s｜—,✓
+baby,小寶寶,人物,👶,/ˈbeɪ.bi/,ba-by,,b.mp3｜eɪ.mp3｜b.mp3｜i.mp3,是,8 長長的字,ba-by,2,b｜a｜b｜y,b｜eɪ｜b｜i,✓
+sister,姊妹,人物,👧,/ˈsɪs.tə/,sis-ter,,s.mp3｜ɪ.mp3｜s.mp3｜t.mp3｜ə.mp3,是,8 長長的字,sis-ter,2,s｜i｜s｜t｜er,s｜ɪ｜s｜t｜ə,✓
+brother,兄弟,人物,👦,/ˈbrʌð.ə/,broth-er,,b.mp3｜r.mp3｜ʌ.mp3｜ð.mp3｜ə.mp3,是,8 長長的字,broth-er,2,b｜r｜o｜th｜er,b｜r｜ʌ｜ð｜ə,✓
+family,家庭,人物,👨‍👩‍👧‍👦,/ˈfæm.ə.li/,fam-i-ly,,f.mp3｜æ.mp3｜m.mp3｜ə.mp3｜l.mp3｜i.mp3,是,8 長長的字,fam-i-ly,3,f｜a｜m｜i｜l｜y,f｜æ｜m｜ə｜l｜i,✓
+teacher,老師,人物,🧑‍🏫,/ˈtiː.tʃə/,teach-er,,t.mp3｜iː.mp3｜tʃ.mp3｜ə.mp3,是,8 長長的字,teach-er,2,t｜ea｜ch｜er,t｜iː｜tʃ｜ə,✓
+pen,原子筆,學校,🖊️,/pen/,,,p.mp3｜e.mp3｜n.mp3,是,2 短母音小字,pen,1,p｜e｜n,p｜e｜n,✓
+bag,書包,學校,🎒,/bæɡ/,,,b.mp3｜æ.mp3｜ɡ.mp3,是,2 短母音小字,bag,1,b｜a｜g,b｜æ｜ɡ,✓
+map,地圖,學校,🗺️,/mæp/,,,m.mp3｜æ.mp3｜p.mp3,是,2 短母音小字,map,1,m｜a｜p,m｜æ｜p,✓
+desk,書桌,學校,🪑,/desk/,,,d.mp3｜e.mp3｜s.mp3｜k.mp3,是,4 連在一起念,desk,1,d｜e｜s｜k,d｜e｜s｜k,✓
+book,書,學校,📖,/bʊk/,,,b.mp3｜ʊ.mp3｜k.mp3,是,6 母音好朋友,book,1,b｜oo｜k,b｜ʊ｜k,✓
+chair,椅子,學校,🪑,/tʃeə/,,,tʃ.mp3｜eə.mp3,是,7 霸道 R,chair,1,ch｜air,tʃ｜eə,✓
+pencil,鉛筆,學校,✏️,/ˈpen.səl/,pen-cil,,p.mp3｜e.mp3｜n.mp3｜s.mp3｜ə.mp3｜l.mp3,是,8 長長的字,pen-cil,2,p｜e｜n｜c｜i｜l,p｜e｜n｜s｜ə｜l,✓
+ruler,尺,學校,📏,/ˈruː.lə/,ru-ler,,r.mp3｜uː.mp3｜l.mp3｜ə.mp3,是,8 長長的字,ru-ler,2,r｜u｜l｜er,r｜uː｜l｜ə,✓
+crayon,蠟筆,學校,🖍️,/ˈkreɪ.ɒn/,cray-on,,k.mp3｜r.mp3｜eɪ.mp3｜ɒ.mp3｜n.mp3,是,8 長長的字,cray-on,2,c｜r｜ay｜o｜n,k｜r｜eɪ｜ɒ｜n,✓
+paper,紙,學校,📄,/ˈpeɪ.pə/,pa-per,,p.mp3｜eɪ.mp3｜p.mp3｜ə.mp3,是,8 長長的字,pa-per,2,p｜a｜p｜er,p｜eɪ｜p｜ə,✓
+top,陀螺,玩具,🪀,/tɒp/,,,t.mp3｜ɒ.mp3｜p.mp3,是,2 短母音小字,top,1,t｜o｜p,t｜ɒ｜p,✓
+box,盒子,玩具,📦,/bɒks/,,,b.mp3｜ɒ.mp3｜ks.mp3,是,2 短母音小字,box,1,b｜o｜x,b｜ɒ｜ks,✓
+doll,洋娃娃,玩具,🪆,/dɒl/,,,d.mp3｜ɒ.mp3｜l.mp3,是,3 好朋友字母,doll,1,d｜o｜ll,d｜ɒ｜l,✓
+drum,鼓,玩具,🥁,/drʌm/,,,d.mp3｜r.mp3｜ʌ.mp3｜m.mp3,是,4 連在一起念,drum,1,d｜r｜u｜m,d｜r｜ʌ｜m,✓
+kite,風箏,玩具,🪁,/kaɪt/,,,k.mp3｜aɪ.mp3｜t.mp3｜—,是,5 魔法 e,kite,1,k｜i｜t｜(e),k｜aɪ｜t｜—,✓
+bike,腳踏車,玩具,🚲,/baɪk/,,,b.mp3｜aɪ.mp3｜k.mp3｜—,是,5 魔法 e,bike,1,b｜i｜k｜(e),b｜aɪ｜k｜—,✓
+game,遊戲,玩具,🎲,/ɡeɪm/,,,ɡ.mp3｜eɪ.mp3｜m.mp3｜—,是,5 魔法 e,game,1,g｜a｜m｜(e),ɡ｜eɪ｜m｜—,✓
+train,火車,玩具,🚂,/treɪn/,,,t.mp3｜r.mp3｜eɪ.mp3｜n.mp3,是,6 母音好朋友,train,1,t｜r｜ai｜n,t｜r｜eɪ｜n,✓
+car,汽車,玩具,🚗,/kɑː/,,,k.mp3｜ɑː.mp3,是,7 霸道 R,car,1,c｜ar,k｜ɑː,✓
+robot,機器人,玩具,🤖,/ˈroʊ.bɒt/,ro-bot,,r.mp3｜oʊ.mp3｜b.mp3｜ɒ.mp3｜t.mp3,是,8 長長的字,ro-bot,2,r｜o｜b｜o｜t,r｜oʊ｜b｜ɒ｜t,✓
+football,足球,玩具,⚽,/ˈfʊt.bɔːl/,foot-ball,,f.mp3｜ʊ.mp3｜t.mp3｜b.mp3｜ɔː.mp3｜l.mp3,是,8 長長的字,foot-ball,2,f｜oo｜t｜b｜a｜ll,f｜ʊ｜t｜b｜ɔː｜l,✓
+puzzle,拼圖,玩具,🧩,/ˈpʌz.əl/,puz-zle,,p.mp3｜ʌ.mp3｜z.mp3｜əl.mp3,是,8 長長的字,puz-zle,2,p｜u｜zz｜le,p｜ʌ｜z｜əl,✓
+computer,電腦,玩具,💻,/kəm.ˈpjuː.tə/,com-pu-ter,,k.mp3｜ə.mp3｜m.mp3｜p.mp3｜juː.mp3｜t.mp3｜ə.mp3,是,8 長長的字,com-pu-ter,3,c｜o｜m｜p｜u｜t｜er,k｜ə｜m｜p｜juː｜t｜ə,✓
+leg,腿,身體,🦵,/leɡ/,,,l.mp3｜e.mp3｜ɡ.mp3,是,2 短母音小字,leg,1,l｜e｜g,l｜e｜ɡ,✓
+lip,嘴唇,身體,👄,/lɪp/,,,l.mp3｜ɪ.mp3｜p.mp3,是,2 短母音小字,lip,1,l｜i｜p,l｜ɪ｜p,✓
+neck,脖子,身體,🦒,/nek/,,,n.mp3｜e.mp3｜k.mp3,是,3 好朋友字母,neck,1,n｜e｜ck,n｜e｜k,✓
+hand,手,身體,✋,/hænd/,,,h.mp3｜æ.mp3｜n.mp3｜d.mp3,是,4 連在一起念,hand,1,h｜a｜n｜d,h｜æ｜n｜d,✓
+nose,鼻子,身體,👃,/noʊz/,,,n.mp3｜oʊ.mp3｜z.mp3｜—,是,5 魔法 e,nose,1,n｜o｜s｜(e),n｜oʊ｜z｜—,✓
+foot,腳,身體,🦶,/fʊt/,,,f.mp3｜ʊ.mp3｜t.mp3,是,6 母音好朋友,foot,1,f｜oo｜t,f｜ʊ｜t,✓
+teeth,牙齒,身體,🦷,/tiːθ/,,,t.mp3｜iː.mp3｜θ.mp3,是,6 母音好朋友,teeth,1,t｜ee｜th,t｜iː｜θ,✓
+mouth,嘴巴,身體,👄,/maʊθ/,,,m.mp3｜aʊ.mp3｜θ.mp3,是,6 母音好朋友,mouth,1,m｜ou｜th,m｜aʊ｜θ,✓
+arm,手臂,身體,💪,/ɑːm/,,,ɑː.mp3｜m.mp3,是,7 霸道 R,arm,1,ar｜m,ɑː｜m,✓
+ear,耳朵,身體,👂,/ɪə/,,,ɪə.mp3,是,7 霸道 R,ear,1,ear,ɪə,✓
+hair,頭髮,身體,💇,/heə/,,,h.mp3｜eə.mp3,是,7 霸道 R,hair,1,h｜air,h｜eə,✓
+jam,果醬,食物,🫙,/dʒæm/,,,dʒ.mp3｜æ.mp3｜m.mp3,是,2 短母音小字,jam,1,j｜a｜m,dʒ｜æ｜m,✓
+ham,火腿,食物,🍖,/hæm/,,,h.mp3｜æ.mp3｜m.mp3,是,2 短母音小字,ham,1,h｜a｜m,h｜æ｜m,✓
+nut,堅果,食物,🥜,/nʌt/,,,n.mp3｜ʌ.mp3｜t.mp3,是,2 短母音小字,nut,1,n｜u｜t,n｜ʌ｜t,✓
+gum,口香糖,食物,🍬,/ɡʌm/,,,ɡ.mp3｜ʌ.mp3｜m.mp3,是,2 短母音小字,gum,1,g｜u｜m,ɡ｜ʌ｜m,✓
+egg,蛋,食物,🥚,/eɡ/,,,e.mp3｜ɡ.mp3,是,3 好朋友字母,egg,1,e｜gg,e｜ɡ,✓
+chip,薯條,食物,🍟,/tʃɪp/,,,tʃ.mp3｜ɪ.mp3｜p.mp3,是,3 好朋友字母,chip,1,ch｜i｜p,tʃ｜ɪ｜p,✓
+milk,牛奶,食物,🥛,/mɪlk/,,,m.mp3｜ɪ.mp3｜l.mp3｜k.mp3,是,4 連在一起念,milk,1,m｜i｜l｜k,m｜ɪ｜l｜k,✓
+cake,蛋糕,食物,🍰,/keɪk/,,,k.mp3｜eɪ.mp3｜k.mp3｜—,是,5 魔法 e,cake,1,c｜a｜k｜(e),k｜eɪ｜k｜—,✓
+grape,葡萄,食物,🍇,/ɡreɪp/,,,ɡ.mp3｜r.mp3｜eɪ.mp3｜p.mp3｜—,是,5 魔法 e,grape,1,g｜r｜a｜p｜(e),ɡ｜r｜eɪ｜p｜—,✓
+corn,玉米,食物,🌽,/kɔːn/,,,k.mp3｜ɔː.mp3｜n.mp3,是,7 霸道 R,corn,1,c｜or｜n,k｜ɔː｜n,✓
+apple,蘋果,食物,🍎,/ˈæp.əl/,ap-ple,,æ.mp3｜p.mp3｜əl.mp3,是,8 長長的字,ap-ple,2,a｜pp｜le,æ｜p｜əl,✓
+lemon,檸檬,食物,🍋,/ˈlem.ən/,lem-on,,l.mp3｜e.mp3｜m.mp3｜ə.mp3｜n.mp3,是,8 長長的字,lem-on,2,l｜e｜m｜o｜n,l｜e｜m｜ə｜n,✓
+pizza,披薩,食物,🍕,/ˈpiːt.sə/,piz-za,,p.mp3｜iː.mp3｜ts.mp3｜ə.mp3,是,8 長長的字,piz-za,2,p｜i｜zz｜a,p｜iː｜ts｜ə,✓
+biscuit,餅乾,食物,🍪,/ˈbɪs.kɪt/,bis-cuit,,b.mp3｜ɪ.mp3｜s.mp3｜k.mp3｜—｜ɪ.mp3｜t.mp3,是,8 長長的字,bis-cuit,2,b｜i｜s｜c｜(u)｜i｜t,b｜ɪ｜s｜k｜—｜ɪ｜t,✓
+banana,香蕉,食物,🍌,/bə.ˈnɑː.nə/,ba-na-na,,b.mp3｜ə.mp3｜n.mp3｜ɑː.mp3｜n.mp3｜ə.mp3,是,8 長長的字,ba-na-na,3,b｜a｜n｜a｜n｜a,b｜ə｜n｜ɑː｜n｜ə,✓
+salad,沙拉,食物,🥗,/ˈsæl.əd/,sal-ad,,s.mp3｜æ.mp3｜l.mp3｜ə.mp3｜d.mp3,是,8 長長的字,sal-ad,2,s｜a｜l｜a｜d,s｜æ｜l｜ə｜d,✓
+cupcake,杯子蛋糕,食物,🧁,/ˈkʌp.keɪk/,cup-cake,,k.mp3｜ʌ.mp3｜p.mp3｜k.mp3｜eɪ.mp3｜k.mp3｜—,是,8 長長的字,cup-cake,2,c｜u｜p｜c｜a｜k｜(e),k｜ʌ｜p｜k｜eɪ｜k｜—,✓
+hat,帽子,衣服,👒,/hæt/,,,h.mp3｜æ.mp3｜t.mp3,是,2 短母音小字,hat,1,h｜a｜t,h｜æ｜t,✓
+cap,棒球帽,衣服,🧢,/kæp/,,,k.mp3｜æ.mp3｜p.mp3,是,2 短母音小字,cap,1,c｜a｜p,k｜æ｜p,✓
+sock,襪子,衣服,🧦,/sɒk/,,,s.mp3｜ɒ.mp3｜k.mp3,是,3 好朋友字母,sock,1,s｜o｜ck,s｜ɒ｜k,✓
+dress,洋裝,衣服,👗,/dres/,,,d.mp3｜r.mp3｜e.mp3｜s.mp3,是,4 連在一起念,dress,1,d｜r｜e｜ss,d｜r｜e｜s,✓
+belt,皮帶,衣服,👖,/belt/,,,b.mp3｜e.mp3｜l.mp3｜t.mp3,是,4 連在一起念,belt,1,b｜e｜l｜t,b｜e｜l｜t,✓
+coat,外套,衣服,🧥,/koʊt/,,,k.mp3｜oʊ.mp3｜t.mp3,是,6 母音好朋友,coat,1,c｜oa｜t,k｜oʊ｜t,✓
+shirt,襯衫,衣服,👔,/ʃɜːt/,,,ʃ.mp3｜ɜː.mp3｜t.mp3,是,7 霸道 R,shirt,1,sh｜ir｜t,ʃ｜ɜː｜t,✓
+skirt,裙子,衣服,👗,/skɜːt/,,,s.mp3｜k.mp3｜ɜː.mp3｜t.mp3,是,7 霸道 R,skirt,1,s｜k｜ir｜t,s｜k｜ɜː｜t,✓
+jacket,夾克,衣服,🧥,/ˈdʒæk.ɪt/,jack-et,,dʒ.mp3｜æ.mp3｜k.mp3｜ɪ.mp3｜t.mp3,是,8 長長的字,jack-et,2,j｜a｜ck｜e｜t,dʒ｜æ｜k｜ɪ｜t,✓
+bed,床,家裡,🛏️,/bed/,,,b.mp3｜e.mp3｜d.mp3,是,2 短母音小字,bed,1,b｜e｜d,b｜e｜d,✓
+pot,鍋子,家裡,🍲,/pɒt/,,,p.mp3｜ɒ.mp3｜t.mp3,是,2 短母音小字,pot,1,p｜o｜t,p｜ɒ｜t,✓
+pan,平底鍋,家裡,🍳,/pæn/,,,p.mp3｜æ.mp3｜n.mp3,是,2 短母音小字,pan,1,p｜a｜n,p｜æ｜n,✓
+cup,杯子,家裡,☕,/kʌp/,,,k.mp3｜ʌ.mp3｜p.mp3,是,2 短母音小字,cup,1,c｜u｜p,k｜ʌ｜p,✓
+mop,拖把,家裡,🧹,/mɒp/,,,m.mp3｜ɒ.mp3｜p.mp3,是,2 短母音小字,mop,1,m｜o｜p,m｜ɒ｜p,✓
+bin,垃圾桶,家裡,🗑️,/bɪn/,,,b.mp3｜ɪ.mp3｜n.mp3,是,2 短母音小字,bin,1,b｜i｜n,b｜ɪ｜n,✓
+lid,蓋子,家裡,🫕,/lɪd/,,,l.mp3｜ɪ.mp3｜d.mp3,是,2 短母音小字,lid,1,l｜i｜d,l｜ɪ｜d,✓
+rug,地毯,家裡,🟫,/rʌɡ/,,,r.mp3｜ʌ.mp3｜ɡ.mp3,是,2 短母音小字,rug,1,r｜u｜g,r｜ʌ｜ɡ,✓
+tub,浴缸,家裡,🛁,/tʌb/,,,t.mp3｜ʌ.mp3｜b.mp3,是,2 短母音小字,tub,1,t｜u｜b,t｜ʌ｜b,✓
+fan,電風扇,家裡,🪭,/fæn/,,,f.mp3｜æ.mp3｜n.mp3,是,2 短母音小字,fan,1,f｜a｜n,f｜æ｜n,✓
+can,罐頭,家裡,🥫,/kæn/,,,k.mp3｜æ.mp3｜n.mp3,是,2 短母音小字,can,1,c｜a｜n,k｜æ｜n,✓
+bell,鈴鐺,家裡,🔔,/bel/,,,b.mp3｜e.mp3｜l.mp3,是,3 好朋友字母,bell,1,b｜e｜ll,b｜e｜l,✓
+dish,盤子,家裡,🍽️,/dɪʃ/,,,d.mp3｜ɪ.mp3｜ʃ.mp3,是,3 好朋友字母,dish,1,d｜i｜sh,d｜ɪ｜ʃ,✓
+lamp,檯燈,家裡,💡,/læmp/,,,l.mp3｜æ.mp3｜m.mp3｜p.mp3,是,4 連在一起念,lamp,1,l｜a｜m｜p,l｜æ｜m｜p,✓
+clock,時鐘,家裡,🕰️,/klɒk/,,,k.mp3｜l.mp3｜ɒ.mp3｜k.mp3,是,4 連在一起念,clock,1,c｜l｜o｜ck,k｜l｜ɒ｜k,✓
+phone,電話,家裡,📱,/foʊn/,,,f.mp3｜oʊ.mp3｜n.mp3｜—,是,5 魔法 e,phone,1,ph｜o｜n｜(e),f｜oʊ｜n｜—,✓
+plate,餐盤,家裡,🍽️,/pleɪt/,,,p.mp3｜l.mp3｜eɪ.mp3｜t.mp3｜—,是,5 魔法 e,plate,1,p｜l｜a｜t｜(e),p｜l｜eɪ｜t｜—,✓
+key,鑰匙,家裡,🔑,/kiː/,,,k.mp3｜iː.mp3,是,6 母音好朋友,key,1,k｜ey,k｜iː,✓
+door,門,家裡,🚪,/dɔː/,,,d.mp3｜ɔː.mp3,是,7 霸道 R,door,1,d｜oor,d｜ɔː,✓
+sofa,沙發,家裡,🛋️,/ˈsoʊ.fə/,so-fa,,s.mp3｜oʊ.mp3｜f.mp3｜ə.mp3,是,8 長長的字,so-fa,2,s｜o｜f｜a,s｜oʊ｜f｜ə,✓
+table,桌子,家裡,🍽️,/ˈteɪ.bəl/,ta-ble,,t.mp3｜eɪ.mp3｜b.mp3｜əl.mp3,是,8 長長的字,ta-ble,2,t｜a｜b｜le,t｜eɪ｜b｜əl,✓
+window,窗戶,家裡,🪟,/ˈwɪn.doʊ/,win-dow,,w.mp3｜ɪ.mp3｜n.mp3｜d.mp3｜oʊ.mp3,是,8 長長的字,win-dow,2,w｜i｜n｜d｜ow,w｜ɪ｜n｜d｜oʊ,✓
+garden,花園,家裡,🌷,/ˈɡɑː.dən/,gar-den,,ɡ.mp3｜ɑː.mp3｜d.mp3｜ə.mp3｜n.mp3,是,8 長長的字,gar-den,2,g｜ar｜d｜e｜n,ɡ｜ɑː｜d｜ə｜n,✓
+kitchen,廚房,家裡,🍳,/ˈkɪtʃ.ən/,kitch-en,,k.mp3｜ɪ.mp3｜tʃ.mp3｜ə.mp3｜n.mp3,是,8 長長的字,kitch-en,2,k｜i｜tch｜e｜n,k｜ɪ｜tʃ｜ə｜n,✓
+bedroom,臥室,家裡,🛌,/ˈbed.ruːm/,bed-room,,b.mp3｜e.mp3｜d.mp3｜r.mp3｜uː.mp3｜m.mp3,是,8 長長的字,bed-room,2,b｜e｜d｜r｜oo｜m,b｜e｜d｜r｜uː｜m,✓
+sun,太陽,大自然,☀️,/sʌn/,,,s.mp3｜ʌ.mp3｜n.mp3,是,2 短母音小字,sun,1,s｜u｜n,s｜ʌ｜n,✓
+mud,泥巴,大自然,🟤,/mʌd/,,,m.mp3｜ʌ.mp3｜d.mp3,是,2 短母音小字,mud,1,m｜u｜d,m｜ʌ｜d,✓
+log,木頭,大自然,🪵,/lɒɡ/,,,l.mp3｜ɒ.mp3｜ɡ.mp3,是,2 短母音小字,log,1,l｜o｜g,l｜ɒ｜ɡ,✓
+web,蜘蛛網,大自然,🕸️,/web/,,,w.mp3｜e.mp3｜b.mp3,是,2 短母音小字,web,1,w｜e｜b,w｜e｜b,✓
+rock,石頭,大自然,🪨,/rɒk/,,,r.mp3｜ɒ.mp3｜k.mp3,是,3 好朋友字母,rock,1,r｜o｜ck,r｜ɒ｜k,✓
+shell,貝殼,大自然,🐚,/ʃel/,,,ʃ.mp3｜e.mp3｜l.mp3,是,3 好朋友字母,shell,1,sh｜e｜ll,ʃ｜e｜l,✓
+nest,鳥巢,大自然,🪺,/nest/,,,n.mp3｜e.mp3｜s.mp3｜t.mp3,是,4 連在一起念,nest,1,n｜e｜s｜t,n｜e｜s｜t,✓
+bone,骨頭,大自然,🦴,/boʊn/,,,b.mp3｜oʊ.mp3｜n.mp3｜—,是,5 魔法 e,bone,1,b｜o｜n｜(e),b｜oʊ｜n｜—,✓
+rain,雨,大自然,🌧️,/reɪn/,,,r.mp3｜eɪ.mp3｜n.mp3,是,6 母音好朋友,rain,1,r｜ai｜n,r｜eɪ｜n,✓
+tree,樹,大自然,🌳,/triː/,,,t.mp3｜r.mp3｜iː.mp3,是,6 母音好朋友,tree,1,t｜r｜ee,t｜r｜iː,✓
+moon,月亮,大自然,🌙,/muːn/,,,m.mp3｜uː.mp3｜n.mp3,是,6 母音好朋友,moon,1,m｜oo｜n,m｜uː｜n,✓
+cloud,雲,大自然,☁️,/klaʊd/,,,k.mp3｜l.mp3｜aʊ.mp3｜d.mp3,是,6 母音好朋友,cloud,1,c｜l｜ou｜d,k｜l｜aʊ｜d,✓
+leaf,葉子,大自然,🍃,/liːf/,,,l.mp3｜iː.mp3｜f.mp3,是,6 母音好朋友,leaf,1,l｜ea｜f,l｜iː｜f,✓
+night,夜晚,大自然,🌃,/naɪt/,,,n.mp3｜aɪ.mp3｜t.mp3,是,6 母音好朋友,night,1,n｜igh｜t,n｜aɪ｜t,✓
+star,星星,大自然,⭐,/stɑː/,,,s.mp3｜t.mp3｜ɑː.mp3,是,7 霸道 R,star,1,s｜t｜ar,s｜t｜ɑː,✓
+bus,公車,東西,🚌,/bʌs/,,,b.mp3｜ʌ.mp3｜s.mp3,是,2 短母音小字,bus,1,b｜u｜s,b｜ʌ｜s,✓
+van,廂型車,東西,🚐,/væn/,,,v.mp3｜æ.mp3｜n.mp3,是,2 短母音小字,van,1,v｜a｜n,v｜æ｜n,✓
+jet,噴射機,東西,🛩️,/dʒet/,,,dʒ.mp3｜e.mp3｜t.mp3,是,2 短母音小字,jet,1,j｜e｜t,dʒ｜e｜t,✓
+net,網子,東西,🥅,/net/,,,n.mp3｜e.mp3｜t.mp3,是,2 短母音小字,net,1,n｜e｜t,n｜e｜t,✓
+hut,小屋,東西,🛖,/hʌt/,,,h.mp3｜ʌ.mp3｜t.mp3,是,2 短母音小字,hut,1,h｜u｜t,h｜ʌ｜t,✓
+pin,大頭針,東西,📌,/pɪn/,,,p.mp3｜ɪ.mp3｜n.mp3,是,2 短母音小字,pin,1,p｜i｜n,p｜ɪ｜n,✓
+zip,拉鍊,東西,🤐,/zɪp/,,,z.mp3｜ɪ.mp3｜p.mp3,是,2 短母音小字,zip,1,z｜i｜p,z｜ɪ｜p,✓
+ship,船,東西,🚢,/ʃɪp/,,,ʃ.mp3｜ɪ.mp3｜p.mp3,是,3 好朋友字母,ship,1,sh｜i｜p,ʃ｜ɪ｜p,✓
+ring,戒指,東西,💍,/rɪŋ/,,,r.mp3｜ɪ.mp3｜ŋ.mp3,是,3 好朋友字母,ring,1,r｜i｜ng,r｜ɪ｜ŋ,✓
+tent,帳篷,東西,⛺,/tent/,,,t.mp3｜e.mp3｜n.mp3｜t.mp3,是,4 連在一起念,tent,1,t｜e｜n｜t,t｜e｜n｜t,✓
+flag,旗子,東西,🚩,/flæɡ/,,,f.mp3｜l.mp3｜æ.mp3｜ɡ.mp3,是,4 連在一起念,flag,1,f｜l｜a｜g,f｜l｜æ｜ɡ,✓
+gift,禮物,東西,🎁,/ɡɪft/,,,ɡ.mp3｜ɪ.mp3｜f.mp3｜t.mp3,是,4 連在一起念,gift,1,g｜i｜f｜t,ɡ｜ɪ｜f｜t,✓
+plane,飛機,東西,✈️,/pleɪn/,,,p.mp3｜l.mp3｜eɪ.mp3｜n.mp3｜—,是,5 魔法 e,plane,1,p｜l｜a｜n｜(e),p｜l｜eɪ｜n｜—,✓
+rope,繩子,東西,🪢,/roʊp/,,,r.mp3｜oʊ.mp3｜p.mp3｜—,是,5 魔法 e,rope,1,r｜o｜p｜(e),r｜oʊ｜p｜—,✓
+cube,方塊,東西,🟧,/kjuːb/,,,k.mp3｜juː.mp3｜b.mp3｜—,是,5 魔法 e,cube,1,c｜u｜b｜(e),k｜juː｜b｜—,✓
+boat,小船,東西,⛵,/boʊt/,,,b.mp3｜oʊ.mp3｜t.mp3,是,6 母音好朋友,boat,1,b｜oa｜t,b｜oʊ｜t,✓
+coin,硬幣,東西,🪙,/kɔɪn/,,,k.mp3｜ɔɪ.mp3｜n.mp3,是,6 母音好朋友,coin,1,c｜oi｜n,k｜ɔɪ｜n,✓
+saw,鋸子,東西,🪚,/sɔː/,,,s.mp3｜ɔː.mp3,是,6 母音好朋友,saw,1,s｜aw,s｜ɔː,✓
+farm,農場,東西,🚜,/fɑːm/,,,f.mp3｜ɑː.mp3｜m.mp3,是,7 霸道 R,farm,1,f｜ar｜m,f｜ɑː｜m,✓
+fork,叉子,東西,🍴,/fɔːk/,,,f.mp3｜ɔː.mp3｜k.mp3,是,7 霸道 R,fork,1,f｜or｜k,f｜ɔː｜k,✓
+run,跑,動作,🏃,/rʌn/,,,r.mp3｜ʌ.mp3｜n.mp3,是,2 短母音小字,run,1,r｜u｜n,r｜ʌ｜n,✓
+sit,坐,動作,🪑,/sɪt/,,,s.mp3｜ɪ.mp3｜t.mp3,是,2 短母音小字,sit,1,s｜i｜t,s｜ɪ｜t,✓
+hop,跳,動作,🐇,/hɒp/,,,h.mp3｜ɒ.mp3｜p.mp3,是,2 短母音小字,hop,1,h｜o｜p,h｜ɒ｜p,✓
+dig,挖,動作,⛏️,/dɪɡ/,,,d.mp3｜ɪ.mp3｜ɡ.mp3,是,2 短母音小字,dig,1,d｜i｜g,d｜ɪ｜ɡ,✓
+kick,踢,動作,🦵,/kɪk/,,,k.mp3｜ɪ.mp3｜k.mp3,是,3 好朋友字母,kick,1,k｜i｜ck,k｜ɪ｜k,✓
+kiss,親親,動作,💋,/kɪs/,,,k.mp3｜ɪ.mp3｜s.mp3,是,3 好朋友字母,kiss,1,k｜i｜ss,k｜ɪ｜s,✓
+jump,跳高,動作,🤸,/dʒʌmp/,,,dʒ.mp3｜ʌ.mp3｜m.mp3｜p.mp3,是,4 連在一起念,jump,1,j｜u｜m｜p,dʒ｜ʌ｜m｜p,✓
+swim,游泳,動作,🏊,/swɪm/,,,s.mp3｜w.mp3｜ɪ.mp3｜m.mp3,是,4 連在一起念,swim,1,s｜w｜i｜m,s｜w｜ɪ｜m,✓
+stop,停,動作,🛑,/stɒp/,,,s.mp3｜t.mp3｜ɒ.mp3｜p.mp3,是,4 連在一起念,stop,1,s｜t｜o｜p,s｜t｜ɒ｜p,✓
+splash,潑水,動作,💦,/splæʃ/,,,s.mp3｜p.mp3｜l.mp3｜æ.mp3｜ʃ.mp3,是,4 連在一起念,splash,1,s｜p｜l｜a｜sh,s｜p｜l｜æ｜ʃ,✓

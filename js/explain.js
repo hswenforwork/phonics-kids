@@ -58,7 +58,7 @@
         blend: '連綴：每個字母各一格',
         cons: '一個字母一格',
       }[kind(b)];
-      return [b.letters, ipa, why];
+      return [b.letters, ipa, b.phOverride ? '例外：依表單改念這個音' : why];
     });
   }
 

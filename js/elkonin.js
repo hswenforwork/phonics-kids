@@ -107,7 +107,7 @@
 
     const boxEls = [...el.querySelectorAll('.ebox')];
     const startBtn = el.querySelector('[data-start]');
-    const sayBox = (b) => (b.silent ? { pause: 250 } : A.phonemeIPA(b.ph, b.key));
+    const sayBox = (b) => (b.silent ? { pause: 250 } : A.box(b));
 
     function highlightNext() {
       boxEls.forEach((x) => x.classList.remove('next'));

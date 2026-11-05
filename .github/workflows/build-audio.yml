@@ -6,10 +6,8 @@ on:
   push:
     branches: [main]
     paths:
-      - js/data.js
       - js/sounds.js
       - js/phonics.js
-      - data/custom-words.json
       - scripts/build-audio.cjs
       - scripts/trim_consonants.py
 

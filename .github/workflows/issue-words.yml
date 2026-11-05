@@ -1,4 +1,4 @@
-# 處理網站送出的申請單（加入單字／換主題／回報錯誤）
+# 處理家長模式表單頁送出的申請單（新增或修改單字、修改聲音表），寫進 data/*.csv 後同步
 # 安全：只處理 repo 擁有者自己開的申請單，其他人開的一律忽略
 name: 單字申請單
 
@@ -28,12 +28,18 @@ jobs:
           which ffmpeg || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
           python3 -c "import numpy" 2>/dev/null || pip install -q numpy
 
-      - name: 更新單字庫
+      - name: 寫進表單
         id: words
         env:
           ISSUE_BODY: ${{ github.event.issue.body }}
           RESULT_FILE: ${{ runner.temp }}/result.md
         run: node scripts/process-issue.cjs
+
+      - name: 同步表單
+        if: success()
+        env:
+          SYNC_REPORT: ${{ runner.temp }}/result.md
+        run: node scripts/sync-sheet.cjs
 
       - name: 產生語音檔
         if: success()
@@ -48,7 +54,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data audio
-          if git diff --cached --quiet; then echo "沒有變更"; else git commit -m "申請單 #${{ github.event.issue.number }}：更新單字庫" && git push; fi
+          if git diff --cached --quiet; then echo "沒有變更"; else git commit -m "申請單 #${{ github.event.issue.number }}：更新單字表單" && (git push || (git pull --rebase && git push)); fi
 
       - name: 回覆並關閉申請單
         if: always()

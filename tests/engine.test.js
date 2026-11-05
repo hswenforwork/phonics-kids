@@ -1,5 +1,6 @@
 // 執行：node tests/engine.test.js
-const { THEMES, BASE_WORDS } = require('../js/data.js');
+const { BASE_WORDS } = require('../js/data.js');
+const { THEMES } = require('./lib-words.cjs');
 const P = require('../js/phonics.js');
 
 const known = new Set(BASE_WORDS);

@@ -345,3 +345,19 @@ body[data-mode="parent"] .card { margin-top: 16px; }
 .box-table th { width: auto; }
 .box-table th:first-child, .box-table td:first-child { width: 22%; }
 .box-table th:nth-child(2), .box-table td:nth-child(2) { width: 22%; }
+
+/* ---------- 表單頁 ---------- */
+.form { display: grid; gap: 10px; }
+.form label { display: grid; gap: 4px; font-weight: 700; font-size: .92rem; }
+.form input, .form select, .box-edit select, .sound-table select { font: inherit; font-weight: 500; border: 2px solid var(--line); border-radius: 12px; padding: 8px 10px; background: #fff; max-width: 100%; }
+.box-edit select, .sound-table select { padding: 6px 8px; font-size: .9rem; }
+.box-edit th, .sound-table th { width: auto !important; }
+.center { text-align: center; }
+.pic { width: 1em; height: 1em; object-fit: contain; vertical-align: -0.12em; }
+.box-edit { display: grid; gap: 8px; }
+.box-row { display: grid; grid-template-columns: auto 1fr auto; gap: 6px 10px; align-items: center; border: 2px solid var(--line); border-radius: 16px; padding: 10px 12px; background: #FFFCF6; }
+.box-row.silent { grid-template-columns: auto auto 1fr; background: #F7F5F8; border-style: dashed; }
+.box-row label { grid-column: 1 / -1; display: grid; grid-template-columns: 3em 1fr; align-items: center; gap: 8px; font-size: .88rem; font-weight: 700; color: var(--muted); }
+.box-row select { width: 100%; min-width: 0; }
+.br-n { font-size: .8rem; color: var(--muted); font-weight: 700; }
+.box-row .box-cell { font-size: 1.5rem; }

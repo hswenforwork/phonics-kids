@@ -21,25 +21,29 @@
   let weakLetters = store.get('weakLetters', {}); // { a: true } 家長標記還不熟的字母
   let mode = store.get('mode', 'kid');
 
-  // ---------- 資料：內建單字庫 + 申請單加入的單字與修正 ----------
-  let custom = { words: [], fixes: {} };
-  try { custom = await (await fetch('data/custom-words.json', { cache: 'no-cache' })).json(); } catch (e) { /* 離線時只用內建字 */ }
-  const THEMES = window.PK_DATA.THEMES.map((t) => ({ id: t.id, zh: t.zh, emoji: t.emoji }));
-  THEMES.push({ id: 'mine', zh: '我的單字', emoji: '🌟' });
-  const themeOf = (id) => THEMES.find((t) => t.id === id) || THEMES[THEMES.length - 1];
+  // ---------- 資料：單字表單（data/words.csv → 同步腳本產生 data/sheet.json） ----------
+  let SHEET = { themes: [], words: [], sounds: {}, files: { audio: [], images: [] } };
+  try { SHEET = Object.assign(SHEET, await (await fetch('data/sheet.json', { cache: 'no-cache' })).json()); } catch (e) { /* 離線且沒有快取 */ }
+  A.setCustomSounds(SHEET.sounds || {});
+  const THEMES = (SHEET.themes || []).slice();
+  const themeOf = (id) => THEMES.find((t) => t.id === id) || { id, zh: '其他', emoji: '📦' };
   const LIB = new Map();
-  window.PK_DATA.THEMES.forEach((t) => t.words.forEach(([w, zh, emoji, ipa, syl]) => { if (!LIB.has(w)) LIB.set(w, { word: w, zh, emoji, ipa, syl, theme: t.id }); }));
-  (custom.words || []).forEach((c) => {
+  (SHEET.words || []).forEach((c) => {
     if (!c.word || LIB.has(c.word)) return;
-    LIB.set(c.word, { word: c.word, zh: c.zh || '', emoji: c.emoji || '🌟', ipa: c.ipa || '', syl: c.syl || '', theme: c.theme || 'mine', custom: true });
+    const e = Object.assign({ zh: '', ipa: '', syl: '', theme: 'other' }, c);
+    e.emojiText = e.emoji || '🌟';
+    // 自訂圖片：用 <img> 取代 emoji（所有顯示圖示的地方都直接插入這段）
+    e.emoji = e.img ? `<img class="pic" src="${encodeURI(e.img)}" alt="">` : e.emojiText;
+    LIB.set(e.word, e);
   });
-  Object.entries(custom.fixes || {}).forEach(([w, f]) => { const e = LIB.get(w); if (e) Object.assign(e, f); });
   const KNOWN = new Set([...BASE_WORDS, ...LIB.keys()]);
   const analyzeEntry = (e) => P.analyze(e.word, { ipa: e.ipa, ipaSource: e.source, zh: e.zh, known: KNOWN, libSyllables: e.syl || undefined });
 
   // 每個字自動判斷等級（2～8）；判斷不出來的放「我的單字」，只聽與認字
   const ANALYSIS = new Map();
   LIB.forEach((e, w) => { const r = analyzeEntry(Object.assign({ source: 'lib' }, e)); ANALYSIS.set(w, r); e.level = P.levelOf(r); });
+  // 格子：依規則拆好，再套用表單的例外（改念音素、改用音檔）
+  const boxesOf = (e, r) => P.applyOverrides(P.elkonin(r || ANALYSIS.get(e.word)), LIB.has(e.word) ? LIB.get(e.word) : null);
   const wordsOfLevel = (n) => [...LIB.values()].filter((e) => e.level === n);
   const mineWords = () => [...LIB.values()].filter((e) => e.level == null);
   // 第 0 級：多音節字＋幾個一拍的字，混在一起聽
@@ -157,6 +161,8 @@
     const h = location.hash || '#/';
     let m;
     if (h === '#/p/guide') { setMode('parent'); return renderGuide(); }
+    if (h === '#/p/sounds') { setMode('parent'); return renderSounds(); }
+    if ((m = h.match(/^#\/p\/edit\/([a-z]+)$/))) { setMode('parent'); return renderEdit(m[1]); }
     if ((m = h.match(/^#\/p(?:\/w\/([a-z]+))?$/))) { setMode('parent'); return renderParent(m[1]); }
     setMode('kid');
     if ((m = h.match(/^#\/L\/([0-8])$/))) return renderLevel(+m[1]);
@@ -273,7 +279,7 @@
   // ---------- 字卡（格子預覽） ----------
   let curBoxes = [];
   function cardHTML(e, r, opts = {}) {
-    const boxes = P.elkonin(r);
+    const boxes = boxesOf(e, r);
     curBoxes = boxes;
     const canPlay = e.level != null;
     const d = progress[e.word] || 0;
@@ -300,14 +306,14 @@
     const boxes = curBoxes;
     card.querySelector('[data-say-word]').addEventListener('click', () => A.play(A.word(e)));
     const boxEls = [...card.querySelectorAll('.preview .ebox')];
-    const say = (b) => (b.silent ? { pause: 200 } : A.phonemeIPA(b.ph, b.key));
+    const say = (b) => A.box(b);
     boxEls.forEach((el, k) => el.addEventListener('click', () => {
       const b = boxes[k];
       flash(el);
       showHint(E.boxHint(b, boxes));
       if (b.magic) {
         const vi = boxes.findIndex((x) => x.magicBy);
-        if (vi >= 0) A.play(A.phonemeIPA(boxes[vi].ph, boxes[vi].key, { onstart: () => flash(boxEls[vi]) }));
+        if (vi >= 0) A.play(A.box(boxes[vi], { onstart: () => flash(boxEls[vi]) }));
         return;
       }
       if (!b.silent) A.play(say(b));
@@ -347,7 +353,7 @@
     if (stage > done + 1) return go(`#/w/${w}/b/${done + 1}`);
     const e = await lookup(w);
     const r = ANALYSIS.get(w);
-    const boxes = P.elkonin(r);
+    const boxes = boxesOf(e, r);
     app.innerHTML = `
       <nav class="crumbs"><a href="#/w/${w}" class="back">← ${esc(w)}</a></nav>
       <div class="stage-tabs">
@@ -428,7 +434,12 @@
           <button class="btn primary" type="submit">查詢</button>
         </form>
         <p class="muted small">先查內建單字庫，查不到再查線上字典（英式）；都查不到時，依拼字推測並標示「未經發音驗證」。</p>
-        <a class="btn small" href="#/p/guide">📘 教學指南</a>
+        <div class="gh-actions">
+          <a class="btn small" href="#/p/guide">📘 教學指南</a>
+          <a class="btn small" href="#/p/sounds">🔊 聲音表</a>
+          <a class="btn small" href="${SHEET_URL('words.csv')}" target="_blank" rel="noopener">📄 單字表（GitHub）</a>
+        </div>
+        <p class="muted small">新增單字：在上面輸入英文單字查詢，再按「➕ 加入單字表」。</p>
       </section>
       <div id="result">${w ? '<p class="loading">查詢中…</p>' : `
         <section class="panel">
@@ -466,53 +477,168 @@
     if (!e) { box.innerHTML = '<p class="warn">請輸入英文字母。</p>'; return; }
     const r = ANALYSIS.get(e.word) || analyzeEntry(e);
     const inLib = LIB.has(r.word);
-    const boxes = P.elkonin(r);
+    const boxes = boxesOf(e, r);
     const L = e.level != null ? P.LEVELS[e.level] : null;
-    const addURL = issueURL(`加入單字：${r.word}`, ['pk-action: add', `word: ${r.word}`, '', '（送出後會自動判斷等級、產生音標、中文意思與語音，約幾分鐘後網站更新。）']);
-    const fixURL = issueURL(`回報錯誤：${r.word}`, ['pk-action: fix', `word: ${r.word}`, `ipa: ${r.ipa || ''}`, `syllables: ${r.syllables.join('-')}`, `zh: ${e.zh || ''}`, '', '（請直接修改上面需要更正的欄位，再按 Submit new issue 送出。）']);
     box.innerHTML = `
       ${cardHTML(e, r, { parent: true, noBox: !inLib })}
       <section class="panel">
         <h2>🔲 格子拆解</h2>
         <p>${L ? `屬於 <b>第 ${e.level} 級：${L.zh}</b>（${L.desc}）` : '<b>不符合格子規則的等級</b>：加入後會放在「我的單字」，只開放聽和認字。'}</p>
         <p class="muted small">IPA：${r.ipa ? esc(r.ipa) : '（無）'}　音節：${r.syllables.join(' · ')}　共 ${boxes.filter((b) => !b.silent).length} 個聲音</p>
-        <table class="steps box-table"><thead><tr><th>格子</th><th>聲音</th><th>說明</th></tr></thead>
-          <tbody>${E.boxRows(boxes).map(([a, b, c]) => `<tr><td class="box-cell">${esc(a)}</td><td>${esc(b)}</td><td>${esc(c)}</td></tr>`).join('')}</tbody></table>
+        <div class="table-wrap"><table class="steps box-table"><thead><tr><th>格子</th><th>聲音</th><th>說明</th><th>音檔</th></tr></thead>
+          <tbody>${E.boxRows(boxes).map(([a, b, c], i) => `<tr><td class="box-cell">${esc(a)}</td><td>${esc(b)}${boxes[i].phOverride ? '<br><span class="tag">例外</span>' : ''}</td><td>${esc(c)}</td><td>${esc(A.boxSource(boxes[i]))}</td></tr>`).join('')}</tbody></table></div>
         ${e.defEn ? `<p class="muted small">英文解釋：${esc(e.defEn)}</p>` : ''}
         <div class="gh-actions">
-          ${inLib ? `<a class="btn small" href="${fixURL}" target="_blank" rel="noopener">🛠 回報錯誤</a>${LIB.get(r.word).custom ? '<button class="btn small" data-move>🗂 換主題</button>' : ''}`
-                  : `<a class="btn small primary" href="${addURL}" target="_blank" rel="noopener">➕ 加入單字庫</a>`}
+          <a class="btn small ${inLib ? '' : 'primary'}" href="#/p/edit/${r.word}">${inLib ? '✏️ 編輯這個字（音素、音檔、圖示…）' : '➕ 加入單字表'}</a>
         </div>
-        <p class="muted small">按鈕會開啟 GitHub 申請單（需登入 GitHub），按「Submit new issue」送出後，自動流程會更新單字庫與語音，所有裝置同步。</p>
       </section>
       <section class="panel"><h2>中文講解 <button class="btn small ghost" data-copy="zh">複製</button></h2>
         <div class="script">${esc(E.scriptZh(r, boxes, e.level)).replace(/\n/g, '<br>')}</div></section>
       <section class="panel"><h2>English Script <button class="btn small ghost" data-copy="en">複製</button></h2>
         <div class="script" data-script="en">${esc(E.scriptEn(r, boxes)).replace(/\n/g, '<br>')}</div></section>`;
     bindCard(e, r);
-    const mv = box.querySelector('[data-move]');
-    if (mv) mv.addEventListener('click', () => openMove(r.word));
     box.querySelectorAll('[data-copy]').forEach((b) => b.addEventListener('click', async () => {
       const txt = b.dataset.copy === 'zh' ? E.scriptZh(r, boxes, e.level) : E.scriptEn(r, boxes);
       try { await navigator.clipboard.writeText(txt); showHint('📋 已複製'); } catch (err) { showHint('無法複製，請手動選取文字'); }
     }));
   }
 
-  // 換主題（只影響篩選）：開 GitHub 申請單，送出後所有裝置同步
-  function openMove(w) {
-    const dlg = document.createElement('div');
-    dlg.className = 'dialog-back';
-    dlg.innerHTML = `<div class="dialog" role="dialog" aria-label="換主題">
-      <h2>把 <b>${w}</b> 放到哪個主題？</h2>
-      <div class="dialog-grid">${THEMES.filter((t) => t.id !== 'mine').map((t) => `<button class="btn ghost" data-to="${t.id}">${t.emoji} ${t.zh}</button>`).join('')}</div>
-      <p class="muted small">按下後會開啟 GitHub 申請單，請按「Submit new issue」送出。</p>
-      <button class="btn small" data-close>取消</button></div>`;
-    document.body.appendChild(dlg);
-    dlg.addEventListener('click', (ev) => {
-      const to = ev.target.closest('[data-to]');
-      if (to) { window.open(issueURL(`換主題：${w}`, ['pk-action: move', `word: ${w}`, `theme: ${to.dataset.to}`]), '_blank', 'noopener'); dlg.remove(); }
-      else if (ev.target === dlg || ev.target.matches('[data-close]')) dlg.remove();
+  // ---------- 表單頁：新增／編輯一個字（送出走 GitHub 申請單，自動流程寫進 data/words.csv） ----------
+  const UPLOAD_URL = `https://github.com/${REPO}/upload/main/custom`;
+  const SHEET_URL = (f) => `https://github.com/${REPO}/blob/main/data/${f}`;
+  const AUDIO_FILES = (SHEET.files && SHEET.files.audio) || []; // [[檔名, 'custom/…'], …]
+  const IMAGE_FILES = (SHEET.files && SHEET.files.images) || [];
+  const fileRef = (name) => (AUDIO_FILES.find(([n]) => n === name) || [])[1] || '';
+  const fileName = (ref) => (AUDIO_FILES.find(([, r]) => r === ref) || [])[0] || '';
+  const ALL_PH = [...new Set([...(SHEET.soundList || []).map((x) => x.ph), ...Object.values(SOUNDS).map((x) => x.ipa).filter(Boolean)])];
+  const uploadTip = `<p class="muted small">要用自己的音檔或圖片：先<a href="${UPLOAD_URL}" target="_blank" rel="noopener">上傳到 GitHub 的 custom 資料夾</a>（手機請切換成「電腦版網頁」），約 1～2 分鐘後重新整理這一頁，下拉選單就會出現新檔案。</p>`;
+
+  async function renderEdit(w) {
+    app.innerHTML = '<p class="loading">載入中…</p>';
+    const e = await lookup(w);
+    if (!e) return go('#/p');
+    const lib = LIB.get(w);
+    const st = {
+      ipa: lib ? lib.ipa : (e.ipa || ''),
+      syl: lib ? lib.syl : '',
+      boxPh: Object.assign({}, lib && lib.boxPh),
+      boxAudio: Object.assign({}, lib && lib.boxAudio),
+    };
+    const themeNames = THEMES.map((t) => t.zh);
+    const curTheme = lib ? themeOf(lib.theme).zh : '';
+    app.innerHTML = `
+      <nav class="crumbs"><a href="#/p/w/${w}" class="back">← ${esc(w)}</a><h1>${lib ? '✏️ 編輯' : '➕ 新增'}：${esc(w)}</h1></nav>
+      <section class="panel form">
+        <p class="muted small">空白的欄位，送出後系統會自動補上（音標查英式字典、中文自動翻譯、圖示自動配 emoji）。</p>
+        <label>中文<input name="中文" value="${esc(lib ? lib.zh : e.zh || '')}"></label>
+        <label>主題<input name="主題" list="themes" value="${esc(curTheme)}" placeholder="例如：動物（也可以打新的主題）"></label>
+        <datalist id="themes">${themeNames.map((t) => `<option value="${esc(t)}">`).join('')}</datalist>
+        <label>圖示<input name="圖示" list="imgs" value="${esc(lib ? (lib.img ? lib.img.replace(/^custom\//, '') : lib.emojiText) : '')}" placeholder="emoji，或 custom 資料夾裡的圖片檔名"></label>
+        <datalist id="imgs">${IMAGE_FILES.map((f) => `<option value="${esc(f)}">`).join('')}</datalist>
+        <label>音標<input name="音標" value="${esc(st.ipa)}" placeholder="例如 /keɪk/；空白會自動查" autocapitalize="off" spellcheck="false"></label>
+        <label>音節<input name="音節" value="${esc(st.syl)}" placeholder="多音節才需要，例如 ti-ger" autocapitalize="off" spellcheck="false"></label>
+        <label>整字音檔<select name="整字音檔"><option value="">AI 語音（預設）</option>${AUDIO_FILES.map(([n]) => `<option${lib && lib.wordAudio && fileName(lib.wordAudio) === n ? ' selected' : ''}>${esc(n)}</option>`).join('')}</select></label>
+        <label>啟用<select name="啟用"><option>是</option><option>否</option></select></label>
+      </section>
+      <section class="panel">
+        <h2>🔲 每一格的音素與音檔</h2>
+        <p class="muted small">「規則」是工具依自然發音規則判斷的結果。只有判斷錯（例外、特例）時才需要改音素；聲音不清楚時，可以把這一格換成自己的音檔。</p>
+        <div id="boxedit"></div>
+        ${uploadTip}
+      </section>
+      <div class="actions"><button class="btn primary" data-submit>📨 送出到 GitHub</button></div>
+      <p class="muted small center">會開啟預填好的 GitHub 申請單，按「Submit new issue」送出；約 1～3 分鐘後網站更新，申請單上會回覆檢查結果。</p>`;
+    const form = app.querySelector('.form');
+    const val = (n) => form.querySelector(`[name="${n}"]`).value.trim();
+    let boxes = [];
+    function draw() {
+      const r = P.analyze(w, { ipa: st.ipa, known: KNOWN, libSyllables: st.syl || undefined });
+      boxes = P.applyOverrides(P.elkonin(r), { boxPh: st.boxPh });
+      const base = P.elkonin(r);
+      app.querySelector('#boxedit').innerHTML = `<div class="box-edit">
+        ${boxes.map((b, k) => {
+          const i = k + 1;
+          if (b.silent) return `<div class="box-row silent"><span class="br-n">第 ${i} 格</span><span class="box-cell">(${esc(b.letters)})</span><span class="muted">不發音</span></div>`;
+          const a = st.boxAudio[i] || '';
+          const cur = a.startsWith('custom/') ? fileName(a) : '';
+          return `<div class="box-row" data-i="${i}"><span class="br-n">第 ${i} 格</span><span class="box-cell">${esc(b.letters)}</span>
+            <button class="btn small ghost" data-play aria-label="試聽第 ${i} 格">▶ 試聽</button>
+            <label>音素<select data-ph><option value="">規則：/${esc(base[k].ph || '?')}/</option>${ALL_PH.filter((p) => p !== base[k].ph).map((p) => `<option value="${esc(p)}"${st.boxPh[i] === p ? ' selected' : ''}>/${esc(p)}/（例外）</option>`).join('')}</select></label>
+            <label>音檔<select data-audio><option value="">共用 ${esc(b.ph)}.mp3（${esc(A.boxSource(Object.assign({}, b, { audio: '' })))}）</option>${a.startsWith('ph:') ? `<option value="${esc(a)}" selected>${esc(a.slice(3))}.mp3</option>` : ''}${AUDIO_FILES.map(([n, ref]) => `<option value="${esc(ref)}"${cur === n ? ' selected' : ''}>${esc(n)}</option>`).join('')}</select></label></div>`;
+        }).join('')}</div>
+        <p class="muted small">格子：${boxes.map((b) => (b.silent ? `(${b.letters})` : b.letters)).join('｜')}</p>`;
+      app.querySelectorAll('#boxedit .box-row[data-i]').forEach((tr) => {
+        const i = +tr.dataset.i;
+        tr.querySelector('[data-ph]').addEventListener('change', (ev) => { if (ev.target.value) st.boxPh[i] = ev.target.value; else delete st.boxPh[i]; draw(); });
+        tr.querySelector('[data-audio]').addEventListener('change', (ev) => { if (ev.target.value) st.boxAudio[i] = ev.target.value; else delete st.boxAudio[i]; });
+        tr.querySelector('[data-play]').addEventListener('click', () => {
+          const b = Object.assign({}, boxes[i - 1], { audio: st.boxAudio[i] || '' });
+          A.play(A.box(b));
+        });
+      });
+    }
+    // 改了音標或音節，格子可能不同：重新拆，原本每一格的設定清掉
+    ['音標', '音節'].forEach((n) => form.querySelector(`[name="${n}"]`).addEventListener('change', () => {
+      st.ipa = val('音標'); st.syl = val('音節').toLowerCase();
+      st.boxPh = {}; st.boxAudio = {};
+      draw();
+      showHint('格子已依新的音標／音節重新拆分，每一格的設定已重設');
+    }));
+    draw();
+    app.querySelector('[data-submit]').addEventListener('click', () => {
+      const cells = boxes.map((b, k) => {
+        if (b.silent) return '—';
+        const a = st.boxAudio[k + 1] || '';
+        if (a.startsWith('custom/')) return fileName(a) || `${b.ph}.mp3`;
+        if (a.startsWith('ph:')) return a.slice(3) + '.mp3';
+        return `${b.ph}.mp3`;
+      });
+      const exc = Object.entries(st.boxPh).map(([i, p]) => `${i}=${p}`).join('、');
+      const lines = ['pk-action: edit', `word: ${w}`, `中文: ${val('中文')}`, `主題: ${val('主題')}`, `圖示: ${val('圖示')}`,
+        `音標: ${val('音標')}`, `音節: ${val('音節')}`, `整字音檔: ${val('整字音檔')}`, `音素音檔: ${cells.join('｜')}`, `例外: ${exc}`, `啟用: ${val('啟用')}`,
+        '', '（請直接按 Submit new issue 送出，不需要修改上面的內容。）'];
+      window.open(issueURL(`${lib ? '編輯' : '新增'}單字：${w}`, lines), '_blank', 'noopener');
     });
+    window.scrollTo(0, 0);
+  }
+
+  // ---------- 表單頁：聲音表（所有字共用的音素音檔） ----------
+  function renderSounds() {
+    const list = SHEET.soundList || [];
+    const pick = {};
+    app.innerHTML = `
+      <nav class="crumbs"><a href="#/p" class="back">← 家長模式</a><h1>🔊 聲音表</h1></nav>
+      <section class="panel">
+        <p>每個聲音的音檔會用在所有字卡上。例如把 /k/ 換成你的音檔，cat、duck、cake 的 /k/ 會一起換掉。只想換某個字的某一格，請到那個字的「✏️ 編輯」。</p>
+        ${uploadTip}
+        <div class="table-wrap"><table class="steps sound-table"><thead><tr><th>聲音</th><th>說明</th><th>音檔</th><th></th></tr></thead><tbody>
+        ${list.map((x) => `<tr data-ph="${esc(x.ph)}"><td class="box-cell">/${esc(x.ph)}/</td>
+          <td>${esc(x.desc)}<br><small class="muted">${esc(x.eg)}${x.n ? `（${x.n} 個字）` : ''}</small></td>
+          <td><select><option value="">AI 語音${A.has('p/' + P.phFile(x.ph)) ? '' : '（還沒有）'}</option>${AUDIO_FILES.map(([n]) => `<option${x.file && findName(x.file) === n ? ' selected' : ''}>${esc(n)}</option>`).join('')}</select></td>
+          <td><button class="btn small ghost" data-play aria-label="試聽">▶</button></td></tr>`).join('')}
+        </tbody></table></div>
+      </section>
+      <div class="actions"><button class="btn primary" data-submit>📨 送出變更到 GitHub</button></div>`;
+    function findName(f) { return (AUDIO_FILES.find(([n]) => n === f || n.toLowerCase() === f.toLowerCase() || n.replace(/\.[^.]+$/, '') === f.replace(/\.[^.]+$/, '')) || [])[0] || ''; }
+    app.querySelectorAll('.sound-table tr[data-ph]').forEach((tr) => {
+      const ph = tr.dataset.ph;
+      const sel = tr.querySelector('select');
+      const orig = sel.value;
+      sel.addEventListener('change', () => { if (sel.value !== orig) pick[ph] = sel.value; else delete pick[ph]; });
+      tr.querySelector('[data-play]').addEventListener('click', () => {
+        const key = keyOfIpa(ph);
+        const it = A.phonemeIPA(ph, key);
+        it.custom = sel.value ? fileRef(sel.value) : '';
+        A.play(it);
+      });
+    });
+    app.querySelector('[data-submit]').addEventListener('click', () => {
+      const ch = Object.entries(pick);
+      if (!ch.length) return showHint('還沒有修改任何聲音');
+      const lines = ['pk-action: sound', ...ch.map(([ph, f]) => `音檔 ${ph}: ${f}`), '', '（值空白代表改回 AI 語音。請直接按 Submit new issue 送出。）'];
+      window.open(issueURL(`更新聲音表：${ch.map(([ph]) => '/' + ph + '/').join(' ')}`, lines), '_blank', 'noopener');
+    });
+    window.scrollTo(0, 0);
   }
 
   // ---------- 教學指南（呈現 references/rules.md） ----------

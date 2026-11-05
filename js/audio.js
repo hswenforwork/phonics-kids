@@ -1,5 +1,6 @@
 /*
  * 聲音播放：優先順序
+ *   0. 表單指定的自訂音檔（custom/ 上傳，轉成 audio/custom/…mp3）
  *   1. 預先產生的 AI 語音檔（audio/…mp3，Google 英式女聲，依 IPA 產生）
  *   2. 字典真人錄音（只限整字，庫外單字用）
  *   3. 瀏覽器內建英式語音（暫時替代，不夠精準）
@@ -77,6 +78,7 @@
     if (it.pause) { await new Promise((r) => setTimeout(r, it.pause)); return; }
     if (it.onstart) it.onstart();
     if (!loaded) await ready; // 已載入時不等待，讓播放留在觸碰的當下（iOS 才允許）
+    if (it.custom) { if (await playUrl('audio/' + it.custom + '.mp3', myToken)) return report('自訂音檔'); }
     if (it.path && has(it.path)) { if (await playUrl('audio/' + it.path + '.mp3', myToken)) return report('AI 語音檔'); }
     if (it.path2 && has(it.path2)) { if (await playUrl('audio/' + it.path2 + '.mp3', myToken)) return report('AI 語音檔（同類音）'); }
     if (it.url) { if (await playUrl(it.url, myToken)) return report('字典真人錄音'); }
@@ -91,7 +93,8 @@
   function stop() { token++; el.pause(); if (root.speechSynthesis) speechSynthesis.cancel(); }
 
   // 常用片段
-  const word = (e, extra) => Object.assign({ path: 'w/' + e.word, url: e.audioUrl || '', text: e.word, rate: 0.8 }, extra);
+  let customSounds = {}; // 聲音表指定的自訂音檔：{ 音素: 'custom/…' }
+  const word = (e, extra) => Object.assign({ custom: e.wordAudio || '', path: 'w/' + e.word, url: e.audioUrl || '', text: e.word, rate: 0.8 }, extra);
   const syllable = (e, i, text, extra) => Object.assign({ path: 's/' + e.word + '-' + i, text, rate: 0.65 }, extra);
   const phoneme = (key, extra) => {
     const s = SOUNDS[key];
@@ -102,9 +105,26 @@
   const phonemeIPA = (ph, key, extra) => {
     if (!ph) return phoneme(key, extra);
     const s = SOUNDS[key] || {};
-    return Object.assign({ path: 'p/' + root.PK_PHONICS.phFile(ph), path2: 'ph/' + key, text: s.tts || '', rate: 0.6 }, extra);
+    return Object.assign({ custom: customSounds[ph] || '', path: 'p/' + root.PK_PHONICS.phFile(ph), path2: 'ph/' + key, text: s.tts || '', rate: 0.6 }, extra);
+  };
+  // 一個格子的聲音：單字表「音素音檔」指定的檔 → 聲音表 → AI
+  const keyOfPh = (ph) => (Object.entries(SOUNDS).find(([, s]) => s.ipa === ph) || [''])[0];
+  const box = (b, extra) => {
+    if (!b || b.silent) return { pause: 200 };
+    if (b.audio && b.audio.startsWith('ph:')) { const ph = b.audio.slice(3); return phonemeIPA(ph, keyOfPh(ph) || b.key, extra); }
+    const it = phonemeIPA(b.ph, b.key, extra);
+    if (b.audio) it.custom = b.audio;
+    return it;
+  };
+  /** 這一格目前播哪個來源（家長模式顯示用） */
+  const boxSource = (b) => {
+    if (!b || b.silent) return '';
+    if (b.audio && !b.audio.startsWith('ph:')) return '自訂（這個字）';
+    const ph = b.audio ? b.audio.slice(3) : b.ph;
+    if (customSounds[ph]) return '自訂（聲音表）';
+    return has('p/' + root.PK_PHONICS.phFile(ph)) ? 'AI' : '瀏覽器語音';
   };
   const isAI = (e) => has('w/' + e.word);
 
-  root.PK_AUDIO = { play, stop, word, syllable, phoneme, phonemeIPA, isAI, ready: () => ready, has, setOnSource: (f) => { onSource = f; }, last: () => lastSource };
+  root.PK_AUDIO = { play, stop, word, syllable, phoneme, phonemeIPA, box, boxSource, setCustomSounds: (m) => { customSounds = m || {}; }, isAI, ready: () => ready, has, setOnSource: (f) => { onSource = f; }, last: () => lastSource };
 })(this);

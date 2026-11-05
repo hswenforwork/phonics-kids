@@ -1,7 +1,8 @@
 // 檢查單字庫每張字母卡的發音是否符合 references/rules.md
 // 符合規則表 → 不列出；屬於已知例外 → 列出並附說明；說不出原因的例外 → 視為錯誤
 // 執行：node tests/audit-rules.cjs
-const { THEMES, BASE_WORDS } = require('../js/data.js');
+const { BASE_WORDS } = require('../js/data.js');
+const { THEMES } = require('./lib-words.cjs');
 const P = require('../js/phonics.js');
 
 const known = new Set(BASE_WORDS);

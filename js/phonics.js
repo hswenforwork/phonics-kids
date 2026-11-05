@@ -779,6 +779,21 @@
     return boxes;
   }
 
+  // 表單覆蓋（第幾格從 1 開始，含不發音的格子）：
+  //   boxPh：例外表「這一格改念哪個音素」；boxAudio：單字表「音素音檔」欄指定的音檔
+  //   boxAudio 的值：'custom/檔名'（自訂音檔）或 'ph:音素'（借用另一個聲音的共用音檔）
+  function applyOverrides(boxes, o) {
+    if (!o) return boxes;
+    const SND = (root.PK_SOUNDS || (typeof require !== 'undefined' ? require('./sounds.js') : {})).SOUNDS || {};
+    const keyOf = (ph) => (Object.entries(SND).find(([, s]) => s.ipa === ph) || [''])[0];
+    Object.entries(o.boxPh || {}).forEach(([i, ph]) => {
+      const b = boxes[i - 1];
+      if (b && !b.silent && ph) { b.ph = ph; b.key = keyOf(ph) || b.key; b.phOverride = true; }
+    });
+    Object.entries(o.boxAudio || {}).forEach(([i, a]) => { const b = boxes[i - 1]; if (b && !b.silent && a) b.audio = a; });
+    return boxes;
+  }
+
   // 音素轉檔名（避免特殊符號）：b → 62，eɪ → 65_26a
   const phFile = (ph) => Array.from(ph).map((c) => c.codePointAt(0).toString(16)).join('_');
   // 是否為子音（不含母音）的音素
@@ -854,7 +869,7 @@
     { n: 8, zh: '長長的字', icon: '🐘', desc: '先分大框（音節），再分小格' },
   ];
 
-  const api = { analyze, yRole, levelOf, LEVELS, parseIPA, tokenize, elkonin, ipaSegments, mapPhonemes, phFile, phSay, isConsonantPh, ruleNote, RULES, SIGHT, LONG, SHORT };
+  const api = { analyze, yRole, levelOf, LEVELS, parseIPA, tokenize, elkonin, applyOverrides, ipaSegments, mapPhonemes, phFile, phSay, isConsonantPh, ruleNote, RULES, SIGHT, LONG, SHORT };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.PK_PHONICS = api;
 })(this);
