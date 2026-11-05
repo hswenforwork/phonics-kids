@@ -25,7 +25,7 @@ horse,馬,動物,🐴,/hɔːs/,horse,AI,h.mp3｜ɔː.mp3｜s.mp3｜—,AI,是,7 
 shark,鯊魚,動物,🦈,/ʃɑːk/,shark,AI,ʃ.mp3｜ɑː.mp3｜k.mp3,AI,是,7 霸道 R,shark,1,sh｜ar｜k,ʃ｜ɑː｜k,✓
 tiger,老虎,動物,🐯,/ˈtaɪ.ɡə/,ti-ger,AI,t.mp3｜aɪ.mp3｜ɡ.mp3｜ə.mp3,AI｜AI,是,8 長長的字,ti-ger,2,t｜i｜g｜er,t｜aɪ｜ɡ｜ə,✓
 lion,獅子,動物,🦁,/ˈlaɪ.ən/,li-on,AI,l.mp3｜aɪ.mp3｜ə.mp3｜n.mp3,AI｜AI,是,8 長長的字,li-on,2,l｜i｜o｜n,l｜aɪ｜ə｜n,✓
-zebra,斑馬,動物,🦓,/ˈze.brə/,ze-bra,AI,z.mp3｜e.mp3｜b.mp3｜r.mp3｜ə.mp3,AI｜AI,是,8 長長的字,ze-bra,2,z｜e｜b｜r｜a,z｜e｜b｜r｜ə,✓
+zebra,斑馬,動物,🦓,/ˈze.brə/,ze-bra,AI,z.mp3｜e.mp3｜b.mp3｜r.mp3｜ə.mp3,AI｜AI,是,8 長長的字,ze-bra,2,z｜e｜b｜r｜a,z｜e｜b｜r｜ə,第 1 拍「ze」是短母音 /e/ 結尾；短母音要由子音收尾（例如 zeb-ra、broth-er），請確認音節
 hippo,河馬,動物,🦛,/ˈhɪp.oʊ/,hip-po,AI,h.mp3｜ɪ.mp3｜p.mp3｜p.mp3｜oʊ.mp3,AI｜AI,是,8 長長的字,hip-po,2,h｜i｜p｜p｜o,h｜ɪ｜p｜p｜oʊ,✓
 rabbit,兔子,動物,🐰,/ˈræb.ɪt/,rab-bit,AI,r.mp3｜æ.mp3｜b.mp3｜b.mp3｜ɪ.mp3｜t.mp3,AI｜AI,是,8 長長的字,rab-bit,2,r｜a｜b｜b｜i｜t,r｜æ｜b｜b｜ɪ｜t,✓
 monkey,猴子,動物,🐵,/ˈmʌŋ.ki/,mon-key,AI,m.mp3｜ʌ.mp3｜ŋ.mp3｜k.mp3｜i.mp3,AI｜AI,是,8 長長的字,mon-key,2,m｜o｜n｜k｜ey,m｜ʌ｜ŋ｜k｜i,✓
@@ -61,9 +61,9 @@ girl,女孩,人物,👧,/ɡɜːl/,girl,AI,ɡ.mp3｜ɜː.mp3｜l.mp3,AI,是,7 霸
 nurse,護理師,人物,🧑‍⚕️,/nɜːs/,nurse,AI,n.mp3｜ɜː.mp3｜s.mp3｜—,AI,是,7 霸道 R,nurse,1,n｜ur｜s｜(e),n｜ɜː｜s｜—,✓
 baby,小寶寶,人物,👶,/ˈbeɪ.bi/,ba-by,AI,b.mp3｜eɪ.mp3｜b.mp3｜i.mp3,AI｜AI,是,8 長長的字,ba-by,2,b｜a｜b｜y,b｜eɪ｜b｜i,✓
 sister,姊妹,人物,👧,/ˈsɪs.tə/,sis-ter,AI,s.mp3｜ɪ.mp3｜s.mp3｜t.mp3｜ə.mp3,AI｜AI,是,8 長長的字,sis-ter,2,s｜i｜s｜t｜er,s｜ɪ｜s｜t｜ə,✓
-brother,兄弟,人物,👦,/ˈbrʌ.ðə/,bro-ther,AI,b.mp3｜r.mp3｜ʌ.mp3｜ð.mp3｜ə.mp3,AI｜AI,是,8 長長的字,bro-ther,2,b｜r｜o｜th｜er,b｜r｜ʌ｜ð｜ə,✓
+brother,兄弟,人物,👦,/ˈbrʌ.ðə/,bro-ther,AI,b.mp3｜r.mp3｜ʌ.mp3｜ð.mp3｜ə.mp3,AI｜AI,是,8 長長的字,bro-ther,2,b｜r｜o｜th｜er,b｜r｜ʌ｜ð｜ə,第 1 拍「bro」是短母音 /ʌ/ 結尾；短母音要由子音收尾（例如 zeb-ra、broth-er），請確認音節
 family,家庭,人物,👨‍👩‍👧‍👦,/ˈfæm.ə.li/,fam-i-ly,AI,f.mp3｜æ.mp3｜m.mp3｜ə.mp3｜l.mp3｜i.mp3,AI｜AI｜AI,是,8 長長的字,fam-i-ly,3,f｜a｜m｜i｜l｜y,f｜æ｜m｜ə｜l｜i,✓
-teacher,老師,人物,🧑‍🏫,/ˈtiː.tʃə/,teach-er,AI,t.mp3｜iː.mp3｜tʃ.mp3｜ə.mp3,AI｜AI,是,8 長長的字,teach-er,2,t｜ea｜ch｜er,t｜iː｜tʃ｜ə,✓
+teacher,老師,人物,🧑‍🏫,/ˈtiːtʃ.ə/,teach-er,AI,t.mp3｜iː.mp3｜tʃ.mp3｜ə.mp3,AI｜AI,是,8 長長的字,teach-er,2,t｜ea｜ch｜er,t｜iː｜tʃ｜ə,✓
 pen,原子筆,學校,🖊️,/pen/,pen,AI,p.mp3｜e.mp3｜n.mp3,AI,是,2 短母音小字,pen,1,p｜e｜n,p｜e｜n,✓
 bag,書包,學校,🎒,/bæɡ/,bag,AI,b.mp3｜æ.mp3｜ɡ.mp3,AI,是,2 短母音小字,bag,1,b｜a｜g,b｜æ｜ɡ,✓
 map,地圖,學校,🗺️,/mæp/,map,AI,m.mp3｜æ.mp3｜p.mp3,AI,是,2 短母音小字,map,1,m｜a｜p,m｜æ｜p,✓

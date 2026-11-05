@@ -88,6 +88,47 @@ function themeId(v) {
   return id;
 }
 
+// ---------- 音節和音標要對得上 ----------
+// 1. 音節數＝音標裡母音聲音的數量
+// 2. 音標有用「.」分段時，每個大框裡的音要和那一段音標一樣
+//    （跨音節的重複字母 rab-bit 例外：第二拍開頭的 b 是同一個音，不算不符）
+// 3. 重音節的短母音（æ e ɪ ɒ ʌ ʊ）不能放在音節最後，要由子音收尾（zeb-ra、broth-er）
+const SHORT_V = ['æ', 'e', 'ɪ', 'ɒ', 'ʌ', 'ʊ'];
+const V_RE = /(aɪ|aʊ|eɪ|oʊ|əʊ|ɔɪ|eə|ɪə|ʊə|[æɑɒɔəɛɜɪʊʌeiouaɐ])/g;
+function alignCheck(r, a, boxes) {
+  const out = [];
+  const ipa = String(r['音標'] || '').replace(/[\/\[\]\s]/g, '');
+  if (!ipa) return out;
+  const n = a.syllables.length;
+  const nv = (ipa.replace(/[ˈˌ.ː]/g, '').replace(/juː|ju/g, 'u').match(V_RE) || []).length;
+  if (nv && nv !== n) out.push(`音節有 ${n} 拍（${a.syllables.join('-')}），但音標有 ${nv} 個母音聲音，請確認音節或音標`);
+  const parts = ipa.split('.');
+  const flat = (x) => x.replace(/[ˈˌː]/g, '');
+  if (n > 1 && parts.length === n) {
+    a.syllables.forEach((t, k) => {
+      const bs = boxes.filter((b) => b.syl === k && !b.silent);
+      if (k > 0 && bs[0] && bs[0].dblSplit) {
+        const prevLast = boxes.filter((b) => b.syl === k - 1 && !b.silent).slice(-1)[0];
+        if (prevLast && prevLast.ph === bs[0].ph) bs.shift(); // 同一個音（rab-bit 的 b）只算一次；pizza 的 zz 念 /t/ /s/ 兩個音則不跳過
+      }
+      const got = bs.map((b) => b.ph).join('');
+      if (flat(got) !== flat(parts[k])) out.push(`第 ${k + 1} 拍「${t}」的音是 /${got}/，但音標這一段是 /${parts[k].replace(/[ˈˌ]/g, '')}/，音節和音標對不上`);
+    });
+  } else if (n > 1 && parts.length > 1 && parts.length !== n) {
+    out.push(`音標分成 ${parts.length} 段，但音節有 ${n} 拍，請確認`);
+  }
+  if (n > 1) {
+    a.syllables.forEach((t, k) => {
+      if (k === n - 1) return;
+      const seg = parts.length === n ? parts[k] : '';
+      const stressed = seg ? seg.includes('ˈ') : k === 0;
+      const last = boxes.filter((b) => b.syl === k && !b.silent).slice(-1)[0];
+      if (stressed && last && SHORT_V.includes(last.ph)) out.push(`第 ${k + 1} 拍「${t}」是短母音 /${last.ph}/ 結尾；短母音要由子音收尾（例如 zeb-ra、broth-er），請確認音節`);
+    });
+  }
+  return out;
+}
+
 function emojiOf(w) {
   for (const k of [w, w + 's', w + 'es', w.replace(/s$/, ''), w.replace(/es$/, ''), w.replace(/ies$/, 'y')]) if (EMOJI[k]) return EMOJI[k];
   return '';
@@ -163,6 +204,7 @@ function emojiOf(w) {
       boxPh[i] = ph;
     }
     P.applyOverrides(boxes, { boxPh });
+    alignCheck(r, a, boxes).forEach((m) => r._warn.push(m));
 
     // 音素音檔欄：每一格目前用的檔名；改成 custom/ 檔名就是例外
     const defaults = boxes.map((b) => (b.silent ? NONE : shareName(b.ph)));
