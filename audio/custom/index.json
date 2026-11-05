@@ -1,1 +1,198 @@
-{}
+{
+ "oxford_aɪ.mp3": {
+  "id": "08467e7e71fa",
+  "hash": "ae3f19f09cb4"
+ },
+ "oxford_aʊ.mp3": {
+  "id": "c82bc2c901ca",
+  "hash": "1c5b2b1d9333"
+ },
+ "oxford_b.mp3": {
+  "id": "597711073ee2",
+  "hash": "23947fce0bb3"
+ },
+ "oxford_d.mp3": {
+  "id": "1aacb6312d73",
+  "hash": "3c33104bb398"
+ },
+ "oxford_dʒ.mp3": {
+  "id": "8f733d8c5a07",
+  "hash": "bd51c4b01392"
+ },
+ "oxford_e.mp3": {
+  "id": "6ae05cfab022",
+  "hash": "fd0969d9cfaf"
+ },
+ "oxford_eə.mp3": {
+  "id": "8885c9533884",
+  "hash": "5b10030a0bbc"
+ },
+ "oxford_eɪ.mp3": {
+  "id": "861fbfa48b81",
+  "hash": "01f111db0560"
+ },
+ "oxford_f.mp3": {
+  "id": "123c92eea2f4",
+  "hash": "5a9751fa4bdf"
+ },
+ "oxford_h.mp3": {
+  "id": "3817082e7b4f",
+  "hash": "930524432ec4"
+ },
+ "oxford_i.mp3": {
+  "id": "e4421ba235bc",
+  "hash": "663b4fabb867"
+ },
+ "oxford_iː.mp3": {
+  "id": "7713ba50be2d",
+  "hash": "0b9c0cfac297"
+ },
+ "oxford_j.mp3": {
+  "id": "1abfb343d15e",
+  "hash": "67cf7889da03"
+ },
+ "oxford_juː.mp3": {
+  "id": "0fb13736916e",
+  "hash": "d6c4a7fcb769"
+ },
+ "oxford_k.mp3": {
+  "id": "da98b1395c58",
+  "hash": "d38939df4ef5"
+ },
+ "oxford_ks.mp3": {
+  "id": "8fb96c395732",
+  "hash": "11936f199837"
+ },
+ "oxford_kw.mp3": {
+  "id": "d6932c67d3e6",
+  "hash": "5b53f0b307bd"
+ },
+ "oxford_l.mp3": {
+  "id": "a769c42fd3f4",
+  "hash": "54f7a79edb5b"
+ },
+ "oxford_m.mp3": {
+  "id": "2ab8635ad21c",
+  "hash": "e9743333b4fc"
+ },
+ "oxford_n.mp3": {
+  "id": "043df3c5393a",
+  "hash": "3817b227d38b"
+ },
+ "oxford_p.mp3": {
+  "id": "4537fea5336b",
+  "hash": "bda08fff3875"
+ },
+ "oxford_r.mp3": {
+  "id": "f9203e87d863",
+  "hash": "2db2659c2286"
+ },
+ "oxford_s.mp3": {
+  "id": "7bb09d2639bf",
+  "hash": "a6fcf7735347"
+ },
+ "oxford_t.mp3": {
+  "id": "652ba6aea74e",
+  "hash": "6cf6a8425249"
+ },
+ "oxford_ts.mp3": {
+  "id": "8fb2e3a1791e",
+  "hash": "fad5b15867ef"
+ },
+ "oxford_tʃ.mp3": {
+  "id": "ce87d440a1ec",
+  "hash": "db37019579d0"
+ },
+ "oxford_uː.mp3": {
+  "id": "d3264dd42f8a",
+  "hash": "3ef90df14c3f"
+ },
+ "oxford_v.mp3": {
+  "id": "931b8004b012",
+  "hash": "b751f8c60b99"
+ },
+ "oxford_w.mp3": {
+  "id": "8012d5b3026d",
+  "hash": "6144940fb543"
+ },
+ "oxford_z.mp3": {
+  "id": "0dda36114554",
+  "hash": "19d7dafbd4ce"
+ },
+ "oxford_æ.mp3": {
+  "id": "7d8749bd048b",
+  "hash": "40c92048e562"
+ },
+ "oxford_ð.mp3": {
+  "id": "e5c84f508c1a",
+  "hash": "681241956121"
+ },
+ "oxford_ŋ.mp3": {
+  "id": "e6da2e15ec12",
+  "hash": "d846b1fe07ad"
+ },
+ "oxford_ŋk.mp3": {
+  "id": "205177a646c2",
+  "hash": "fb8489735f79"
+ },
+ "oxford_ɑː.mp3": {
+  "id": "c41adf0f7e11",
+  "hash": "90c034f3a9da"
+ },
+ "oxford_ɒ.mp3": {
+  "id": "e1791033eb0f",
+  "hash": "be937202d1d9"
+ },
+ "oxford_ɔɪ.mp3": {
+  "id": "573e7f1b0149",
+  "hash": "1225f2126b44"
+ },
+ "oxford_ɔː.mp3": {
+  "id": "bee16f5d83c9",
+  "hash": "94748f8497f3"
+ },
+ "oxford_ə.mp3": {
+  "id": "bfa8a07845de",
+  "hash": "6e4a8ffaa7eb"
+ },
+ "oxford_əl.mp3": {
+  "id": "19a1f0cd12d6",
+  "hash": "1fc74c14c5bb"
+ },
+ "oxford_əʊ.mp3": {
+  "id": "91e90b6fd194",
+  "hash": "44fcc3456e27"
+ },
+ "oxford_ɜː.mp3": {
+  "id": "5ce9d1ed06d7",
+  "hash": "1899465e6e2e"
+ },
+ "oxford_ɡ.mp3": {
+  "id": "295f6ed4154d",
+  "hash": "e37547806559"
+ },
+ "oxford_ɪ.mp3": {
+  "id": "996cedc8a25d",
+  "hash": "9bf16178c706"
+ },
+ "oxford_ɪə.mp3": {
+  "id": "8319d5dcd045",
+  "hash": "248927fd33c2"
+ },
+ "oxford_ʃ.mp3": {
+  "id": "d58ed36762f6",
+  "hash": "f469c04a3d17"
+ },
+ "oxford_ʊ.mp3": {
+  "id": "78c0f7da90cb",
+  "hash": "7a6e182b3d0c"
+ },
+ "oxford_ʌ.mp3": {
+  "id": "fb7c214b73e9",
+  "hash": "7f98078e3361"
+ },
+ "oxford_θ.mp3": {
+  "id": "15ef52c105e6",
+  "hash": "bf366401c6d4"
+ }
+}
