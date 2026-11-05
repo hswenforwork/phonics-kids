@@ -2,6 +2,7 @@
 //   1. 空白的音標、中文、圖示自動查好填回表單
 //   2. 依自然發音規則算出等級、音節、格子、音素，寫回「自動_」欄位
 //   3. 音素音檔欄：自動填每一格目前使用的檔名；改成 custom/ 裡的檔名就是這一格的例外
+//      音節音檔欄：每個音節一段，AI＝AI 語音；改成 custom/ 裡的檔名就改用自己的音檔
 //   4. custom/ 裡的音檔轉成 mp3（mp3 原檔直接複製，不改內容）放到 audio/custom/
 //   5. 產生網站用的 data/sheet.json
 // 有問題的地方寫在「自動_檢查」欄，並輸出到 SYNC_REPORT（申請單回覆、Actions 摘要用）
@@ -187,6 +188,25 @@ function emojiOf(w) {
     }
     boxes.forEach((b) => { if (!b.silent && b.ph) { if (!usage.has(b.ph)) usage.set(b.ph, []); usage.get(b.ph).push(w); } });
 
+    // 音節音檔欄：每個音節一段，「AI」＝用 AI 語音；改成 custom/ 檔名就改用自己的音檔
+    const sylAudio = {};
+    {
+      const n = a.syllables.length;
+      const cellS = (r['音節音檔'] || '').trim();
+      const segS = cellS ? cellS.split(/[｜|]/).map((x) => x.trim()) : [];
+      if (segS.length && segS.length !== n) {
+        r._warn.push(`音節音檔有 ${segS.length} 段，但這個字有 ${n} 個音節（${a.syllables.join('-')}），這一欄先不套用，請修正`);
+      } else {
+        const fixedS = a.syllables.map(() => 'AI');
+        segS.forEach((x, k) => {
+          if (!x || /^ai$/i.test(x)) return;
+          const c = customAudio(x);
+          if (c) { sylAudio[k] = c.ref; fixedS[k] = c.file; } else { r._warn.push(`第 ${k + 1} 個音節的音檔「${x}」在 custom/ 資料夾找不到`); fixedS[k] = x; }
+        });
+        r['音節音檔'] = fixedS.join(SEP);
+      }
+    }
+
     // 整字音檔、圖示
     let wordAudio = '';
     if (r['整字音檔']) { const c = customAudio(r['整字音檔']); if (c) wordAudio = c.ref; else r._warn.push(`整字音檔「${r['整字音檔']}」在 custom/ 資料夾找不到`); }
@@ -206,6 +226,7 @@ function emojiOf(w) {
     if (wordAudio) e.wordAudio = wordAudio;
     if (Object.keys(boxPh).length) e.boxPh = boxPh;
     if (Object.keys(boxAudio).length) e.boxAudio = boxAudio;
+    if (Object.keys(sylAudio).length) e.sylAudio = sylAudio;
     out.push(e);
   }
   excRows.forEach((x) => { x['自動_檢查'] = x._warn.length ? x._warn.join('；') : '✓'; x._warn.forEach((m) => report.warnings.push(`例外表第 ${x._line} 列（${x['單字']}）：${m}`)); });

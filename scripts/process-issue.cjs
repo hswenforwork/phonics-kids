@@ -26,9 +26,9 @@ if (action === 'edit' || action === 'add') {
   const isNew = !row;
   if (isNew) { row = { '英文單字': word }; tables.words.push(row); }
   const changes = [];
-  for (const col of ['中文', '主題', '圖示', '音標', '音節', '整字音檔', '音素音檔', '啟用']) {
+  for (const col of ['中文', '主題', '圖示', '音標', '音節', '整字音檔', '音素音檔', '音節音檔', '啟用']) {
     if (!(col in fields)) continue;
-    const v = clean(fields[col], col === '音素音檔' ? 400 : 80);
+    const v = clean(fields[col], /音檔$/.test(col) && col !== '整字音檔' ? 400 : 80);
     if ((row[col] || '') !== v) { changes.push(`${col}：${row[col] || '（空白）'} → ${v || '（空白）'}`); row[col] = v; }
   }
   // 例外：「2=ʌ、4=s」整串取代這個字原本的例外

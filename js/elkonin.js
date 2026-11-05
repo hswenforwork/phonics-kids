@@ -27,7 +27,7 @@
     if (sylCount <= 1) return `<div class="boxes" style="--n:${slots.length}">${slots.map(box).join('')}</div>`;
     const groups = [];
     slots.forEach((b, k) => { const g = groups.find((x) => x.syl === b.syl); if (g) g.items.push([b, k]); else groups.push({ syl: b.syl, items: [[b, k]] }); });
-    return `<div class="boxes two-layer" style="--n:${slots.length + groups.length * 0.6}">${groups.map((g) => `<div class="sylframe">${g.items.map(([b, k]) => box(b, k)).join('')}</div>`).join('')}</div>`;
+    return `<div class="boxes two-layer" style="--n:${slots.length + groups.length * 0.6}">${groups.map((g) => `<div class="sylframe" data-syl="${g.syl}">${g.items.map(([b, k]) => box(b, k)).join('')}</div>`).join('')}</div>`;
   }
 
   // 共用的拖曳：card 拖到 box 上

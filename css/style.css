@@ -320,7 +320,7 @@ body[data-mode="parent"] .card { margin-top: 16px; }
 .ebox.weak .ebox-fill { opacity: .7; }
 .ebox.lit { background: var(--sun-soft); border-color: var(--orange); transform: scale(1.06); }
 .preview .ebox { cursor: pointer; }
-.box-ipa { display: block; font-family: var(--zh); font-size: .7rem; font-weight: 500; color: var(--muted); text-align: center; }
+.box-ipa { display: block; font-family: var(--zh); font-size: .75rem; font-weight: 500; color: var(--muted); text-align: center; }
 .slide-track { position: relative; height: 64px; margin: 4px auto 10px; max-width: 640px; background: #FFF6E8; border-radius: 999px; touch-action: none; }
 .slide-track.waiting { opacity: .35; pointer-events: none; }
 .slide-arrow { position: absolute; left: 50px; right: 22px; top: 50%; height: 6px; transform: translateY(-50%); background: repeating-linear-gradient(90deg, var(--sun) 0 14px, transparent 14px 22px); border-radius: 99px; }
@@ -361,3 +361,8 @@ body[data-mode="parent"] .card { margin-top: 16px; }
 .box-row select { width: 100%; min-width: 0; }
 .br-n { font-size: .8rem; color: var(--muted); font-weight: 700; }
 .box-row .box-cell { font-size: 1.5rem; }
+/* 音節大框：可以單獨播放 */
+.preview .sylframe { flex-wrap: wrap; justify-content: center; cursor: pointer; }
+.syl-play { flex-basis: 100%; border: 0; background: rgba(255, 255, 255, .85); border-radius: 999px; padding: 4px 10px; font-family: var(--en); font-weight: 800; font-size: 1rem; box-shadow: 0 2px 0 rgba(0, 0, 0, .08); }
+.preview .ebox-fill { display: flex; flex-direction: column; align-items: center; line-height: 1.05; }
+.preview .boxes.two-layer .ebox { width: clamp(42px, calc((min(100vw, 960px) - 200px) / var(--n)), 76px); }

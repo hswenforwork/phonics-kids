@@ -283,7 +283,7 @@
     curBoxes = boxes;
     const canPlay = e.level != null;
     const d = progress[e.word] || 0;
-    const ipaFill = opts.parent ? (b) => `${b.letters}<small class="box-ipa">${b.silent ? '—' : '/' + (b.ph || '?') + '/'}</small>` : (b) => b.letters;
+    const ipaFill = (b) => `${b.letters}<small class="box-ipa">${b.silent ? '—' : '/' + (b.ph || '?') + '/'}</small>`;
     return `
       <article class="card">
         <div class="card-head">
@@ -318,10 +318,29 @@
       }
       if (!b.silent) A.play(say(b));
     }));
+    // 多音節字：每個大框（音節）可以單獨播放：先一格一格念音素，再念這個音節
+    const frames = [...card.querySelectorAll('.preview .sylframe')];
+    const sylSeq = (k) => {
+      const seq = [];
+      boxes.forEach((b, i) => { if (b.syl === k && !b.silent) { const it = say(b); it.onstart = () => flash(boxEls[i]); seq.push(it, { pause: 200 }); } });
+      const fr = frames.find((f) => +f.dataset.syl === k);
+      seq.push({ pause: 150 }, A.syllable(e, k, r.syllables[k], { onstart: () => fr && flash(fr) }));
+      return seq;
+    };
+    frames.forEach((fr) => {
+      const k = +fr.dataset.syl;
+      const btn = document.createElement('button');
+      btn.className = 'syl-play';
+      btn.innerHTML = `🔊 ${esc(r.syllables[k] || '')}`;
+      btn.setAttribute('aria-label', `播放音節 ${r.syllables[k] || ''}`);
+      fr.appendChild(btn);
+      fr.addEventListener('click', (ev) => { if (ev.target.closest('.ebox')) return; A.play(sylSeq(k)); });
+    });
     const blend = card.querySelector('[data-blend]');
     if (blend) blend.addEventListener('click', () => {
-      const seq = [];
-      boxes.forEach((b, k) => { if (!b.silent) { const it = say(b); it.onstart = () => flash(boxEls[k]); seq.push(it, { pause: 200 }); } });
+      let seq = [];
+      if (frames.length > 1) frames.forEach((fr) => { seq = seq.concat(sylSeq(+fr.dataset.syl), { pause: 400 }); });
+      else boxes.forEach((b, k) => { if (!b.silent) { const it = say(b); it.onstart = () => flash(boxEls[k]); seq.push(it, { pause: 200 }); } });
       seq.push(A.word(e, { onstart: () => boxEls.forEach(flash) }));
       A.play(seq);
     });
@@ -523,7 +542,9 @@
       syl: lib ? lib.syl : '',
       boxPh: Object.assign({}, lib && lib.boxPh),
       boxAudio: Object.assign({}, lib && lib.boxAudio),
+      sylAudio: Object.assign({}, lib && lib.sylAudio),
     };
+    let syls = [];
     const themeNames = THEMES.map((t) => t.zh);
     const curTheme = lib ? themeOf(lib.theme).zh : '';
     app.innerHTML = `
@@ -541,7 +562,7 @@
         <label>啟用<select name="啟用"><option>是</option><option>否</option></select></label>
       </section>
       <section class="panel">
-        <h2>🔲 每一格的音素與音檔</h2>
+        <h2>🔲 每一格的音素與音檔、音節音檔</h2>
         <p class="muted small">「規則」是工具依自然發音規則判斷的結果。只有判斷錯（例外、特例）時才需要改音素；聲音不清楚時，可以把這一格換成自己的音檔。</p>
         <div id="boxedit"></div>
         ${uploadTip}
@@ -554,6 +575,7 @@
     function draw() {
       const r = P.analyze(w, { ipa: st.ipa, known: KNOWN, libSyllables: st.syl || undefined });
       boxes = P.applyOverrides(P.elkonin(r), { boxPh: st.boxPh });
+      syls = r.syllables;
       const base = P.elkonin(r);
       app.querySelector('#boxedit').innerHTML = `<div class="box-edit">
         ${boxes.map((b, k) => {
@@ -566,7 +588,19 @@
             <label>音素<select data-ph><option value="">規則：/${esc(base[k].ph || '?')}/</option>${ALL_PH.filter((p) => p !== base[k].ph).map((p) => `<option value="${esc(p)}"${st.boxPh[i] === p ? ' selected' : ''}>/${esc(p)}/（例外）</option>`).join('')}</select></label>
             <label>音檔<select data-audio><option value="">共用 ${esc(b.ph)}.mp3（${esc(A.boxSource(Object.assign({}, b, { audio: '' })))}）</option>${a.startsWith('ph:') ? `<option value="${esc(a)}" selected>${esc(a.slice(3))}.mp3</option>` : ''}${AUDIO_FILES.map(([n, ref]) => `<option value="${esc(ref)}"${cur === n ? ' selected' : ''}>${esc(n)}</option>`).join('')}</select></label></div>`;
         }).join('')}</div>
-        <p class="muted small">格子：${boxes.map((b) => (b.silent ? `(${b.letters})` : b.letters)).join('｜')}</p>`;
+        <p class="muted small">格子：${boxes.map((b) => (b.silent ? `(${b.letters})` : b.letters)).join('｜')}</p>
+        <h3>音節音檔</h3>
+        <div class="box-edit">${syls.map((t, k) => {
+          const cur = st.sylAudio[k] ? fileName(st.sylAudio[k]) : '';
+          return `<div class="box-row" data-k="${k}"><span class="br-n">第 ${k + 1} 個音節</span><span class="box-cell">${esc(t)}</span>
+            <button class="btn small ghost" data-play aria-label="試聽音節 ${esc(t)}">▶ 試聽</button>
+            <label>音檔<select data-sylaudio><option value="">AI 語音（預設）</option>${AUDIO_FILES.map(([n, ref]) => `<option value="${esc(ref)}"${cur === n ? ' selected' : ''}>${esc(n)}</option>`).join('')}</select></label></div>`;
+        }).join('')}</div>`;
+      app.querySelectorAll('#boxedit .box-row[data-k]').forEach((row) => {
+        const k = +row.dataset.k;
+        row.querySelector('[data-sylaudio]').addEventListener('change', (ev) => { if (ev.target.value) st.sylAudio[k] = ev.target.value; else delete st.sylAudio[k]; });
+        row.querySelector('[data-play]').addEventListener('click', () => A.play(A.syllable({ word: w, sylAudio: st.sylAudio }, k, syls[k])));
+      });
       app.querySelectorAll('#boxedit .box-row[data-i]').forEach((tr) => {
         const i = +tr.dataset.i;
         tr.querySelector('[data-ph]').addEventListener('change', (ev) => { if (ev.target.value) st.boxPh[i] = ev.target.value; else delete st.boxPh[i]; draw(); });
@@ -580,7 +614,7 @@
     // 改了音標或音節，格子可能不同：重新拆，原本每一格的設定清掉
     ['音標', '音節'].forEach((n) => form.querySelector(`[name="${n}"]`).addEventListener('change', () => {
       st.ipa = val('音標'); st.syl = val('音節').toLowerCase();
-      st.boxPh = {}; st.boxAudio = {};
+      st.boxPh = {}; st.boxAudio = {}; st.sylAudio = {};
       draw();
       showHint('格子已依新的音標／音節重新拆分，每一格的設定已重設');
     }));
@@ -595,7 +629,7 @@
       });
       const exc = Object.entries(st.boxPh).map(([i, p]) => `${i}=${p}`).join('、');
       const lines = ['pk-action: edit', `word: ${w}`, `中文: ${val('中文')}`, `主題: ${val('主題')}`, `圖示: ${val('圖示')}`,
-        `音標: ${val('音標')}`, `音節: ${val('音節')}`, `整字音檔: ${val('整字音檔')}`, `音素音檔: ${cells.join('｜')}`, `例外: ${exc}`, `啟用: ${val('啟用')}`,
+        `音標: ${val('音標')}`, `音節: ${val('音節')}`, `整字音檔: ${val('整字音檔')}`, `音素音檔: ${cells.join('｜')}`, `音節音檔: ${syls.map((t, k) => (st.sylAudio[k] ? fileName(st.sylAudio[k]) || 'AI' : 'AI')).join('｜')}`, `例外: ${exc}`, `啟用: ${val('啟用')}`,
         '', '（請直接按 Submit new issue 送出，不需要修改上面的內容。）'];
       window.open(issueURL(`${lib ? '編輯' : '新增'}單字：${w}`, lines), '_blank', 'noopener');
     });

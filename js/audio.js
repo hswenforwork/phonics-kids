@@ -95,7 +95,7 @@
   // 常用片段
   let customSounds = {}; // 聲音表指定的自訂音檔：{ 音素: 'custom/…' }
   const word = (e, extra) => Object.assign({ custom: e.wordAudio || '', path: 'w/' + e.word, url: e.audioUrl || '', text: e.word, rate: 0.8 }, extra);
-  const syllable = (e, i, text, extra) => Object.assign({ path: 's/' + e.word + '-' + i, text, rate: 0.65 }, extra);
+  const syllable = (e, i, text, extra) => Object.assign({ custom: (e.sylAudio && e.sylAudio[i]) || '', path: 's/' + e.word + '-' + i, text, rate: 0.65 }, extra);
   const phoneme = (key, extra) => {
     const s = SOUNDS[key];
     if (!s || key === 'silent') return { pause: 10 };
