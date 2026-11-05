@@ -134,5 +134,21 @@ for (const [w, exp, type] of [['hopping', 'hop-ping', 'double'], ['running', 'ru
   check(r.syllables.join('-') === exp && r.spell && r.spell.type === type, `字尾變化 ${w}: ${r.syllables.join('-')} ${r.spell && r.spell.type}，應為 ${exp} ${type}`);
 }
 
+// 等級分類（Elkonin 格子規則）
+const LIBE = new Map(); THEMES.forEach((t) => t.words.forEach((x) => { if (!LIBE.has(x[0])) LIBE.set(x[0], x); }));
+const KNOWN_ALL = new Set([...BASE_WORDS, ...LIBE.keys()]);
+const LV = (w) => { const e = LIBE.get(w); return P.levelOf(P.analyze(w, { ipa: e[3], known: KNOWN_ALL, libSyllables: e[4] || undefined })); };
+for (const [w, n] of [['cat', 2], ['dog', 2], ['fish', 3], ['duck', 3], ['bell', 3], ['frog', 4], ['hand', 4], ['cake', 5], ['bike', 5], ['rain', 6], ['boat', 6], ['car', 7], ['bird', 7], ['tiger', 8], ['rabbit', 8]]) {
+  check(LV(w) === n, `等級：${w} 應為第 ${n} 級，得到 ${LV(w)}`);
+}
+check(P.LEVELS.length === 9 && P.LEVELS[0].n === 0 && P.LEVELS[8].n === 8, '九個等級');
+check([...LIBE.keys()].every((w) => LV(w) != null), '內建單字都有等級');
+const cake = P.elkonin(A('cake', '/keɪk/'));
+check(cake.length === 4 && cake[3].silent && cake[3].magic && cake[1].magicBy, 'cake：3 格＋魔法 e 虛線框');
+const duck = P.elkonin(A('duck', '/dʌk/'));
+check(duck.length === 3 && duck[2].letters === 'ck', 'duck：ck 同一格');
+const frog = P.elkonin(A('frog', '/frɒɡ/'));
+check(frog.length === 4, 'frog：連綴每個字母一格');
+
 console.log(`\n${total - fail}/${total} 通過`);
 process.exit(fail ? 1 : 0);

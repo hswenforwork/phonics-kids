@@ -43,6 +43,9 @@ function jobs() {
     (r.units || []).forEach((u) => { if (u.ph && !phs.has(u.ph)) phs.set(u.ph, u.key); });
     P.elkonin(r).forEach((b) => { if (b.ph && !phs.has(b.ph)) phs.set(b.ph, b.key); });
   }
+  // 第 1 級字母區的聲音（例如 q 念 /kw/）
+  const keyOf = (ph) => (Object.entries(SOUNDS).find(([, s]) => s.ipa === ph) || [''])[0];
+  require('../js/data.js').LETTERS.forEach(([, ph]) => { if (!phs.has(ph)) phs.set(ph, keyOf(ph)); });
   for (const [ph, key] of phs) {
     out.push({ id: 'p/' + P.phFile(ph), ssml: ssml(P.phSay(ph), (SOUNDS[key] || {}).tts || 'uh'), rate: 0.8, trim: ph, vowel: !P.isConsonantPh(ph) });
   }

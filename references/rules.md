@@ -1,239 +1,232 @@
-# 完整自然發音規則與教學指南 (Comprehensive Phonics Rules & Teaching Guide)
+# Elkonin Boxes 自然發音規則與教學指南
 
-## 目錄 (Table of Contents)
-1. Level 1: 基礎拼讀構件 (Basic Building Blocks)
-2. Level 2: 音節切分動物法則 (Animal Rules for Syllable Splitting)
-3. Level 3: 特殊發音與字尾規則 (Special Rules & Suffixes)
-4. Level 4: 邊界情況與例外 (Edge Cases & Exceptions)
-5. 附錄 A: 虎與駱駝決策指南 (Tiger vs Camel Decision Guide)
-6. 附錄 B: 自然發音心智圖規劃 (Phonics Mind Map Structure)
-7. 附錄 C: Elkonin Boxes 語音框教學拆解 (Elkonin Boxes Methodology)
+> 拼音小探險的教學依據。整份指南以 **Elkonin Boxes（音素框）** 為核心，只保留四件事：
+> **Elkonin Boxes 的方法規則**、**CVC**、**字母與聲音的對應**、**格子規則**。
+> 對象：5 歲起、已經認得大部分字母聲音、正要開始學「把音拼成字」的孩子。英語採劍橋體系的英式發音。
 
----
-
-## Level 1: 基礎拼讀構件 (Basic Building Blocks)
-
-### 1.1 短母音 (Short Vowels)
-| 字母 | 發音 | 示例單詞 |
-|------|------|----------|
-| a | /æ/ | cat, map, hand |
-| e | /ɛ/ | bed, red, set |
-| i | /ɪ/ | sit, big, milk |
-| o | /ɒ/ | hot, top, clock |
-| u | /ʌ/ | cup, bus, jump |
-
-### 1.2 輔音連綴 (Consonant Blends)
-每個字母**都會發出聲音**，但必須快速滑過、連在一起唸。
-* **L-Blends**: bl (black), cl (clock), fl (fly), gl (glass), pl (plane), sl (sleep)
-* **R-Blends**: br (brown), cr (crab), dr (drop), fr (frog), gr (green), pr (print), tr (tree)
-* **S-Blends**: sk (skip), sm (smile), sn (snake), sp (spot), st (stop), sw (swim)
-* **三字母連綴**: spl (splash), spr (spring), str (street), scr (scream)
-
-### 1.3 二合輔音 (Digraphs)
-兩個輔音字母組合，只發**一個**全新的音。
-| Digraph | 發音 | 示例 |
-|---------|------|------|
-| sh | /ʃ/ | ship, fish, wish |
-| ch | /tʃ/ | chip, much, lunch |
-| th | /θ/ or /ð/ | thin, this, bath |
-| wh | /w/ | when, where, white |
-| ph | /f/ | phone, photo |
-| ck | /k/ | back, duck, clock |
-| ng | /ŋ/ | ring, sing, long |
-
-### 1.4 母音組合與特殊母音 (Vowel Teams & Variant Vowels)
-| 組合 | 發音 | 示例 |
-|------|------|------|
-| ai / ay | /eɪ/ | rain / day |
-| ee / ea | /iː/ | see / eat (ea也可發 /ɛ/ 如 bread) |
-| oa / ow | /oʊ/ | boat / snow (ow也可發 /aʊ/ 如 cow) |
-| ou / ow | /aʊ/ | out / cow |
-| oi / oy | /ɔɪ/ | coin / boy |
-| oo | /uː/ or /ʊ/ | moon / book |
-| au / aw | /ɔː/ | auto / saw |
-| ew | /uː/ or /juː/| chew, few |
-| ey | /i/ or /eɪ/ | monkey / they |
-
-### 1.5 Bossy R (R控制母音)
-| 組合 | 發音 | 示例 |
-|------|------|------|
-| ar | /ɑːr/ | car, farm, star |
-| er, ir, ur | /ɜːr/ | her, bird, burn |
-| or | /ɔːr/ | corn, fork, storm |
-
-### 1.6 特殊字母規則
-* **Y 的變色龍規則**: 
-  * 詞首發輔音 /j/ (yes, yellow)
-  * 單音節詞尾發長音 /aɪ/ (cry, sky)
-  * 多音節詞尾發長音 /i/ (baby, happy)
-  * 詞中（閉音節）發短音 /ɪ/ (gym, myth)
-* **Q 永遠不孤單**: Q 幾乎永遠跟著 U 結合成 `qu`，發 /kw/ 音 (queen, quick)。
+## 目錄
+1. Elkonin Boxes 是什麼
+2. 方法規則（Elkonin Boxes 怎麼玩）
+3. 格子規則總表
+4. 字母與聲音的對應
+5. 九個等級
+6. 每個字的三關
+7. 帶孩子練習的小提醒
+8. 不收錄的字
 
 ---
 
-## Level 2: 音節切分動物法則 (Animal Rules)
+## 1. Elkonin Boxes 是什麼
 
-### 🐰 Rabbit Rule (VCCV Pattern)
-* **規則**：兩個母音之間有2個或以上輔音。從中間切開（VC|CV）。雙寫字母在第一個輔音後切，Digraph 算單輔音整體劃分。
-* **示例**：rab | bit, nap | kin, kit | ten。
+Elkonin Boxes（音素框）用一排格子和代幣，讓孩子**看見**一個字由幾個聲音組成。
+它練的是「音素覺識」：聽出字裡的每一個音，再把音和字母對起來，最後讀回整個字。
 
-### 🐯 Tiger Rule (V/CV Pattern - Open Syllable)
-* **規則**：兩母音間僅1個輔音，且前母音發**長音**。在輔音**前**切開。
-* **示例**：ti | ger, ba | by, mu | sic, pa | per。
+**最重要的一句話：一格代表一個聲音，不是一個字母。**
 
-### 🐫 Camel Rule (VC/V Pattern - Closed Syllable)
-* **規則**：兩母音間僅1個輔音，且前母音發**短音**。在輔音**後**切開。
-* **示例**：cam | el, cit | y, rob | in, mel | on。
-
-### 🦁 Lion Rule (V/V Pattern)
-* **規則**：兩個母音字母直接相鄰，但不構成已知元音組合，需分開發音。
-* **示例**：li | on, po | em, di | et。
-
-### 🐢 Turtle Rule (-Cle Pattern)
-* **規則**：單詞以 `-Cle` 結尾。從詞尾往前數三個字母（e, l, 輔音C），在輔音C**前**切開。
-* **示例**：tur | tle, ta | ble, ap | ple。
+| 字 | 字母數 | 聲音數 | 格子 |
+|---|---|---|---|
+| cat | 3 | 3 | c｜a｜t |
+| fish | 4 | 3 | f｜i｜sh |
+| frog | 4 | 4 | f｜r｜o｜g |
+| cake | 4 | 3 | c｜a｜k ┆e┆ |
 
 ---
 
-## Level 3: 特殊發音與字尾規則 (Special Rules & Suffixes)
+## 2. 方法規則（Elkonin Boxes 怎麼玩）
 
-### 3.1 Magic E ✨
-* **規則**：\[母音\] + \[輔音\] + \[e\]。字尾 e 不發音，讓前面的母音發字母本音（長音）。
-* **示例**：cake, hope, time, cute。
-
-### 3.2 弱母音 Schwa (/ə/)
-* **規則**：在**非重音音節**，任何母音都可能弱化成輕柔的 /ə/。
-* **示例**：sal**a**d, cam**e**l, penc**i**l, lem**o**n, circ**u**s。
-
-### 3.3 美式彈舌音 T (Flap T)
-* **規則**：T 或 TT 夾在兩母音之間（且重音在前），弱化成類似 /d/ 音。
-* **示例**：water, better, city。
-
-### 3.4 Soft C & Soft G
-* **Soft C** (/s/): c 後接 e, i, y (city, cell, cycle)。
-* **Soft G** (/dʒ/): g 後接 e, i, y (gym, gem, giant)。
-
-### 3.5 靜默字母 (Silent Letters)
-* kn- (k靜默: know), wr- (w靜默: write), -mb (b靜默: lamb), -igh (gh靜默: night)。
-
-### 3.6 拼字與字尾變化規則 (Suffix Rules)
-* **1-1-1 雙寫規則**: 單音節、一短母音、一輔音結尾，加母音開頭後綴時需雙寫輔音 (hop → hopping)。
-* **去 E 規則**: Magic E 結尾，加母音開頭後綴時去 e (make → making)。
-* **變 Y 為 I**: 輔音+y 結尾，加後綴時 y 改 i (happy → happiness)。*例外: 加 -ing 時不變 (crying)*。
+1. **一格一個音**：有幾個聲音就畫幾格。
+2. **先聽音，再看字**：先只用代幣（不看字母），把聲音拆出來；之後才把字母放進格子。
+3. **一邊念一邊推**：每念一個音，就推一個代幣進一格，由左到右。
+4. **最後讀回整個字**：字母放好後，用手指從左滑到右，滑過一格念一個音，滑到底念出整個字。
+5. **由少到多**：從 2～3 格的短字開始，熟練後才增加格數、加入新的格子規則。
+6. **一格一個音節（延伸用法）**：多音節字可以先畫「一格一個音節」的大框，再在每個大框裡畫音素小格。
 
 ---
 
-## Level 4: 邊界情況與例外 (Edge Cases)
+## 3. 格子規則總表
 
-### 4.1 Magic E 失敗特例 (Orthographic Exceptions)
-為避免單字以 v, u, j 結尾而補上 e，前面的母音維持**短音**。
-* **示例**：have (/æ/), give (/ɪ/), love (/ʌ/), come (/ʌ/)。
-
-### 4.2 閉音節長音特例 (Wild, Old Words)
-母音在特定輔音組合前（-nd, -ld, -lt, -st），即使是閉音節也發**長音**。
-* **示例**：wild, child, find, cold, old, ghost。
-
-### 4.3 不可拆分的後綴
-* `tion` / `sion` 發 /ʃən/ (action)。
-* `ture` 發 /tʃər/ (picture)。
-
----
-
-## 附錄 A: 虎與駱駝決策指南 (Tiger vs Camel)
-遇到 V_CV 模式時：
-1. 檢查結尾是否為 Magic E。
-2. 拉丁/法語詞根 傾向 Tiger (長音)；以 -it, -in, -ot, -en, -el 結尾 傾向 Camel (短音)。
-3. **Tiger 常見詞**: tiger, baby, music, open, paper。
-4. **Camel 常見詞**: camel, city, robin, seven, river。
+| 規則 | 說明 | 例子 | 第幾級學 |
+|---|---|---|---|
+| 一個字母一格 | 每個字母都發自己的音 | c｜a｜t | 2 |
+| 兩個字母同一格（好朋友字母） | sh、ch、th、ck、ng、nk、wh、ph 只發一個音 | sh｜i｜p | 3 |
+| 一樣的字母同一格 | ll、ss、gg、zz 這種重複字母只發一個音 | d｜o｜ll | 3 |
+| 連綴各自一格 | fr、st、bl、nd 這種組合，每個字母都發音 | f｜r｜o｜g | 4 |
+| 不發音的字母放虛線框 | 字尾的 e 不出聲，放在格子外面的虛線框 | c｜a｜k ┆e┆ | 5 |
+| 兩個母音同一格 | ai、ee、oa、oo… 合起來發一個音 | r｜ai｜n | 6 |
+| 母音和 r 同一格 | ar、or、ir、er、ur、air、ear | c｜ar | 7 |
+| 先分大框，再分小格 | 多音節字：一個音節一個大框 | [t｜i] [g｜er] | 8 |
 
 ---
 
-## 附錄 B: 自然發音心智圖規劃 (Phonics Mind Map Structure)
+## 4. 字母與聲音的對應
 
-此大綱可直接匯入 XMind 或其他心智圖軟體。
+### 4.1 字母的聲音（第 1 級）
+孩子要念的是**字母的聲音**，不是字母的名字（b 念「ㄅ」，不是「bee」）。
 
-* **自然發音全攻略 (Phonics Mastery)**
-  * **1. 字母與基本聲音 (Basic Sounds)**
-    * 21個輔音 (Consonants)
-    * 5個短母音 (Short Vowels: a, e, i, o, u)
-  * **2. 組合音 (Combinations)**
-    * 輔音連綴 (Blends: L/R/S-blends) -> *發2個音*
-    * 二合輔音 (Digraphs: sh, ch, th, ph, wh) -> *發1個音*
-    * 母音組合 (Vowel Teams: ai, ee, oa, etc.)
-    * R控制音 (Bossy R: ar, er, ir, or, ur)
-  * **3. 音節切分 (Syllabication - Animal Rules)**
-    * 🐰 雙輔音 (Rabbit: VC|CV)
-    * 🐯 開音節 (Tiger: V|CV)
-    * 🐫 閉音節 (Camel: VC|V)
-    * 🦁 雙母音 (Lion: V|V)
-    * 🐢 詞尾 (Turtle: -Cle)
-  * **4. 拼讀魔法與變形 (Special Rules)**
-    * 魔法 E (Magic E)
-    * 變色龍 Y (Y as a Vowel)
-    * 弱母音 (Schwa /ə/)
-    * 溫柔 C/G (Soft C/G)
-    * 字尾拼寫 (Suffix: 雙寫、去E、Y變I)
-  * **5. 特例與陷阱 (Exceptions)**
-    * 靜默字母 (Silent Letters)
-    * 假魔法E (have, love)
-    * 閉音節長音 (wild, old)
+| 字母 | 聲音 | 字母 | 聲音 | 字母 | 聲音 |
+|---|---|---|---|---|---|
+| a | /æ/ | j | /dʒ/ | s | /s/ |
+| b | /b/ | k | /k/ | t | /t/ |
+| c | /k/ | l | /l/ | u | /ʌ/ |
+| d | /d/ | m | /m/ | v | /v/ |
+| e | /e/ | n | /n/ | w | /w/ |
+| f | /f/ | o | /ɒ/ | x | /ks/ |
+| g | /ɡ/ | p | /p/ | y | /j/ |
+| h | /h/ | q（qu） | /kw/ | z | /z/ |
+| i | /ɪ/ | r | /r/ | | |
+
+> 子音要念得乾淨短促，不要在後面加「ㄜ」：b 是「ㄅ」，不是「ㄅㄜ」。
+
+### 4.2 好朋友字母（兩個字母一個音）
+| 組合 | 聲音 | 例字 |
+|---|---|---|
+| sh | /ʃ/ | ship、fish |
+| ch／tch | /tʃ/ | chip、chick |
+| th | /θ/ 或 /ð/ | three、teeth |
+| ck | /k/ | duck、sock |
+| ng | /ŋ/ | ring、king |
+| nk | /ŋk/ | pink |
+| wh | /w/ | whale、white |
+| ph | /f/ | phone |
+
+### 4.3 長母音（魔法 e）
+母音＋子音＋e：e 不出聲，前面的母音念**自己的名字**。
+
+| 母音 | 長音 | 例字 |
+|---|---|---|
+| a_e | /eɪ/ | cake、snake |
+| i_e | /aɪ/ | kite、five |
+| o_e | /oʊ/ | bone、nose |
+| u_e | /juː/ | cube |
+
+### 4.4 母音好朋友（兩個母音一個音）
+| 組合 | 聲音 | 例字 |
+|---|---|---|
+| ai／ay | /eɪ/ | rain、train |
+| ee／ea | /iː/ | sheep、leaf |
+| oa | /oʊ/ | boat、coat |
+| oo | /uː/ 或 /ʊ/ | moon／book |
+| ou／ow | /aʊ/ | cloud／cow |
+| oi／oy | /ɔɪ/ | coin／boy |
+| aw | /ɔː/ | saw |
+| ey | /iː/ 或 /eɪ/ | key／grey |
+| ue | /uː/ | blue |
+| igh | /aɪ/ | night |
+
+### 4.5 霸道 R（母音＋r 一個音，英式不捲舌）
+| 組合 | 聲音 | 例字 |
+|---|---|---|
+| ar | /ɑː/ | car、star |
+| or | /ɔː/ | fork、corn |
+| ir／ur／er | /ɜː/ | bird、nurse |
+| air | /eə/ | hair、chair |
+| ear | /ɪə/ | ear |
+| oor | /ɔː/ | door |
 
 ---
 
-## 附錄 C: Elkonin Boxes 語音框教學拆解
+## 5. 九個等級
 
-**教學核心概念**：
-Elkonin Boxes (語音框) 的核心是「**一個框代表一個聲音 (Phoneme)，而不是一個字母 (Letter)**」。這能幫助學生視覺化聽到的聲音數量，強化音素覺識 (Phonemic Awareness)。
+所有等級都開放，網站會依孩子完成的進度標示「建議的下一級」。
 
-**教學步驟**：
-1. 畫出對應聲音數量的方框。
-2. 讓學生慢慢唸出單字，每發出一個聲音，就將一枚籌碼推入一個框中。
-3. 最後將字母填入對應的框內。
+### 第 0 級　音節拍拍手 👏
+- **目標**：聽出一個字有幾拍（音節）。聽音節比聽單一聲音簡單，適合當暖身。
+- **格子規則**：一格一個音節，不放字母。
+- **例字**：cat（1 拍）、tiger（2 拍）、banana（3 拍）
+- **做法**：聽字 → 拍手 → 每拍推一個代幣 → 再聽一次整字。
+- **家長可以說**：「我們一起拍拍看，ti-ger，拍了幾下？」
+- **常見錯誤**：把字母數當成拍數。提醒孩子「用耳朵聽，不是看字」。
 
-### 拆解範例圖解
+### 第 1 級　字母的聲音 🔤
+- **目標**：看到字母就念出它的聲音。
+- **格子規則**：一個字母一個聲音。
+- **做法**：點字母聽聲音，跟著念。家長可以標記孩子還不熟的字母，多練幾次。
+- **家長可以說**：「這是 b，它的聲音是 /b/（ㄅ），嘴巴閉起來再打開。」
+- **常見錯誤**：念成字母名字（bee、cee）；子音後面多加「ㄜ」。
 
-#### 1. 基礎 CVC (短母音)
-單字：**CAT** (3個字母，3個聲音 /k/ /æ/ /t/)
-| /k/ | /æ/ | /t/ |
-|:---:|:---:|:---:|
-|  c  |  a  |  t  |
+### 第 2 級　短母音小字（CVC）🐱
+- **目標**：拆開和拼回「子音＋短母音＋子音」的三字母字。
+- **CVC 是什麼**：C 是子音、V 是母音。cat = c（子音）＋a（母音）＋t（子音）。
+- **格子規則**：一個字母一格，三格。
+- **例字**：a：cat、bag、map｜e：bed、pen、web｜i：pig、six、pin｜o：dog、fox、box｜u：sun、bus、cup
+- **家長可以說**：「cat 有幾個聲音？/k/ /æ/ /t/，三個，所以有三格。」
+- **常見錯誤**：短母音混淆（e 和 i、o 和 u）；拼的時候中間停太久，連不起來。
 
-#### 2. Digraphs (二合輔音)
-單字：**FISH** (4個字母，3個聲音 /f/ /ɪ/ /ʃ/)
-*註：sh 發一個音，放在同一個框。*
-| /f/ | /ɪ/ | /ʃ/ |
-|:---:|:---:|:---:|
-|  f  |  i  | sh  |
+### 第 3 級　好朋友字母 👯
+- **目標**：知道兩個字母可以只發一個音。
+- **格子規則**：sh、ch、ck、ng、th 這類兩個字母放同一格；ll、ss、gg 這種重複字母也放同一格。
+- **例字**：ship（sh｜i｜p）、fish（f｜i｜sh）、duck（d｜u｜ck）、ring（r｜i｜ng）、doll（d｜o｜ll）、egg（e｜gg）
+- **家長可以說**：「s 和 h 手牽手，變成一個新的聲音 /ʃ/，它們住在同一格。」
+- **常見錯誤**：把 sh 拆成兩格念 /s/ /h/。
 
-#### 3. Consonant Blends (輔音連綴)
-單字：**FROG** (4個字母，4個聲音 /f/ /r/ /ɒ/ /g/)
-*註：連綴中的 f 和 r 各有聲音，必須分開框。*
-| /f/ | /r/ | /ɒ/ | /g/ |
-|:---:|:---:|:---:|:---:|
-|  f  |  r  |  o  |  g  |
+### 第 4 級　連在一起念 〰️
+- **目標**：分辨「連綴」和「好朋友字母」。連綴的每個字母都發音。
+- **格子規則**：fr、cl、st、nd、mp 這類組合，每個字母各一格，格子變成四格以上。
+- **例字**：frog（f｜r｜o｜g）、crab（c｜r｜a｜b）、hand（h｜a｜n｜d）、milk（m｜i｜l｜k）、clock（c｜l｜o｜ck）
+- **家長可以說**：「f 和 r 都要念出來，快快地滑過去：/f/ /r/。」
+- **常見錯誤**：漏掉連綴中的一個音（frog 念成 fog）；把連綴當成好朋友字母放同一格。
 
-#### 4. Vowel Teams (母音組合)
-單字：**RAIN** (4個字母，3個聲音 /r/ /eɪ/ /n/)
-*註：ai 共同發一個長音，放同一個框。*
-| /r/ | /eɪ/ | /n/ |
-|:---:|:----:|:---:|
-|  r  |  ai  |  n  |
+### 第 5 級　魔法 e ✨
+- **目標**：知道字尾的 e 不出聲，但會讓前面的母音念自己的名字。
+- **格子規則**：e 不占格子，放在最後面的虛線框，標示「不出聲」。
+- **例字**：cake（c｜a｜k ┆e┆）、kite、bone、cube、snake、phone
+- **家長可以說**：「e 是魔法 e，它不說話，但它讓 a 說自己的名字 /eɪ/。」
+- **常見錯誤**：把 e 念出來（cake-e）；母音仍念短音（cak）。
 
-#### 5. Magic E (魔法 E)
-單字：**CAKE** (4個字母，3個聲音 /k/ /eɪ/ /k/)
-*註：e 不發音，但與 a 共同創造長音。通常將 a-e 視為一體，或者在書寫時，將 e 擠在最後一個輔音的框框邊緣或框外。*
-**畫法 A (連結法):**
-| /k/ | /eɪ/ | /k/ |
-|:---:|:---:|:---:|
-|  c  | a_e |  k  |
+### 第 6 級　母音好朋友 🤝
+- **目標**：兩個母音合起來發一個音。
+- **格子規則**：ai、ee、oa、oo、ou、ow、oi、oy、igh 放同一格。
+- **例字**：rain（r｜ai｜n）、sheep（sh｜ee｜p）、boat（b｜oa｜t）、moon、cow、coin、night
+- **家長可以說**：「a 和 i 一起念 /eɪ/，它們住同一格。」
+- **常見錯誤**：拆成兩個母音分開念。
 
-**畫法 B (附屬法):**
-| /k/ | /eɪ/ | /k/ | 不發音 |
-|:---:|:---:|:---:|:---:|
-|  c  |  a  |  k  |  e  |
+### 第 7 級　霸道 R 🦖
+- **目標**：母音後面的 r 會改變母音的聲音。
+- **格子規則**：母音＋r 放同一格（ar、or、ir、ur、er、air、ear、oor）。英式念法不捲舌。
+- **例字**：car（c｜ar）、bird（b｜ir｜d）、fork（f｜or｜k）、chair（ch｜air）、star（s｜t｜ar）
+- **家長可以說**：「r 很霸道，它跟 a 擠在同一格，讓 a 變成 /ɑː/。」
+- **常見錯誤**：把 r 單獨放一格念出來。
 
-#### 6. R-Controlled (Bossy R)
-單字：**STAR** (4個字母，3個聲音 /s/ /t/ /ɑːr/)
-| /s/ | /t/ | /ɑːr/ |
-|:---:|:---:|:----:|
-|  s  |  t  |  ar  |
+### 第 8 級　長長的字（雙層格子）🐘
+- **目標**：多音節字先分音節，再分聲音。
+- **格子規則**：一個音節一個大框，大框裡再分音素小格。音節怎麼切，**依實際發音**決定。不是重音的音節，母音會念得很輕（標「輕」）。
+- **例字**：rabbit（[r｜a｜bb] [i｜t]）、tiger（[t｜i] [g｜er]）、apple、banana、elephant
+- **做法**：先拍出幾拍，看大框；再在每個大框裡推代幣、放字母，最後整個字滑讀。
+- **家長可以說**：「tiger 有兩拍，ti 和 ger。我們先看 ti 有幾個聲音。」
+- **常見錯誤**：每個母音都念得一樣重；音節之間停太久。
+
+---
+
+## 6. 每個字的三關（第 2～8 級）
+
+| 關卡 | 做什麼 | 練到的能力 |
+|---|---|---|
+| 1 推代幣 | 先聽示範，每聽到一個音，推一個代幣進一格 | 拆音（聽出幾個音） |
+| 2 放字母 | 把字母卡拖進對的格子；好朋友字母是一張卡 | 聲音對應字母 |
+| 3 滑讀 | 手指沿著箭頭從左滑到右，滑過一格念一個音，滑到底念整個字 | 拼讀（把音合成字） |
+
+- **順序的理由**：孩子還不會拼讀時，先拆音、再對應字母，滑讀時讀的是自己剛放好的字母，比較容易成功。
+- **放錯時**：字母卡彈回，並念出那一格正確的聲音；同一格錯兩次，正確的卡會閃動提示。
+- **獎勵**：每過一關得一顆小星星；三關都完成，得到這個字的貼紙，貼進該等級的貼紙冊。
+
+---
+
+## 7. 帶孩子練習的小提醒
+
+1. **一次 5～10 分鐘就好**：先用第 1 級暖身一分鐘，再玩幾個字。
+2. **先玩孩子認得的圖**：從主題篩選裡挑孩子熟悉的字（動物、食物）。
+3. **嘴巴示範**：念聲音時讓孩子看你的嘴形，尤其是短母音。
+4. **錯了不要急**：讓孩子再聽一次那一格的聲音，再試一次。
+5. **搭配課本**：課本當週教的字，可以用家長模式的「加入單字庫」加進來，網站會自動判斷放在第幾級。
+
+---
+
+## 8. 不收錄的字
+
+以下的字不適合用格子規則練習，不放進等級裡：
+- **一眼認讀字**：one、two、eight、eye 等不照規則念的字。
+- **軟 c／軟 g**：c、g 遇到 e、i、y 改念 /s/、/dʒ/（city、gem），跟第 1 級的字母聲音衝突。
+- **其他不發音字母**：kn、wr、mb、-lk（knife、write、lamb、walk）。
+- **不規則念法**：ball 的 a、cold 的 o 這類不照短母音念的字。
+
+用申請單加入這類字時，會放在「我的單字」，只開放聽和認字。

@@ -54,7 +54,9 @@ async function zh(w) {
     const meaning = await zh(word);
     custom.words.push({ word, zh: meaning, emoji: '🌟', ipa, syl, theme: 'mine' });
     writeCustom(custom);
-    done(true, `✅ 已把 **${word}** 加入「我的單字」\n- 音標：${ipa || '（查不到，依拼字規則推測）'}\n- 音節：${syl}\n- 中文：${meaning || '（查不到，可用「回報錯誤」補上）'}\n\n內容有錯的話，在網站家長模式按「🛠 回報錯誤」修正。`);
+    const lv = ipa ? P.levelOf(r) : null;
+    const where = lv == null ? '「我的單字」（不符合格子規則的等級，只開放聽和認字）' : `第 ${lv} 級「${P.LEVELS[lv].zh}」`;
+    done(true, `✅ 已加入 **${word}**，放在${where}\n- 音標：${ipa || '（查不到，依拼字規則推測）'}\n- 音節：${syl}\n- 中文：${meaning || '（查不到，可用「回報錯誤」補上）'}\n\n內容有錯的話，在網站家長模式按「🛠 回報錯誤」修正。`);
   }
 
   if (!existing) done(false, `❌ 單字庫裡找不到 **${word}**，請先用「加入單字庫」。`);

@@ -762,17 +762,19 @@
     const boxes = [];
     for (const u of r.units || []) {
       if (u.type === 'S' || u.phSilent || u.ruleSilent || silentAt.has(u.start) && u.text.length === 1) {
-        boxes.push({ letters: u.text, key: 'silent', silent: true, magic: !!u.magic });
+        boxes.push({ letters: u.text, key: 'silent', silent: true, magic: !!u.magic, syl: u.syl, unit: u });
         continue;
       }
       const prev = boxes[boxes.length - 1];
       // 重複子音（bb、ll、zz…）只有一個音，放同一格
       if (u.type === 'C' && prev && !prev.silent && prev.type === 'C' && prev.letters.slice(-1) === u.text && u.text.length === 1) {
         prev.letters += u.text;
+        prev.dbl = true;
         if (u.ph && !u.dbl) prev.ph += u.ph; // pizza 的 zz = /ts/
         continue;
       }
-      boxes.push({ letters: u.text, key: u.key, ph: u.ph || '', silent: false, type: u.type });
+      boxes.push({ letters: u.text, key: u.key, ph: u.ph || '', silent: false, type: u.type, sub: u.sub, syl: u.syl, unit: u,
+        magicBy: !!u.magicBy, weak: !!u.weak, inBlend: !!u.inBlend });
     }
     return boxes;
   }
@@ -794,7 +796,65 @@
     return 'Y 變色龍：在字中間（閉音節），念短音 /ɪ/';
   }
 
-  const api = { analyze, yRole, parseIPA, tokenize, elkonin, ipaSegments, mapPhonemes, phFile, phSay, isConsonantPh, ruleNote, RULES, SIGHT, LONG, SHORT };
+  // ---------- Elkonin Boxes 等級（依格子規則自動判斷） ----------
+  // 0 音節框（另外挑字）／1 字母音／2 短母音 CVC／3 二合輔音（兩個字母同一格）／4 連綴（每個字母各一格）
+  // 5 魔法 e（不發音的 e 放虛線框）／6 母音組合／7 霸道 R／8 雙層格子（多音節）
+  const LEVEL_SHORT = { a: 'æ', e: 'e', i: 'ɪ', o: 'ɒ', u: 'ʌ' };
+  /** 回傳 2～8，或 null（不符合任何等級：一眼認讀字、軟 c／g、其他不發音字母、不規則念法…） */
+  function levelOf(r) {
+    if (!r || !r.word || r.strategy === 'sight' || !r.phMapped) return null;
+    if (r.warnings && r.warnings.length) return null;
+    if ((r.syllables || []).length > 1) return 8;
+    const us = r.units || [];
+    let lv = 2;
+    for (let k = 0; k < us.length; k++) {
+      const u = us[k];
+      if (u.type === 'S') {
+        if (u.sub !== 'final_e') return null;
+        lv = Math.max(lv, 5); // 字尾不發音的 e：魔法 e 或跟在 r、母音組合後面
+        continue;
+      }
+      if (u.fakeMagic || u.wildOld || u.ruleSilent) return null;
+      if (u.phSilent && !u.dbl) return null;
+      if (u.type === 'V') {
+        if (u.sub === 'single') {
+          if (u.magicBy) { if (!R_LONG[u.text].includes(u.ph)) return null; lv = Math.max(lv, 5); }
+          else if (u.ph !== LEVEL_SHORT[u.text]) return null;
+        } else if (u.sub === 'team') {
+          if (!R_TEAM[u.text] || !R_TEAM[u.text].includes(u.ph)) return null;
+          lv = Math.max(lv, 6);
+        } else if (u.sub === 'bossy') {
+          if (!R_BOSSY[u.text].includes(u.ph)) return null;
+          lv = Math.max(lv, 7);
+        } else if (u.sub === 'team_r') {
+          lv = Math.max(lv, 7);
+        } else return null; // y 當母音、字尾 le 等
+        continue;
+      }
+      // 子音
+      if ((u.text === 'c' && u.ph !== 'k') || (u.text === 'g' && u.ph !== 'ɡ') || (u.text === 's' && !['s', 'z'].includes(u.ph))) return null;
+      if (u.sub === 'digraph' || u.sub === 'trigraph') { if (!R_DIGRAPH[u.text] || !R_DIGRAPH[u.text].includes(u.ph)) return null; lv = Math.max(lv, 3); }
+      if (u.dbl) lv = Math.max(lv, 3);
+      if (u.text === 'n' && u.ph === 'ŋ') return null;
+      const nx = us[k + 1];
+      if (nx && nx.type === 'C' && !nx.dbl && u.sub === 'single' && nx.sub === 'single' && u.ph && nx.ph) lv = Math.max(lv, 4);
+    }
+    // 魔法 e 只在真的魔法 e 時算 5；r 或母音組合後的不發音 e 不影響
+    return lv;
+  }
+  const LEVELS = [
+    { n: 0, zh: '音節拍拍手', icon: '👏', desc: '聽一個字有幾拍，一拍推一個代幣' },
+    { n: 1, zh: '字母的聲音', icon: '🔤', desc: '每個字母發什麼音' },
+    { n: 2, zh: '短母音小字', icon: '🐱', desc: '一個字母一格：c｜a｜t' },
+    { n: 3, zh: '好朋友字母', icon: '👯', desc: '兩個字母放同一格：sh｜i｜p' },
+    { n: 4, zh: '連在一起念', icon: '〰️', desc: '每個字母都有自己的格子：f｜r｜o｜g' },
+    { n: 5, zh: '魔法 e', icon: '✨', desc: 'e 不出聲，放在虛線框外' },
+    { n: 6, zh: '母音好朋友', icon: '🤝', desc: '兩個母音放同一格：r｜ai｜n' },
+    { n: 7, zh: '霸道 R', icon: '🦖', desc: '母音和 r 放同一格：c｜ar' },
+    { n: 8, zh: '長長的字', icon: '🐘', desc: '先分大框（音節），再分小格' },
+  ];
+
+  const api = { analyze, yRole, levelOf, LEVELS, parseIPA, tokenize, elkonin, ipaSegments, mapPhonemes, phFile, phSay, isConsonantPh, ruleNote, RULES, SIGHT, LONG, SHORT };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.PK_PHONICS = api;
 })(this);

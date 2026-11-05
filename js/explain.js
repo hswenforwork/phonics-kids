@@ -1,200 +1,145 @@
 /*
- * 依分析結果產生：七步分析表、中文講解、英文講解（文字由本專案自行撰寫）
+ * 用「格子的說法」產生講解：每一格是什麼、為什麼這樣放
+ * 孩子看到的提示不顯示音標；家長模式的格子拆解才顯示音標
  */
 (function (root) {
   const P = root.PK_PHONICS || (typeof require !== 'undefined' ? require('./phonics.js') : null);
-  const S = root.PK_SOUNDS || (typeof require !== 'undefined' ? require('./sounds.js') : null);
-  const RULES = P.RULES;
-  const snd = (k) => (S.SOUNDS[k] || {});
-  const ipaOf = (k) => (snd(k).ipa ? `/${snd(k).ipa}/` : '');
-  const join = (a, sep = '、') => a.join(sep);
+  const DIGRAPH = ['sh', 'ch', 'tch', 'th', 'ck', 'ng', 'nk', 'wh', 'ph', 'dge'];
+  const LONG_NAME = { a: 'a', e: 'e', i: 'i', o: 'o', u: 'u' };
 
-  function vowelUnits(r) { return (r.units || []).filter((u) => u.type === 'V'); }
-  function teams(r) { return (r.units || []).filter((u) => u.sub === 'team'); }
-  function bossy(r) { return (r.units || []).filter((u) => u.sub === 'bossy'); }
-  function digraphs(r) { return (r.units || []).filter((u) => u.type === 'C' && (u.sub === 'digraph' || u.sub === 'trigraph')); }
-  const sylOf = (r, pos) => { let acc = 0; for (let i = 0; i < r.syllables.length; i++) { acc += r.syllables[i].length; if (pos <= acc) return i; } return r.syllables.length - 1; };
-
-  // ---------- 七步分析表 ----------
-  function steps(r) {
-    const rows = [];
-    const src = { lib: '內建單字庫', dict: '線上字典', none: '無' }[r.ipaSource] || r.ipaSource;
-    rows.push(['Step 0 – 查發音（IPA）', r.verified
-      ? `${r.ipa}（來源：${src}），音節：${r.syllables.join('-')}`
-      : `查不到發音，以下依拼字規則推測（未經發音驗證）`]);
-    rows.push(['Step 1 – 一眼認讀字', r.strategy === 'sight' ? '是 → 整個字記起來，不套規則' : '不是']);
-    rows.push(['Step 2 – 複合字', r.compound ? `是：${r.compound[0]} + ${r.compound[1]}` : '不是']);
-    const af = r.affix || {};
-    rows.push(['Step 3 – 字首字尾', af.prefix || af.suffix
-      ? `${af.prefix ? `字首 ${af.prefix}-，` : ''}${af.suffix ? `字尾 -${af.suffix}，` : ''}詞根 ${af.root}（仍掃描整個字）`
-      : (r.suffixSh || r.suffixTure ? `字尾 ${r.suffixSh ? '-tion／-sion' : '-ture'} 整體不拆分` : '沒有可拆的字首字尾') + (r.spell ? `；${spellZh(r.spell)}` : '')]);
-    rows.push(['Step 4 – 找母音', join(vowelUnits(r).map((u) => {
-      const kind = { team: '母音組合', bossy: '霸道 R', y: 'y 當母音', le: '字尾 le', single: '單母音' }[u.sub];
-      return `${u.text}（第 ${u.start + 1} 個字母，${kind}${u.key ? '，' + (snd(u.key).zh || u.key) + ' ' + ipaOf(u.key) : ''}）`;
-    })) || '—']);
-    const dg = digraphs(r).map((u) => `${u.text} ${ipaOf(u.key)}`);
-    const split = (r.units || []).filter((u) => u.splitNg);
-    rows.push(['Step 5 – 好朋友字母', (dg.length ? join(dg) : '無') + (split.length ? `；ng／nk 跨在兩個音節之間，不算好朋友字母` : '')]);
-    rows.push(['Step 6 – 動物法則', r.strategy === 'sight' ? '跳過' : (r.cuts.length ? join(r.cuts.map((c) => {
-      const R = RULES[c.rule];
-      const name = R ? `${R.icon} ${R.zh}` : '依實際發音';
-      const mid = c.consonants && c.consonants.length ? `中間子音 ${c.consonants.join('+')}（${c.consonants.length} 個單位）` : '中間沒有子音';
-      const basis = { ipa: '依發音', list: '依常見詞表', magic: '依魔法 e', ending: '依字尾 -it/-in/-ot/-en/-on/-el/-il', default: '預設老虎法則，需驗證', spelling: 'ck／tch／dge／x 不放音節開頭', suffix: '-tion／-sion／-ture 自成音節' }[c.how];
-      return `${c.v1 || ''}${c.v2 ? '…' + c.v2 : ''} ${mid} → ${name}${basis ? `（${basis}）` : ''}，切在第 ${c.pos} 個字母後`;
-    }), '；') : '只有一個音節，不用切')]);
-    const fx = [];
-    fx.push(`魔法 e：${r.magicE ? '有' : r.fakeMagic ? '假魔法 e（母音維持短音）' : '沒有'}`);
-    if (r.wildOld) fx.push('閉音節長音特例');
-    if (r.blends && r.blends.length) fx.push(`輔音連綴：${r.blends.join('、')}`);
-    fx.push(`不發音字母：${r.silent.length ? r.silent.map((s) => s.letter).join('、') : '沒有'}`);
-    if (r.softC) fx.push('軟 c（念 /s/）');
-    if (r.softG) fx.push('軟 g（念 /dʒ/）');
-    rows.push(['Step 7 – 特殊效果', join(fx, '；')]);
-    return rows;
+  /** 這一格的種類 */
+  function kind(b) {
+    if (b.silent) return b.magic ? 'magic' : 'silent';
+    if (b.sub === 'team') return 'team';
+    if (b.sub === 'bossy' || b.sub === 'team_r') return 'bossy';
+    if (b.sub === 'le') return 'le';
+    if (DIGRAPH.includes(b.letters)) return 'digraph';
+    if (b.dbl) return 'double';
+    if (b.type === 'V') return b.magicBy ? 'long' : b.weak ? 'weak' : 'short';
+    if (b.inBlend) return 'blend';
+    return 'cons';
   }
 
-  function selfCheck(r) {
-    const items = [];
-    let acc = 0;
-    const cutOk = r.cutPositions.every((c, i) => (acc += r.syllables[i].length) === c);
-    items.push(['已查發音（IPA）', r.verified]);
-    items.push(['好朋友字母已鎖定再切', true]);
-    items.push(['老虎／駱駝以發音判斷', r.verified]);
-    items.push(['切點位置 = 前面音節字母數總和', cutOk]);
-    items.push(['音節拼回去 = 原單字', r.syllables.join('') === r.word]);
-    items.push(['音節數與發音一致', !r.warnings.some((w) => w.includes('IPA'))]);
-    return items;
-  }
-
-  // ---------- 單一音節的說明句 ----------
-  function featureSentencesZh(r) {
-    const out = [];
-    teams(r).forEach((u) => out.push(`${u.text} 是母音組合，兩個母音手牽手，一起念 ${ipaOf(u.key)}。`));
-    bossy(r).forEach((u) => out.push(`${u.text} 是霸道 R，r 把前面的 ${u.text[0]} 變成 ${ipaOf(u.key)} 的聲音。`));
-    digraphs(r).forEach((u) => out.push(`${u.text} 是好朋友字母，${u.text.length} 個字母合起來只念一個音 ${ipaOf(u.key)}。`));
-    (r.units || []).filter((u) => u.sub === 'le').forEach(() => out.push(`字尾的 le 輕輕念 /əl/，像「歐」。`));
-    if (r.magicE) {
-      const v = (r.units || []).find((u) => u.magicBy);
-      out.push(`字尾的 e 是魔法 e，它自己不出聲，卻讓前面的 ${v ? v.text : '母音'} 念自己的名字${v ? ' ' + ipaOf(v.key) : ''}。`);
-    }
-    r.silent.filter((s) => s.letter !== 'e').forEach((s) => out.push(`${s.letter} 在這裡是安靜字母，不發音。`));
-    if (r.blends && r.blends.length) out.push(`${r.blends.join('、')} 是輔音連綴：每個字母都要發音，快速滑過連在一起念。`);
-    if (r.fakeMagic) { const v = (r.units || []).find((u) => u.fakeMagic && u.type === 'V'); out.push(`字尾的 e 是「假魔法 e」：英文字不以 v 結尾，所以補上 e，${v ? v.text : '母音'} 仍念短音${v && v.ph ? ' /' + v.ph + '/' : ''}。`); }
-    if (r.wildOld) { const v = (r.units || []).find((u) => u.wildOld); out.push(`${v.text} 後面雖然是子音，但在 -nd、-ld、-lt、-st 前要念長音 /${v.ph || ''}/（閉音節長音特例）。`); }
-    (r.units || []).filter((u) => u.text === 'y').forEach((u) => out.push(P.yRole(r, u) + '。'));
-    const weak = (r.units || []).filter((u) => u.weak && u.sub !== 'le' && u.sub !== 'bossy');
-    if (weak.length) out.push(`${weak.map((u) => u.text).join('、')} 在不是重音的音節，要輕輕念成 /ə/（弱母音）。`);
-    if (r.spell) out.push(spellZh(r.spell) + '。');
-    if (r.suffixSh) { const u = r.units.find((x) => x.sub === 'suffix_sh'); out.push(`字尾 ${u.text}${r.word.slice(u.end)} 是一個整體，不拆開，念 /${u.text === 'si' && r.ipa.includes('ʒ') ? 'ʒ' : 'ʃ'}ən/。`); }
-    if (r.suffixTure) out.push(`字尾 ture 是一個整體，念 /tʃə/。`);
-    if (r.softC) out.push(`c 遇到 e、i、y 會變溫柔，念 /s/。`);
-    if (r.softG) out.push(`g 遇到 e、i、y 常常變溫柔，念 /dʒ/。`);
-    return out;
-  }
-
-  function spellZh(sp) {
-    if (sp.type === 'double') return `字尾變化：${sp.base} 是短母音加一個子音結尾，加 -${sp.suffix} 時要多寫一個 ${sp.letter}（1-1-1 雙寫規則）`;
-    if (sp.type === 'drop_e') return `字尾變化：${sp.base} 的魔法 e 遇到 -${sp.suffix} 要去掉（去 E 規則），母音仍念長音`;
-    if (sp.type === 'y_to_i') return `字尾變化：${sp.base} 的 y 遇到 -${sp.suffix} 要改成 i（變 Y 為 I）`;
-    if (sp.type === 'y_keep') return `字尾變化：${sp.base} 加 -ing 時，y 不用改成 i`;
-    return '';
-  }
-  function cutSentenceZh(r, c, i) {
-    const left = r.syllables[sylOf(r, c.pos)];
-    const cons = (c.consonants || []).join('、');
-    const vIpa = c.vowelIpa ? `/${c.vowelIpa}/` : ipaOf(c.vowelSound);
-    switch (c.rule) {
-      case 'compound': return `${r.word} 是複合字，由 ${r.compound[0]} 和 ${r.compound[1]} 兩個字組成，先在中間切開。`;
-      case 'affix': { const pre = r.affix.prefix && c.pos === r.affix.prefix.length; return `先把${pre ? `字首 ${r.affix.prefix}-` : `字尾 -${r.affix.suffix}`} 分出來（${r.affix.root} 本身就是一個字），在這裡切開。`; }
-      case 'rabbit': return `${c.v1} 和 ${c.v2} 中間有 ${c.consonants.length} 個子音 ${cons}，用兔子法則 🐰 從子音中間切開，得到 ${left}。`;
-      case 'tiger':
-        if (c.blend) return `${c.v1} 和 ${c.v2} 中間的 ${c.blend} 是子音組合要黏在一起，前面的 ${c.v1} 念長音 ${vIpa}，所以在 ${c.blend} 前面切開（老虎法則 🐯），得到 ${left}。`;
-        if (c.vowelSound === 'schwa') return `${c.v1} 和 ${c.v2} 中間只有 1 個子音 ${cons}，前面的 ${c.v1} 輕輕念 /ə/，在 ${cons} 前面切開（老虎法則 🐯），得到 ${left}。`;
-        if (/^(ar|er|ir|or|ur)$/.test(c.v1)) return `${c.v1} 是霸道 R，後面只有 1 個子音 ${cons}，在 ${cons} 前面切開，得到 ${left}。`;
-        if (c.how === 'suffix') return `字尾 ${r.word.slice(c.pos)} 要整個留在一起，所以在 ${cons} 前面切開，得到 ${left}。`;
-        return `${c.v1} 和 ${c.v2} 中間只有 1 個子音 ${cons}，前面的 ${c.v1} ${c.guess ? '可能' : ''}念長音${vIpa ? ' ' + vIpa : ''}（念自己的名字），用老虎法則 🐯 在 ${cons} 前面切開，得到 ${left}${c.guess ? '（需驗證）' : ''}。`;
-      case 'camel':
-        if (c.how === 'spelling') return `${c.v1} 和 ${c.v2} 中間是 ${cons}，${cons} 不會出現在音節開頭，所以用駱駝法則 🐫 在 ${cons} 後面切開，得到 ${left}。`;
-        return `${c.v1} 和 ${c.v2} 中間只有 1 個子音 ${cons}，前面的 ${c.v1} 念短音${vIpa ? ' ' + vIpa : ''}，用駱駝法則 🐫 在 ${cons} 後面切開，讓 ${cons} 留在前面，得到 ${left}。`;
-      case 'lion': return `${c.v1} 和 ${c.v2} 緊緊靠在一起，但各念各的音，用獅子法則 🦁 在中間切開，得到 ${left}。`;
-      case 'turtle': return `字尾是子音 ${cons.split('、').pop()} + le，用烏龜法則 🐢 在 ${cons.split('、').pop()} 前面切開，得到 ${r.syllables[sylOf(r, c.pos) + 1]}。`;
-      default: return `依照實際發音，在第 ${c.pos} 個字母後面切開，得到 ${left}。`;
+  /** 孩子點格子或字母卡時的提示（不顯示音標） */
+  function boxHint(b, boxes) {
+    const v = (boxes || []).find((x) => x.magicBy);
+    switch (kind(b)) {
+      case 'magic': return `✨ <b>e</b> 是魔法 e：自己不出聲，讓 <b>${v ? v.letters : '母音'}</b> 念自己的名字`;
+      case 'silent': return `🤫 <b>${b.letters}</b> 不出聲，放在虛線框`;
+      case 'team': return `🤝 <b>${b.letters}</b> 兩個母音住同一格，一起念一個音`;
+      case 'bossy': return `🦖 <b>${b.letters}</b>：r 很霸道，跟母音擠在同一格`;
+      case 'le': return `<b>le</b> 放同一格，輕輕念`;
+      case 'digraph': return `👯 <b>${b.letters}</b> 是好朋友字母：住同一格，只念一個音`;
+      case 'double': return `<b>${b.letters}</b> 兩個一樣的字母住同一格，只念一個音`;
+      case 'long': return `<b>${b.letters}</b> 念自己的名字（長音）`;
+      case 'weak': return `<b>${b.letters}</b> 輕輕念`;
+      case 'short': return `<b>${b.letters}</b> 短短的母音`;
+      case 'blend': return `〰️ <b>${b.letters}</b> 自己一格，跟旁邊的字母快快連著念`;
+      default: return `<b>${b.letters}</b> 一個字母一格`;
     }
   }
 
-  function scriptZh(r) {
-    const lines = [];
-    lines.push(`小朋友，今天我們要拆解的單字是 ${r.word}${r.zh ? `，意思是「${r.zh}」` : ''}。`);
-    if (r.strategy === 'sight') {
-      lines.push(`${r.word} 是一眼認讀字，它不照一般規則念，我們把整個字記起來就好。`);
-      lines.push(`跟我念一次：${r.word}！`);
-      return lines.join('\n');
-    }
-    const vs = vowelUnits(r).map((u) => u.text);
-    if (r.syllables.length === 1) {
-      lines.push(`先找母音：${vs.join('、')}，只有一個母音音，所以只有一個音節。`);
-    } else {
-      lines.push(`先找母音：${vs.join('、')}，一共有 ${r.syllables.length} 個母音音，所以有 ${r.syllables.length} 個音節。`);
-      r.cuts.forEach((c, i) => lines.push((i ? '接著，' : '') + cutSentenceZh(r, c, i)));
-    }
-    featureSentencesZh(r).forEach((s) => lines.push(s));
-    if (!r.verified) lines.push('（這個字沒有查到發音，上面是依拼字規則推測的，請以實際發音為準。）');
-    lines.push(r.syllables.length > 1 ? `拼在一起：${r.syllables.join('-')}，${r.word}！` : `跟我念一次：${r.word}！`);
-    return lines.join('\n');
+  /** 家長模式：格子拆解表 [格子, 音標, 說明] */
+  function boxRows(boxes) {
+    const v = boxes.find((x) => x.magicBy);
+    return boxes.map((b) => {
+      const ipa = b.silent ? '不發音' : `/${b.ph || ''}/`;
+      const why = {
+        magic: `魔法 e：不出聲，讓 ${v ? v.letters : '母音'} 念長音（放虛線框）`,
+        silent: '不發音的字母（放虛線框）',
+        team: '母音好朋友：兩個母音同一格',
+        bossy: '霸道 R：母音和 r 同一格',
+        le: '字尾 le 同一格，輕讀',
+        digraph: '好朋友字母：兩個字母同一格',
+        double: '重複字母：同一格，只發一個音',
+        long: '長音（念字母的名字）',
+        weak: '弱母音：不是重音，輕輕念',
+        short: '短母音',
+        blend: '連綴：每個字母各一格',
+        cons: '一個字母一格',
+      }[kind(b)];
+      return [b.letters, ipa, why];
+    });
   }
 
-  // ---------- 英文講解 ----------
-  const EN_SOUND = (k) => ipaOf(k);
-  function scriptEn(r) {
+  function sylGroups(boxes) {
+    const g = [];
+    boxes.forEach((b) => { let x = g.find((y) => y.syl === b.syl); if (!x) { x = { syl: b.syl, boxes: [] }; g.push(x); } x.boxes.push(b); });
+    return g;
+  }
+
+  /** 中文講解（格子的說法） */
+  function scriptZh(r, boxes, level) {
     const L = [];
-    L.push(`Today's word is ${r.word}${r.zh ? `, it means ${r.zh}` : ''}.`);
-    if (r.strategy === 'sight') {
-      L.push(`${cap(r.word)} is a sight word. It doesn't follow the usual rules, so we just remember the whole word.`);
-      L.push(`Say it with me: ${r.word}!`);
-      return L.join('\n');
-    }
-    const vs = vowelUnits(r).map((u) => u.text);
-    if (r.affix && r.affix.suffix) L.push(`First, let's spot the suffix: -${r.affix.suffix}.`);
-    if (r.affix && r.affix.prefix) L.push(`First, let's spot the prefix: ${r.affix.prefix}-.`);
-    if (r.compound) L.push(`${cap(r.word)} is a compound word: ${r.compound[0]} + ${r.compound[1]}.`);
-    if (r.syllables.length === 1) {
-      L.push(`Find the vowel${vs.length > 1 ? 's' : ''}: ${vs.join(' and ')}. There is only one vowel sound, so it's one syllable.`);
-    } else {
-      L.push(`Find the vowels: ${vs.join(', ')}. ${r.syllables.length} vowel sounds means ${r.syllables.length} syllables.`);
-      r.cuts.forEach((c) => {
-        const left = r.syllables[sylOf(r, c.pos)];
-        const cons = (c.consonants || []).join(' and ');
-        const n = (c.consonants || []).length;
-        const vIpa = c.vowelIpa ? `/${c.vowelIpa}/` : EN_SOUND(c.vowelSound);
-        switch (c.rule) {
-          case 'compound': L.push(`Split the two little words apart.`); break;
-          case 'affix': L.push(`Cut off the ${r.affix.prefix && c.pos === r.affix.prefix.length ? 'prefix' : 'suffix'} first.`); break;
-          case 'rabbit': L.push(`There ${n > 1 ? 'are' : 'is'} ${n} consonant${n > 1 ? 's' : ''} (${cons}) between ${c.v1} and ${c.v2}. Like a rabbit hopping in the middle, we cut between them → ${left}.`); break;
-          case 'tiger':
-            if (c.blend) L.push(`The blend ${c.blend} sticks together, and ${c.v1} says its long sound ${vIpa}, so we cut before ${c.blend} → ${left}.`);
-            else if (c.vowelSound === 'schwa') L.push(`Only one consonant, ${cons}. The ${c.v1} is soft and quiet /ə/, so ${cons} goes to the next part → ${left}.`);
-            else L.push(`Only one consonant, ${cons}. The ${c.v1} says its name${vIpa ? ' ' + vIpa : ''}, so we cut before ${cons} — that's the Tiger Rule → ${left}.`);
-            break;
-          case 'camel': L.push(`Only one consonant, ${cons}. The ${c.v1} says its short sound ${vIpa}, so ${cons} stays with it — that's the Camel Rule → ${left}.`); break;
-          case 'lion': L.push(`${c.v1} and ${c.v2} sit side by side but say different sounds, so we cut between them — the Lion Rule → ${left}.`); break;
-          case 'turtle': L.push(`The word ends with a consonant + le, so we count back three letters — the Turtle Rule → ${r.syllables[sylOf(r, c.pos) + 1]}.`); break;
-          default: L.push(`We follow how the word really sounds and cut → ${left}.`);
-        }
+    const sounds = boxes.filter((b) => !b.silent);
+    L.push(`小朋友，我們來聽 ${r.word}${r.zh ? `（${r.zh}）` : ''}。`);
+    const groups = sylGroups(boxes);
+    const one = (b, i) => {
+      switch (kind(b)) {
+        case 'digraph': return `第 ${i} 格是 ${b.letters}，兩個字母手牽手，只念一個音。`;
+        case 'double': return `第 ${i} 格是 ${b.letters}，兩個一樣的字母放同一格，只念一個音。`;
+        case 'team': return `第 ${i} 格是 ${b.letters}，兩個母音一起念。`;
+        case 'bossy': return `第 ${i} 格是 ${b.letters}，母音和 r 擠在同一格。`;
+        case 'long': return `第 ${i} 格是 ${b.letters}，它念自己的名字。`;
+        case 'weak': return `第 ${i} 格是 ${b.letters}，輕輕念。`;
+        case 'blend': return `第 ${i} 格是 ${b.letters}，它跟旁邊的字母連著念，但自己有一格。`;
+        default: return `第 ${i} 格是 ${b.letters}。`;
+      }
+    };
+    if (groups.length > 1) {
+      L.push(`${r.word} 有 ${groups.length} 拍：${r.syllables.join('、')}。先畫 ${groups.length} 個大框。`);
+      let n = 0;
+      groups.forEach((g, gi) => {
+        const s = g.boxes.filter((b) => !b.silent);
+        L.push(`第 ${gi + 1} 個大框 ${r.syllables[gi]} 有 ${s.length} 個聲音：`);
+        s.forEach((b) => { n++; L.push('　' + one(b, n)); });
       });
+    } else {
+      L.push(`${r.word} 有 ${sounds.length} 個聲音，所以畫 ${sounds.length} 個格子。`);
+      sounds.forEach((b, i) => L.push(one(b, i + 1)));
     }
-    teams(r).forEach((u) => L.push(`${u.text} is a vowel team — the two vowels work together to say ${ipaOf(u.key)}.`));
-    bossy(r).forEach((u) => L.push(`${u.text} is a bossy R — the r changes the vowel to ${ipaOf(u.key)}.`));
-    digraphs(r).forEach((u) => L.push(`${u.text} is a digraph — ${u.text.length} letters, one sound ${ipaOf(u.key)}.`));
-    if (r.magicE) { const v = (r.units || []).find((u) => u.magicBy); L.push(`The silent e at the end is magic — it makes the ${v ? v.text : 'vowel'} say its name.`); }
-    r.silent.filter((s) => s.letter !== 'e').forEach((s) => L.push(`The ${s.letter} is silent here.`));
-    if (r.softC) L.push(`The c says /s/ because e, i or y comes after it.`);
-    if (r.softG) L.push(`The g says /dʒ/ here — a soft g.`);
-    L.push(r.syllables.length > 1 ? `Now blend it together: ${r.syllables.join(' - ')}. ${cap(r.word)}!` : `Say it with me: ${r.word}!`);
+    boxes.filter((b) => b.silent).forEach((b) => {
+      const v = boxes.find((x) => x.magicBy);
+      L.push(b.magic ? `最後的 e 是魔法 e，不出聲，放在虛線框；它讓 ${v ? v.letters : '母音'} 念自己的名字。` : `${b.letters} 不出聲，放在虛線框。`);
+    });
+    L.push(`現在用手指從左滑到右，一格念一個聲音，最後念出：${r.word}！`);
     return L.join('\n');
   }
-  const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
-  const api = { steps, selfCheck, scriptZh, scriptEn, spellZh };
+  /** 英文講解（格子的說法） */
+  function scriptEn(r, boxes) {
+    const L = [];
+    const sounds = boxes.filter((b) => !b.silent);
+    const groups = sylGroups(boxes);
+    L.push(`Let's listen to ${r.word}.`);
+    const one = (b) => {
+      switch (kind(b)) {
+        case 'digraph': return `${b.letters} — two letters, one sound, one box.`;
+        case 'double': return `${b.letters} — two of the same letter, one sound, one box.`;
+        case 'team': return `${b.letters} — two vowels work together in one box.`;
+        case 'bossy': return `${b.letters} — bossy r shares a box with the vowel.`;
+        case 'long': return `${b.letters} — says its name.`;
+        case 'weak': return `${b.letters} — a quiet sound.`;
+        case 'blend': return `${b.letters} — its own box, slide it into the next sound.`;
+        default: return `${b.letters}.`;
+      }
+    };
+    if (groups.length > 1) {
+      L.push(`${r.word} has ${groups.length} beats: ${r.syllables.join(' - ')}. Draw ${groups.length} big boxes.`);
+      groups.forEach((g, gi) => {
+        const s = g.boxes.filter((b) => !b.silent);
+        L.push(`Big box ${gi + 1}, ${r.syllables[gi]}, has ${s.length} sound${s.length > 1 ? 's' : ''}: ${s.map(one).join(' ')}`);
+      });
+    } else {
+      L.push(`${r.word} has ${sounds.length} sounds, so we need ${sounds.length} boxes.`);
+      sounds.forEach((b, i) => L.push(`Box ${i + 1}: ${one(b)}`));
+    }
+    if (boxes.some((b) => b.magic)) L.push('The magic e is silent. It goes outside the boxes and makes the vowel say its name.');
+    L.push(`Now slide your finger and blend: ${r.word}!`);
+    return L.join('\n');
+  }
+
+  const api = { kind, boxHint, boxRows, scriptZh, scriptEn };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.PK_EXPLAIN = api;
 })(this);
