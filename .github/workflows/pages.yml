@@ -6,6 +6,12 @@ name: 部署網站
 on:
   push:
     branches: [main]
+    # 只改了表單或 custom/ 時不在這裡部署，等「同步單字表單」跑完再部署（下面的 workflow_run），避免兩邊同時部署而衝突
+    paths-ignore:
+      - data/words.csv
+      - data/sounds.csv
+      - data/exceptions.csv
+      - custom/**
   # 自動流程推送的語音檔不會觸發 push，所以在它們完成後也部署一次
   workflow_run:
     workflows: [產生語音檔, 單字申請單, 同步單字表單]
